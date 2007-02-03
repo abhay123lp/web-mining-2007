@@ -41,21 +41,15 @@
         </jar>
     </target>
 
-    <target name="test-compile" depends="compile">
+    <target name="test-compile" depends="compile, jar">
         <mkdir dir="${test.dest}"/>
-        <javac srcdir="${test.dir}" destdir="${test.dest}" debug="true" deprecation="${deprecation}" >
-            <classpath>
-                <fileset dir="${build.dest}"/>
-                <pathelement id="classpath"/>
-            </classpath>
-        </javac>
+        <javac srcdir="${test.dir}" destdir="${test.dest}" classpathref="classpath"/>
     </target>
-    <target name="runtest" description="Runs all tests " depends="compile, test-compile">
+    <target name="runtest" depends="compile">
 
-        <junit printsummary="withOutAndErr" fork="yes">
+        <junit>
             <classpath>
-                <fileset dir="${build.dest}"/>
-                <fileset dir="${test.dest}"/>
+                <pathelement location="${build.dest}"/>
                 <pathelement id="classpath"/>
             </classpath>
             <formatter type="plain" usefile="false"/>

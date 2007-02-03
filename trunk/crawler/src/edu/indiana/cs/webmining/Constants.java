@@ -53,6 +53,9 @@ package edu.indiana.cs.webmining;
  * Date: Feb 2, 2007
  */
 public abstract class Constants {
+    // This will hold all the system wide constants
+
+    // this is to be polite to the others. Let's let the blog web masters know who we are.
     public static final String HEADER_USER_AGENT = "User-Agent";
     public static final String USER_AGENT_VAL = "Graudate Class Project-CS-b659-Indiana Universirty Bloomington.";
 }

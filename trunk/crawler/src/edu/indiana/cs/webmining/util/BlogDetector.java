@@ -72,8 +72,8 @@ import java.io.IOException;
 public class BlogDetector {
     private static BlogDetector ourInstance = new BlogDetector();
 
-    private static List<String> knownBlogURLList;
-    private static Map<String, Boolean> blogPublishingFrameworks;
+    private static List <String> knownBlogURLList;
+    private static Map <String, Boolean> blogPublishingFrameworks;
 
     public static BlogDetector getInstance() {
         return ourInstance;
@@ -89,7 +89,7 @@ public class BlogDetector {
      * a bottleneck whilst crawlign, let's think about making this a generic class.
      */
     private void intialize() {
-        knownBlogURLList = new ArrayList<String>();
+        knownBlogURLList = new ArrayList <String>();
         knownBlogURLList.add("blogspot.com");
         knownBlogURLList.add("blog.myspace.com");
         knownBlogURLList.add("blogger.com");
@@ -137,11 +137,11 @@ public class BlogDetector {
         knownBlogURLList.add("spaces.live.com");
         knownBlogURLList.add("1060.org/blogxter");
 
-        blogPublishingFrameworks = new HashMap<String, Boolean>();
+        blogPublishingFrameworks = new HashMap <String, Boolean>();
         blogPublishingFrameworks.put("http://www.sixapart.com/movabletype/", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.movabletype.org/", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.modblog.com", Boolean.TRUE);
-        blogPublishingFrameworks.put("http://www.feedblitz.com/", Boolean.TRUE);
+        blogPublishingFrameworks.put("http://www.feedblitz.com", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.lifetype.net/", Boolean.TRUE);
     }
 
@@ -157,7 +157,6 @@ public class BlogDetector {
      * @return
      */
     public boolean isBlog(String pageURL) {
-        System.out.println("pageURL = " + pageURL);
         URL url = null;
         try {
 
@@ -219,7 +218,7 @@ public class BlogDetector {
             }
 
             // now let's see there is a link for major blog publishing frameworks, within the page
-            hasLinkToBlogFramework(pageURL);
+            return hasLinkToBlogFramework(pageURL);
 
         } catch (ParserException e) {
             e.printStackTrace();
@@ -231,7 +230,6 @@ public class BlogDetector {
 
         }
 
-        return false;
     }
 
     private boolean isKnownBlog(String hostAddress) {

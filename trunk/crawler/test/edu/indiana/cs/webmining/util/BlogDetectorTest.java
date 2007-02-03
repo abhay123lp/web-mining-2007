@@ -68,18 +68,27 @@ public class BlogDetectorTest extends TestCase {
         BlogDetector blogDetector = BlogDetector.getInstance();
 
         try {
+            System.out.println("---- Checking Blog Sites ----");
             // first let's see how our tool responds to good urls
             BufferedReader in = new BufferedReader(new FileReader(blogs));
             String str;
             while ((str = in.readLine()) != null) {
-                assertTrue(blogDetector.isBlog(str));
+                if (!str.startsWith("#") && !"".equals(str.trim())) {  // alowing for lines to be commented out.
+                    System.out.println("site = " + str);
+                    assertTrue(blogDetector.isBlog(str));
+                }
             }
             in.close();
 
+            System.out.println("\n\n---- Checking Non-Blog Sites ----");
+
             // next non-blogs
-             in = new BufferedReader(new FileReader(nonBlogs));
+            in = new BufferedReader(new FileReader(nonBlogs));
             while ((str = in.readLine()) != null) {
-                assertFalse(blogDetector.isBlog(str));
+                if (!str.startsWith("#")) {  // alowing for lines to be commented out.
+                    System.out.println("site = " + str);
+                    assertFalse(blogDetector.isBlog(str));
+                }
             }
             in.close();
 

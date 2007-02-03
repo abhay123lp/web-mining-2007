@@ -1,2 +1,3 @@
 http://www.giveawayoftheday.com/
-www.google.com
+http://www.google.com
+# Add more sites in to this

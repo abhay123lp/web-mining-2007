@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!-- ======================================================================
+     Feb 02, 2007
+
+     Eran Chinthaka
+     ====================================================================== -->
+<project name="project" default="jar">
+    <description>
+        description
+    </description>
+    <property name="lib.dir" value="./lib"/>
+    <property name="build.dir" value="./build"/>
+    <property name="src.dir" value="./src"/>
+    <property name="test.dir" value="./test"/>
+    <property name="build.dest" value="${build.dir}/classes"/>
+    <property name="test.dest" value="${build.dir}/test-classes"/>
+    <property name="build.lib" value="./build/lib"/>
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+    <target name="setenv">
+        <mkdir dir="${build.lib}"/>
+        <mkdir dir="${build.dest}"/>
+    </target>
+
+    <target name="compile" depends="setenv">
+        <javac srcdir="${src.dir}" destdir="${build.dest}" debug="${debug}" deprecation="${deprecation}"
+               classpathref="classpath">
+        </javac>
+    </target>
+    <target name="jar" depends="compile">
+        <jar jarfile="${build.lib}/crawler.jar" basedir="${build.dir}">
+            <include name="**"/>
+        </jar>
+    </target>
+
+    <target name="test-compile" depends="compile">
+        <mkdir dir="${test.dest}"/>
+        <javac srcdir="${test.dir}" destdir="${test.dest}" debug="true" deprecation="${deprecation}" >
+            <classpath>
+                <fileset dir="${build.dest}"/>
+                <pathelement id="classpath"/>
+            </classpath>
+        </javac>
+    </target>
+    <target name="runtest" description="Runs all tests " depends="compile, test-compile">
+
+        <junit printsummary="withOutAndErr" fork="yes">
+            <classpath>
+                <fileset dir="${build.dest}"/>
+                <fileset dir="${test.dest}"/>
+                <pathelement id="classpath"/>
+            </classpath>
+            <formatter type="plain" usefile="false"/>
+            <batchtest>
+                <fileset dir="${test.dir}">
+                    <include name="**/**Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+</project>
+

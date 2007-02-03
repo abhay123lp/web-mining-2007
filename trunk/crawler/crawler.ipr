@@ -252,7 +252,6 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file:///home/chinthaka/grad-school/classes/spring-2007/web-mining/project/resources/blogs-crawling_src/blogs-crawling_src.iml" filepath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/resources/blogs-crawling_src/blogs-crawling_src.iml" />
       <module fileurl="file://$PROJECT_DIR$/crawler.iml" filepath="$PROJECT_DIR$/crawler.iml" />
     </modules>
   </component>
@@ -277,7 +276,7 @@
     </option>
   </component>
   <component name="libraryTable">
-    <library name="crawler">
+    <library name="Crawler-libs">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/lib/commons-httpclient-3.0.1.jar!/" />
         <root url="jar://$PROJECT_DIR$/lib/filterbuilder.jar!/" />
@@ -288,10 +287,7 @@
         <root url="jar://$PROJECT_DIR$/lib/thumbelina.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="jar:///home/chinthaka/Desktop/htmlparser1_6/src.zip!/" />
-        <root url="jar:///home/chinthaka/Desktop/htmlparser1_6/src.zip!/src" />
-      </SOURCES>
+      <SOURCES />
     </library>
   </component>
   <component name="uidesigner-configuration">

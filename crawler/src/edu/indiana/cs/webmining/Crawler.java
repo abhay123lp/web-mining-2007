@@ -60,11 +60,17 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
  * User: Eran Chinthaka (echintha@cs.indiana.edu)
  * Date: Feb 2, 2007
  */
+
+/**
+ * This will be responsible for fetching a site from a given url. This will first tries to talk to the site, using http,
+ * with 3 retry intervals and if successful will hand over  data extraction to BlogProcessors.
+ */
 public class Crawler {
     private HttpClient client;
 
     public Crawler() {
-        // Create an instance of HttpClient.
+        // Create an instance of HttpClient. Let's share the same HTTP client with all the requests as creating http client
+        // for each and every client is considered to be expensive
         client = new HttpClient();
 
     }
@@ -73,6 +79,7 @@ public class Crawler {
         GetMethod method = new GetMethod(url);
         BlogDataBean blogDataEntry = null;
         try {
+            // being nice be letting them know who we are
             method.setRequestHeader(new Header(Constants.HEADER_USER_AGENT, Constants.USER_AGENT_VAL));
             // Provide custom retry handler is necessary
             method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
@@ -90,7 +97,6 @@ public class Crawler {
             throw new BlogCrawlingException(e);
         } finally {
             method.releaseConnection();
-
         }
         return blogDataEntry;
     }

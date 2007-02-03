@@ -52,5 +52,9 @@ package edu.indiana.cs.webmining.bean;
  * User: Eran Chinthaka (echintha@cs.indiana.edu)
  * Date: Feb 2, 2007
  */
+
+/**
+ * This will hold information about a particular blog. Thinking of making this self persistance, just like entity beans
+ */
 public class BlogDataBean {
 }

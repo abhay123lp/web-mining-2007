@@ -57,6 +57,15 @@ import java.io.InputStream;
  * Date: Feb 2, 2007
  */
 public interface BlogProcessor {
+    /**
+     * Different blogs needs to be processed differently. This will act as the interface for all the blog processing
+     * handlers.
+     *
+     * @param url - blog url
+     * @param in  - input stream created for the html content of the url
+     * @return BLogDataBean which has information extracted from the blog
+     * @throws BlogCrawlingException
+     */
     public BlogDataBean processBlog(String url, InputStream in) throws BlogCrawlingException;
 
 }

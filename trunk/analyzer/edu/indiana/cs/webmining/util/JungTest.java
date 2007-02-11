@@ -2,8 +2,10 @@ package edu.indiana.cs.webmining.util;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 
 import edu.uci.ics.jung.algorithms.importance.HITS;
+import edu.uci.ics.jung.algorithms.importance.NodeRanking;
 import edu.uci.ics.jung.graph.Edge;
 import edu.uci.ics.jung.graph.Vertex;
 import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
@@ -15,6 +17,7 @@ public class JungTest {
 
 	static DirectedSparseGraph graph;
 	static HashMap<String, Vertex> urlVertexMap;
+	static HashMap<Vertex, String> vertexURLMap;
 	/**
 	 * @param args
 	 */
@@ -23,6 +26,7 @@ public class JungTest {
 		Vertex v = new SimpleDirectedSparseVertex();
 		v.addUserDatum("url", url, UserData.CLONE);
 		urlVertexMap.put(url, v);
+		vertexURLMap.put(v, url);
 		graph.addVertex(v);
 		return v;
 	}
@@ -38,8 +42,10 @@ public class JungTest {
 		String srcurl = args[0];
 		
 		try {
+			String[] Dm1urls = DBEngine.getPredecessors(srcurl);
 			String[] D1urls = DBEngine.getSuccessors(srcurl);
 			urlVertexMap = new HashMap<String, Vertex>();
+			vertexURLMap = new HashMap<Vertex, String>();
 
 			graph = new DirectedSparseGraph();
 
@@ -48,6 +54,11 @@ public class JungTest {
 			for (String url: D1urls) {
 				Vertex dv = makeVertex(url);
 				graph.addEdge(new DirectedSparseEdge(v1, dv));
+			}
+			// Add edges from Dm1 to source
+			for (String url: Dm1urls) {
+				Vertex sv = makeVertex(url);
+				graph.addEdge(new DirectedSparseEdge(sv, v1));
 			}
 			
 			// Add edges from D1 to D2
@@ -58,12 +69,29 @@ public class JungTest {
 					graph.addEdge(new DirectedSparseEdge(sv, dv));
 				}
 			}
+			// Add edges from Dm2 to Dm1
+			for (String url: Dm1urls) {
+				Vertex dv = urlVertexMap.get(url);
+				for (String prev: DBEngine.getPredecessors(url)) {
+					Vertex sv = makeVertex(prev);
+					graph.addEdge(new DirectedSparseEdge(sv, dv));
+				}
+			}
+			
 			System.out.println("Adjacency graph has "
 					+ graph.numVertices() + " vertices and "
 					+ graph.numEdges() + " edges");
 			HITS hits = new HITS(graph);
 			hits.evaluate();
-			hits.printRankings(true, true);
+			List<NodeRanking> authorities = (List<NodeRanking>)hits.getRankings();
+			int i=0;
+			for (NodeRanking nr: authorities) {
+				// Only print top 20 ranks
+				if (i++ >= 20) break;
+				System.out.println("" + vertexURLMap.get(nr.vertex)
+						+ "\t" + nr.rankScore);
+			}
+			//hits.printRankings(true, true);
 		} catch (SQLException e) {
 			System.err.println("Database failure: " + e.getMessage());
 		}

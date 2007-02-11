@@ -90,4 +90,32 @@ public class DBEngine {
 		res = new String[tres.size()];
 		return tres.toArray(res);
 	}
+	public static String[] getPredecessors(String url) throws SQLException {
+		String[] res;
+		Statement stmt = getConnection().createStatement();
+		String connStr = "SELECT url FROM links AS l JOIN blogs AS b "
+			+ "ON l.srcid = b.id "
+			+ "WHERE destid = (SELECT id FROM blogs "
+			+ "WHERE url='" + url + "');";
+		ResultSet rs = stmt.executeQuery(connStr);
+		ArrayList<String> tres = new ArrayList<String>();
+		for (String s_url: getResults(rs, 1)) {
+			tres.add(s_url);
+		}
+		res = new String[tres.size()];
+		return tres.toArray(res);
+	}
+	public static String[] getNeighbors(String url) throws SQLException {
+		String[] res1 = getSuccessors(url);
+		String[] res2 = getPredecessors(url);
+		String[] res = new String[res1.length + res2.length];
+		ArrayList<String> tres = new ArrayList<String>();
+		for (String u: res1) {
+			tres.add(u);
+		}
+		for (String u: res2) {
+			tres.add(u);
+		}
+		return tres.toArray(res);
+	}
 }

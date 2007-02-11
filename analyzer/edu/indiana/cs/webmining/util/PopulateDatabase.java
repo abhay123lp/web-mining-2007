@@ -4,27 +4,29 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.StringTokenizer;
 
 public class PopulateDatabase {
 
 	private static Connection conn;
 
-	private static boolean addNode(String url) throws SQLException {
+	private static void addNode(String url) throws SQLException {
 		String queryStr = "INSERT INTO blogs (url) "
 			+ "VALUES ('" + url + "');";
 		
 		Statement stmt = conn.createStatement();
-		return stmt.execute(queryStr);
+		stmt.execute(queryStr);
+		stmt.close();
 	}
 	
 	private static int getNodeID(String url) throws SQLException {
 		
-		System.out.println("Finding ID for " + url);
+		//System.out.println("Finding ID for " + url);
 		
 		String queryStr = "SELECT id FROM blogs "
 			+ "WHERE url='" + url + "';";
@@ -35,27 +37,39 @@ public class PopulateDatabase {
 		if (results.first()) {
 			res = results.getInt(1);
 		} else {
-			if (addNode(url)) {
-				res = getNodeID(url);
-			} else {
-				throw new SQLException("Newly-inserted node not found");
-			}
+			addNode(url);
+			res = getNodeID(url);
 		}
+		stmt.close();
+		results.close();
 		return res;
 	}
-	private static void addLink(String src, String dest) {		
+	private static void addLink(String src, String dest) {
+		Statement stmt;
 		try {
 			int srcid = getNodeID(src);
 			int destid = getNodeID(dest);
-			String queryStr = "INSERT INTO links (srcid, destid) "
+			String queryStr = "INSERT IGNORE INTO links (srcid, destid) "
 				+ "VALUES (" + srcid + ", " + destid + ");";
 			
-			Statement stmt = conn.createStatement();
+			stmt = conn.createStatement();
 			stmt.execute(queryStr);
+			stmt.close();
 		} catch (SQLException e) {
-			System.err.println("Insertion failed:");
+			System.err.println("Link addition failed:");
 			System.err.println(e.getMessage());
 		}
+	}
+	
+	/**
+	 * Sanitizes a URL by removing within-site link etc.
+	 * 
+	 * @param url Original URL
+	 * @return    The sanitized URL
+	 * @throws MalformedURLException 
+	 */
+	public static String sanitizeURL(String url) throws MalformedURLException {
+		return new URL(url).getHost().toLowerCase();
 	}
 	/**
 	 * @param args
@@ -81,15 +95,15 @@ public class PopulateDatabase {
 				String dest;
 				String line = reader.readLine();
 				while (line != null) {
-					//tokens = new StringTokenizer()
-					//tokens = new StringTokenizer(line);
-					//dest = tokens.nextToken();
-					//src = tokens.nextToken();
 					tokens = line.split("[\\s,]+");
-					src = tokens[1];
-					dest = tokens[0];
-					System.out.println("|" + src + "|" + dest + "|");
-					//addLink(src, dest);
+					try {
+						src = sanitizeURL(tokens[1]);
+						dest = sanitizeURL(tokens[0]);
+						addLink(src, dest);
+					} catch (MalformedURLException e) {
+						System.err.println("Malformed URL: " + e.getMessage());
+					}
+//					System.out.println("|" + src + "|" + dest + "|");
 					line = reader.readLine();
 				}
 				reader.readLine();
@@ -106,8 +120,6 @@ public class PopulateDatabase {
 		} catch (IOException e) {
 			System.err.println("Cannot perform IO operation");
 		}
-		
-
+		System.out.println("Database populated");
 	}
-
 }

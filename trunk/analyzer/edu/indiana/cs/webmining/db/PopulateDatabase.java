@@ -1,4 +1,4 @@
-package edu.indiana.cs.webmining.util;
+package edu.indiana.cs.webmining.db;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

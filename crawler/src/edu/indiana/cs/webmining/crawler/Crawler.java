@@ -46,9 +46,10 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining;
+package edu.indiana.cs.webmining.crawler;
 
 import edu.indiana.cs.webmining.bean.BlogDataBean;
+import edu.indiana.cs.webmining.Constants;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;

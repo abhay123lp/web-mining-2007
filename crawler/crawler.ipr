@@ -252,6 +252,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file:///home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/analyzer.iml" filepath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/analyzer.iml" />
       <module fileurl="file:///home/chinthaka/grad-school/classes/spring-2007/web-mining/project/resources/blogs-crawling_src/blogs-crawling_src.iml" filepath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/resources/blogs-crawling_src/blogs-crawling_src.iml" />
       <module fileurl="file://$PROJECT_DIR$/crawler.iml" filepath="$PROJECT_DIR$/crawler.iml" />
     </modules>

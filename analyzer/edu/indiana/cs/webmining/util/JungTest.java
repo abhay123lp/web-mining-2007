@@ -7,6 +7,7 @@ import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.impl.SimpleDirectedSparseVertex;
 import edu.uci.ics.jung.utils.UserData;
+import edu.indiana.cs.webmining.db.DBEngine;
 
 import java.sql.SQLException;
 import java.util.HashMap;

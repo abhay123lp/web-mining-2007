@@ -1,6 +1,6 @@
 package edu.indiana.cs.webmining.util;
 
-import edu.indiana.cs.webmining.db.DBEngine;
+import edu.indiana.cs.webmining.db.DBManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,7 +31,7 @@ public class HitsTest2 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			conn = DBEngine.getConnection();
+			conn = DBManager.getConnection();
 		} catch (SQLException e) {
 			System.err.println("Cannot acquire connection");
 		}

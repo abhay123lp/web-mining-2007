@@ -1,6 +1,6 @@
 package edu.indiana.cs.webmining.util;
 
-import edu.indiana.cs.webmining.db.DBEngine;
+import edu.indiana.cs.webmining.db.DBManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +28,7 @@ public class NetworkGenerator {
 
     private void initialize() {
         try {
-            conn = DBEngine.getConnection();
+            conn = DBManager.getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }

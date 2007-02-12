@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class PopulateDatabase {
+public class DBInitializer {
 
 	private static Connection conn;
 
@@ -80,7 +80,7 @@ public class PopulateDatabase {
 		BufferedReader reader;
 		
 		if (args.length < 1) {
-			System.err.println("Usage: java PopulateDatabase filename");
+			System.err.println("Usage: java DBInitializer filename");
 			return;
 		}
 	
@@ -88,7 +88,7 @@ public class PopulateDatabase {
 			reader = new BufferedReader(new FileReader(args[0]));
 			
 			try {
-				conn = DBEngine.getConnection();
+				conn = DBManager.getConnection();
 				//StringTokenizer tokens;
 				String[] tokens;
 				String src;

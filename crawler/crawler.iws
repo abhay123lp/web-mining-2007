@@ -17,26 +17,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/db" />
-      <change type="MODIFICATION" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/JungTest.java" afterPath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/JungTest.java" />
-      <change type="MODIFICATION" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/HitsTest2.java" afterPath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/HitsTest2.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/BlogCrawlingException.java" afterPath="" />
-      <change type="NEW" beforePath="" afterPath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/db/PopulateDatabase.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/Crawler.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/mysql-connector-java-5.0.4-bin.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/commons-collections-3.2.jar" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/JungTest.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/jung-1.7.6.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/analyzer" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/db" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/BlogProcessor.java" afterPath="" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/BlogCrawlingException.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/Link.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/crawler.ipr" afterPath="$PROJECT_DIR$/crawler.ipr" />
-      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/PopulateDatabase.java" afterPath="" />
-      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/DBEngine.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/NetworkGenerator.java" afterPath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/NetworkGenerator.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/BlogProcessor.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/Blog.java" />
-      <change type="NEW" beforePath="" afterPath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/db/DBEngine.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/Crawler.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/concurrent.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/edu/indiana/cs/webmining/analyzer/util" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/colt.jar" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/HitsTest.java" afterPath="" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/HitsWrapper.java" afterPath="" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/db" afterPath="" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/HitsTest2.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/etc" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/Jama-1.0.2.jar" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/HITS.java" afterPath="" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/db/DBEngine.java" afterPath="" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/db/PopulateDatabase.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/colt-license.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/crawler.iws" afterPath="$PROJECT_DIR$/crawler.iws" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/commons-collections-testframework-3.2.jar" />
+      <change type="DELETED" beforePath="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util/NetworkGenerator.java" afterPath="" />
     </list>
     <list name="Failed commit: Default" comment="Refactoring the codebase - Step 1" />
   </component>
@@ -165,7 +168,7 @@
       <file leaf-file-name="BlogCrawlingException.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/BlogCrawlingException.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="13" selection-start="2714" selection-end="2714" vertical-scroll-proportion="0.33333334">
+            <state line="54" column="13" selection-start="2714" selection-end="2714" vertical-scroll-proportion="0.21015762">
               <folding />
             </state>
           </provider>
@@ -174,7 +177,7 @@
       <file leaf-file-name="BlogProcessor.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/BlogProcessor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="64" column="72" selection-start="3065" selection-end="3065" vertical-scroll-proportion="0.6666667">
+            <state line="64" column="72" selection-start="3065" selection-end="3065" vertical-scroll-proportion="0.42031524">
               <folding />
             </state>
           </provider>
@@ -183,7 +186,7 @@
       <file leaf-file-name="Constants.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/Constants.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="90" selection-start="2870" selection-end="2870" vertical-scroll-proportion="0.45833334">
+            <state line="57" column="90" selection-start="2870" selection-end="2870" vertical-scroll-proportion="0.28896672">
               <folding />
             </state>
           </provider>
@@ -192,7 +195,7 @@
       <file leaf-file-name="Crawler.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/Crawler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="65" selection-start="3617" selection-end="3617" vertical-scroll-proportion="0.12463768">
+            <state line="73" column="65" selection-start="3617" selection-end="3617" vertical-scroll-proportion="0.04496403">
               <folding />
             </state>
           </provider>
@@ -201,7 +204,7 @@
       <file leaf-file-name="BlogDetector.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/util/BlogDetector.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="71" column="13" selection-start="3225" selection-end="3225" vertical-scroll-proportion="0.04347826">
+            <state line="71" column="13" selection-start="3225" selection-end="3225" vertical-scroll-proportion="0.026978416">
               <folding />
             </state>
           </provider>
@@ -210,7 +213,7 @@
       <file leaf-file-name="BlogDataBean.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/BlogDataBean.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="119" selection-start="2822" selection-end="2822" vertical-scroll-proportion="0.4347826">
+            <state line="56" column="119" selection-start="2822" selection-end="2822" vertical-scroll-proportion="0.26978418">
               <folding />
             </state>
           </provider>
@@ -219,7 +222,7 @@
       <file leaf-file-name="Blog.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/Blog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="83" column="1" selection-start="3161" selection-end="3161" vertical-scroll-proportion="1.5416666">
+            <state line="83" column="1" selection-start="3161" selection-end="3161" vertical-scroll-proportion="0.8844133">
               <folding />
             </state>
           </provider>
@@ -228,7 +231,7 @@
       <file leaf-file-name="Link.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/Link.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="84" column="0" selection-start="3193" selection-end="3193" vertical-scroll-proportion="0.9166667">
+            <state line="84" column="0" selection-start="3193" selection-end="3193" vertical-scroll-proportion="0.8844133">
               <folding />
             </state>
           </provider>
@@ -362,88 +365,6 @@
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/edu/indiana/cs/webmining" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/edu/indiana/cs/webmining" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/edu/indiana/cs/webmining/util" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/edu/indiana/cs/webmining" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/edu/indiana/cs/webmining" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
       </PATH>
       <PATH>
         <PATH_ELEMENT>
@@ -479,50 +400,6 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="analyzer" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/util" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="crawler.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="analyzer" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer/edu/indiana/cs/webmining/db" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
@@ -530,13 +407,13 @@
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="0.16666667" version="1" splitterProportion="0.5">
-      <flattenPackages />
+      <flattenPackages ProjectPane="false" />
       <showMembers />
       <showModules />
       <showLibraryContents />
-      <hideEmptyPackages />
+      <hideEmptyPackages ProjectPane="false" />
       <abbreviatePackageNames />
-      <showStructure Favorites="false" ProjectPane="false" Scope="false" PackagesPane="false" />
+      <showStructure PackagesPane="false" ProjectPane="false" Scope="false" Favorites="false" />
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
@@ -654,6 +531,20 @@
           <option name="myItemType" value="" />
         </PATH_ELEMENT>
       </PATH>
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="analyzer">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="/home/chinthaka/grad-school/classes/spring-2007/web-mining/project/sources/analyzer">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
     </subPane>
   </component>
   <component name="SelectInManager" />
@@ -732,7 +623,7 @@
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24979524" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32903227" order="8" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32903227" order="8" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
@@ -885,56 +776,56 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/BlogCrawlingException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="13" selection-start="2714" selection-end="2714" vertical-scroll-proportion="0.33333334">
+        <state line="54" column="13" selection-start="2714" selection-end="2714" vertical-scroll-proportion="0.21015762">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/BlogProcessor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="72" selection-start="3065" selection-end="3065" vertical-scroll-proportion="0.6666667">
+        <state line="64" column="72" selection-start="3065" selection-end="3065" vertical-scroll-proportion="0.42031524">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/Constants.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="90" selection-start="2870" selection-end="2870" vertical-scroll-proportion="0.45833334">
+        <state line="57" column="90" selection-start="2870" selection-end="2870" vertical-scroll-proportion="0.28896672">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/crawler/Crawler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="65" selection-start="3617" selection-end="3617" vertical-scroll-proportion="0.12463768">
+        <state line="73" column="65" selection-start="3617" selection-end="3617" vertical-scroll-proportion="0.04496403">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/util/BlogDetector.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="13" selection-start="3225" selection-end="3225" vertical-scroll-proportion="0.04347826">
+        <state line="71" column="13" selection-start="3225" selection-end="3225" vertical-scroll-proportion="0.026978416">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/BlogDataBean.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="119" selection-start="2822" selection-end="2822" vertical-scroll-proportion="0.4347826">
+        <state line="56" column="119" selection-start="2822" selection-end="2822" vertical-scroll-proportion="0.26978418">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/Blog.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="83" column="1" selection-start="3161" selection-end="3161" vertical-scroll-proportion="1.5416666">
+        <state line="83" column="1" selection-start="3161" selection-end="3161" vertical-scroll-proportion="0.8844133">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/indiana/cs/webmining/bean/Link.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="84" column="0" selection-start="3193" selection-end="3193" vertical-scroll-proportion="0.9166667">
+        <state line="84" column="0" selection-start="3193" selection-end="3193" vertical-scroll-proportion="0.8844133">
           <folding />
         </state>
       </provider>

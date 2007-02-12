@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 
-public class DBEngine {
+public class DBManager {
 
 	private static Connection conn;
 

@@ -7,7 +7,7 @@ import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.impl.SimpleDirectedSparseVertex;
 import edu.uci.ics.jung.utils.UserData;
-import edu.indiana.cs.webmining.db.DBEngine;
+import edu.indiana.cs.webmining.db.DBManager;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -39,8 +39,8 @@ public class JungTest {
         String srcurl = args[0];
 
         try {
-            String[] Dm1urls = DBEngine.getPredecessors(srcurl);
-            String[] D1urls = DBEngine.getSuccessors(srcurl);
+            String[] Dm1urls = DBManager.getPredecessors(srcurl);
+            String[] D1urls = DBManager.getSuccessors(srcurl);
             urlVertexMap = new HashMap<String, Vertex>();
             vertexURLMap = new HashMap<Vertex, String>();
 
@@ -61,7 +61,7 @@ public class JungTest {
             // Add edges from D1 to D2
             for (String url : D1urls) {
                 Vertex sv = urlVertexMap.get(url);
-                for (String next : DBEngine.getSuccessors(url)) {
+                for (String next : DBManager.getSuccessors(url)) {
                     Vertex dv = makeVertex(next);
                     graph.addEdge(new DirectedSparseEdge(sv, dv));
                 }
@@ -69,7 +69,7 @@ public class JungTest {
             // Add edges from Dm2 to Dm1
             for (String url : Dm1urls) {
                 Vertex dv = urlVertexMap.get(url);
-                for (String prev : DBEngine.getPredecessors(url)) {
+                for (String prev : DBManager.getPredecessors(url)) {
                     Vertex sv = makeVertex(prev);
                     graph.addEdge(new DirectedSparseEdge(sv, dv));
                 }

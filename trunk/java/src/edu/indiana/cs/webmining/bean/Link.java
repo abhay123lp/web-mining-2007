@@ -53,7 +53,7 @@ package edu.indiana.cs.webmining.bean;
  * Date: Feb 11, 2007
  */
 public class Link {
-    private  int sourceId;
+    private int sourceId;
     private int destId;
     private int type;
 

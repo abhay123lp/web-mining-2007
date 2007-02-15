@@ -1,4 +1,5 @@
-/* Copyright (C) 2007 The Trustees of Indiana University. All rights reserved.
+/**
+ * Copyright (C) 2007 The Trustees of Indiana University. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,72 +47,32 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.bean;
+package edu.indiana.cs.webmining.util;
 
-import edu.indiana.cs.webmining.util.HashManager;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
-/**
- * @author Eran Chinthaka (echintha@cs.indiana.edu)
- * @author Michel Salim (msalim@cs.indiana.edu)
- * @since  Feb 11, 2007
- */
-public class Blog {
-    private int id;
-    private String url;
-    private long[] urlHash;
+public class HashManager {
+    private static MessageDigest digest;
+    private static final BigInteger MASK = new BigInteger("FFFFFFFFFFFFFFFF", 16);
 
-    public Blog(int id, String url) {
-        this.id = id;
-        this.url = url;
-        this.urlHash = HashManager.hash(url);
-    }
-    public int getId() {
-        return id;
-    }
+    public static long[] hash(String str) {
+        if (digest == null) {
+            try {
+                digest = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                // Should never be reached, we're using a standard digest
+            }
+        }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    /**
-     * Sets the URL of a Blog object. Also updates the URL hash
-     * 
-     * @param url The new URL
-     */
-    public void setUrl(String url) {
-        this.url = url;
-        setUrlHash(HashManager.hash(url));
-    }
-
-    public long[] getUrlHash() {
-        return urlHash;
-    }
-
-    public void setUrlHash(long[] urlHash) {
-        this.urlHash = urlHash;
-    }
-
-    // Not sure if this should be overridden?
-    public boolean equals(Object o) {
-        return ((o.getClass() == this.getClass()) && equals((Blog) o));
-    }
-
-    /**
-     * Two Blog objects are equal iff their URLs hash to the same value and
-     * (in case of collision) their URLs are the same
-     * 
-     * @param that The other blog
-     * @return <b>true</b> if the two blogs have the same URL, <b>false</b> otherwise
-     */
-    public boolean equals(Blog that) {
-        long[] hash1 = this.getUrlHash();
-        long[] hash2 = that.getUrlHash();
-        
-        return ((hash1[0] == hash2[0]) && (hash1[1] == hash2[1]) 
-                && (this.getUrl().compareTo(that.getUrl())==0));
+        byte[] md5bytes = digest.digest(str.getBytes());
+        long[] res = new long[2];
+        res[0] = res[1] = 0;
+        BigInteger md5Int = new BigInteger(1, md5bytes);
+        res[0] = md5Int.shiftRight(64).longValue();
+        res[1] = md5Int.and(MASK).longValue();
+//        System.out.println(Long.toHexString(res[0]) + "\t" + Long.toHexString(res[1]));
+        return res;
     }
 }

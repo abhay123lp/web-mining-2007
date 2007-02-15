@@ -26,7 +26,7 @@ public class HitsWrapper {
 
     public int addVertex(String v1) {
         if (V.containsKey(v1)) {
-            return (Integer) (V.get(v1));
+            return (V.get(v1));
         } else {
             V.put(v1, lastidx);
             Vinv.put(lastidx, v1);

@@ -1,41 +1,41 @@
 /**
  * Copyright (C) 2007 The Trustees of Indiana University. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1) All redistributions of source code must retain the above copyright notice,
  * the list of authors in the original source code, this list of conditions and
  * the disclaimer listed in this license;
- * 
+ *
  * 2) All redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the disclaimer listed in this license in
  * the documentation and/or other materials provided with the distribution;
- * 
+ *
  * 3) Any documentation included with all redistributions must include the
  * following acknowledgement:
- * 
+ *
  * "This product includes software developed by the Indiana University Extreme!
  * Lab. For further information please visit http://www.extreme.indiana.edu/"
- * 
+ *
  * Alternatively, this acknowledgment may appear in the software itself, and
  * wherever such third-party acknowledgments normally appear.
- * 
+ *
  * 4) The name "Indiana University" or "Indiana University Extreme! Lab" shall
  * not be used to endorse or promote products derived from this software without
  * prior written permission from Indiana University. For written permission,
  * please contact http://www.extreme.indiana.edu/.
- * 
+ *
  * 5) Products derived from this software may not use "Indiana University" name
  * nor may "Indiana University" appear in their name, without prior written
  * permission of the Indiana University.
- * 
+ *
  * Indiana University provides no reassurances that the source code provided
  * does not infringe the patent or any other intellectual property rights of any
  * other entity. Indiana University disclaims any liability to any recipient for
  * claims brought by any other entity based on infringement of intellectual
  * property rights or otherwise.
- * 
+ *
  * LICENSEE UNDERSTANDS THAT SOFTWARE IS PROVIDED "AS IS" FOR WHICH NO
  * WARRANTIES AS TO CAPABILITIES OR ACCURACY ARE MADE. INDIANA UNIVERSITY GIVES
  * NO WARRANTIES AND MAKES NO REPRESENTATION THAT SOFTWARE IS FREE OF
@@ -52,29 +52,29 @@
  */
 package edu.indiana.cs.webmining.util;
 
-import org.htmlparser.lexer.Page;
-import org.htmlparser.lexer.Lexer;
-import org.htmlparser.Parser;
 import org.htmlparser.Node;
+import org.htmlparser.Parser;
+import org.htmlparser.filters.TagNameFilter;
+import org.htmlparser.lexer.Lexer;
+import org.htmlparser.lexer.Page;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.tags.TitleTag;
-import org.htmlparser.util.ParserException;
 import org.htmlparser.util.NodeList;
-import org.htmlparser.filters.TagNameFilter;
+import org.htmlparser.util.ParserException;
 
-import java.net.URL;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.io.IOException;
+import java.util.Map;
 
 public class BlogDetector {
     private static BlogDetector ourInstance = new BlogDetector();
 
-    private static List <String> knownBlogURLList;
-    private static Map <String, Boolean> blogPublishingFrameworks;
+    private static List<String> knownBlogURLList;
+    private static Map<String, Boolean> blogPublishingFrameworks;
 
     public static BlogDetector getInstance() {
         return ourInstance;
@@ -90,7 +90,7 @@ public class BlogDetector {
      * a bottleneck whilst crawlign, let's think about making this a generic class.
      */
     private void intialize() {
-        knownBlogURLList = new ArrayList <String>();
+        knownBlogURLList = new ArrayList<String>();
         knownBlogURLList.add("blogspot.com");
         knownBlogURLList.add("blog.myspace.com");
         knownBlogURLList.add("blogger.com");
@@ -138,7 +138,7 @@ public class BlogDetector {
         knownBlogURLList.add("spaces.live.com");
         knownBlogURLList.add("1060.org/blogxter");
 
-        blogPublishingFrameworks = new HashMap <String, Boolean>();
+        blogPublishingFrameworks = new HashMap<String, Boolean>();
         blogPublishingFrameworks.put("http://www.sixapart.com/movabletype/", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.movabletype.org/", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.modblog.com", Boolean.TRUE);
@@ -158,7 +158,6 @@ public class BlogDetector {
      * @return
      */
     public boolean isBlog(String pageURL) {
-        URL url = null;
         try {
 
             // first let's avoid traps. .
@@ -258,7 +257,7 @@ public class BlogDetector {
                 Node node = nl.elementAt(i);
                 LinkTag tag = (LinkTag) node;
                 String url = tag.getLink();
-                if(blogPublishingFrameworks.get(url) != null){
+                if (blogPublishingFrameworks.get(url) != null) {
                     return true;
                 }
             }

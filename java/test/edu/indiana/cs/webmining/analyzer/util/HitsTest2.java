@@ -1,4 +1,4 @@
-package edu.indiana.cs.webmining.util;
+package edu.indiana.cs.webmining.analyzer.util;
 
 import edu.indiana.cs.webmining.db.DBManager;
 

@@ -1,4 +1,4 @@
-package edu.indiana.cs.webmining.util;
+package edu.indiana.cs.webmining.analyzer.util;
 
 import edu.uci.ics.jung.algorithms.importance.HITS;
 import edu.uci.ics.jung.algorithms.importance.NodeRanking;
@@ -10,6 +10,7 @@ import edu.uci.ics.jung.utils.UserData;
 import edu.indiana.cs.webmining.db.DBManager;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -39,8 +40,8 @@ public class JungTest {
         String srcurl = args[0];
 
         try {
-            String[] Dm1urls = DBManager.getPredecessors(srcurl);
-            String[] D1urls = DBManager.getSuccessors(srcurl);
+            ArrayList<String> Dm1urls = DBManager.getPredecessors(srcurl);
+            ArrayList<String> D1urls = DBManager.getSuccessors(srcurl);
             urlVertexMap = new HashMap<String, Vertex>();
             vertexURLMap = new HashMap<Vertex, String>();
 

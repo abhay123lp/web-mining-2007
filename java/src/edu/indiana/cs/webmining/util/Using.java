@@ -1,4 +1,5 @@
-/* Copyright (C) 2007 The Trustees of Indiana University. All rights reserved.
+/**
+ *  Copyright (C) 2007 The Trustees of Indiana University. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,72 +47,48 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.bean;
+package edu.indiana.cs.webmining.util;
 
-import edu.indiana.cs.webmining.util.HashManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
- * @author Eran Chinthaka (echintha@cs.indiana.edu)
+ * The Using class provides implementations of the 'Loan pattern', similar to
+ * the 'using' keyword in C# and Python 2.5.
+ * 
  * @author Michel Salim (msalim@cs.indiana.edu)
- * @since  Feb 11, 2007
+ *
  */
-public class Blog {
-    private int id;
-    private String url;
-    private long[] urlHash;
-
-    public Blog(int id, String url) {
-        this.id = id;
-        this.url = url;
-        this.urlHash = HashManager.hash(url);
-    }
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
+public class Using {
     /**
-     * Sets the URL of a Blog object. Also updates the URL hash
-     * 
-     * @param url The new URL
+     * This implementation of using is for use with an SQL statement
+     * @param <T>  The return type of the run method of the ResourceUser object
+     * @param stmt An SQL statement 
+     * @param user The ResourceUser object that uses the statement
+     * @return The result of invoking user.run
+     * @throws SQLException
      */
-    public void setUrl(String url) {
-        this.url = url;
-        setUrlHash(HashManager.hash(url));
-    }
-
-    public long[] getUrlHash() {
-        return urlHash;
-    }
-
-    public void setUrlHash(long[] urlHash) {
-        this.urlHash = urlHash;
-    }
-
-    // Not sure if this should be overridden?
-    public boolean equals(Object o) {
-        return ((o.getClass() == this.getClass()) && equals((Blog) o));
-    }
-
-    /**
-     * Two Blog objects are equal iff their URLs hash to the same value and
-     * (in case of collision) their URLs are the same
-     * 
-     * @param that The other blog
-     * @return <b>true</b> if the two blogs have the same URL, <b>false</b> otherwise
-     */
-    public boolean equals(Blog that) {
-        long[] hash1 = this.getUrlHash();
-        long[] hash2 = that.getUrlHash();
-        
-        return ((hash1[0] == hash2[0]) && (hash1[1] == hash2[1]) 
-                && (this.getUrl().compareTo(that.getUrl())==0));
-    }
+    public static <T> T using(
+            Statement stmt,
+            ResourceUser<Statement, T, SQLException> user)
+    throws SQLException {
+        T result = null;
+        String errMsg = "using: ";
+        try {
+            result = user.run(stmt);
+        } catch (SQLException e) {
+            errMsg = errMsg + e.getMessage();
+        }
+        finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+            } catch (SQLException e) {
+                throw new SQLException(errMsg
+                        + "\nCannot close statement: "
+                        + e.getMessage());
+            }
+        }
+        return result;
+    }	
 }

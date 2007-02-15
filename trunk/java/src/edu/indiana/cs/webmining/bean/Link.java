@@ -1,4 +1,5 @@
-/* Copyright (C) 2004 The Trustees of Indiana University. All rights reserved.
+/**
+ * Copyright (C) 2007 The Trustees of Indiana University. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,15 +50,20 @@
 package edu.indiana.cs.webmining.bean;
 
 /**
- * User: Eran Chinthaka (echintha@cs.indiana.edu)
- * Date: Feb 11, 2007
+ * @author Eran Chinthaka (echintha@cs.indiana.edu)
+ * @since  Feb 11, 2007
  */
 public class Link {
     private int sourceId;
     private int destId;
     private int type;
 
-
+    public Link(int sourceId, int destId, int type) {
+        this.sourceId = sourceId;
+        this.destId = destId;
+        this.type = type;
+    }
+    
     public int getSourceId() {
         return sourceId;
     }

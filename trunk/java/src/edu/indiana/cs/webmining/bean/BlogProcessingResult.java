@@ -56,5 +56,6 @@ package edu.indiana.cs.webmining.bean;
 /**
  * This will hold information about a particular blog. Thinking of making this self persistance, just like entity beans
  */
-public class BlogDataBean {
+public class BlogProcessingResult {
+
 }

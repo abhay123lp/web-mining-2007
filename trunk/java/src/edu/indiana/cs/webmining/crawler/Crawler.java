@@ -48,8 +48,8 @@
 
 package edu.indiana.cs.webmining.crawler;
 
-import edu.indiana.cs.webmining.bean.BlogDataBean;
 import edu.indiana.cs.webmining.Constants;
+import edu.indiana.cs.webmining.bean.BlogProcessingResult;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -76,9 +76,9 @@ public class Crawler {
 
     }
 
-    public BlogDataBean loadPage(String url, BlogProcessor responseHanlder) throws BlogCrawlingException {
+    public BlogProcessingResult loadPage(String url, BlogProcessor responseHanlder) throws BlogCrawlingException {
         GetMethod method = new GetMethod(url);
-        BlogDataBean blogDataEntry = null;
+        BlogProcessingResult blogDataEntry = null;
         try {
             // being nice be letting them know who we are
             method.setRequestHeader(new Header(Constants.HEADER_USER_AGENT, Constants.USER_AGENT_VAL));

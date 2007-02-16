@@ -48,6 +48,15 @@
 
 package edu.indiana.cs.webmining.crawler;
 
+import edu.indiana.cs.webmining.bean.BlogProcessingResult;
+import edu.indiana.cs.webmining.util.BlogDetector;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
  * @Date : Feb 15, 2007
@@ -60,56 +69,33 @@ public class BlogProcessingSystem {
      * This will process a given blog page, using a blog specific processor and will return set of URLs to be fetched.
      * Those urls must be fetched by a crawler.
      *
-     * @param webPage
-     * @param pageURL
+     * @param webPage - the location where the web site is saved.
+     * @param pageURL - original url of the web page
+     * @return list of urls to be fetched.
      */
-//    public void processPage(File webPage, String pageURL) {
-//
-//        BlogDetector.getInstance().isBlog(pageURL)
-//
-//        {
-//        if (p.startParser()) {
-//            String[] newLinks = p.getLinks();
-//            if (newLinks != null) {
-//                double pageScore = getPageScore(p);
-//                String fileName = Hashing.getHashValue(url);
-//                history.add(url, fileName, pageScore);
-//                //System.out.println(url+" "+pageScore+" "+Hashing.getHashValue(url));
-//                Vector urls = new Vector();
-//                for (int j = 0; j < newLinks.length; j++) {
-//
-//                    //check if the redirected url exists and if so replace url with it
-//                    /*String rurl = null;
-//                    if ((rurl = Redirections.getLocation(newLinks[j]))
-//                        != null) {
-//                        newLinks[j] = rurl;
-//                    }*/
-//
-//                    //find if the url violates known robot exclusion listings
-//                    String server = Helper.getHostNameWithPort(newLinks[j]);
-//                    Vector perm = robot.get(server);
-//                    if (perm != null) {
-//                        if (RobotExclusion.isDisallowed(newLinks[j], perm)) {
-//                            continue;
-//                        }
-//                    }
-//
-//                    //add to frontier if not in history and not has bad extension
-//                    if (!history.isInHistory(newLinks[j])
-//                            && !bext.hasBadExtension(newLinks[j])
-//                            && (newLinks[j] != null)) {
-//                        urls.add(new FrontierElement(newLinks[j], pageScore));
-//                    }
-//                }
-//                if (urls.size() == 0) {
-//                    return;
-//                }
-//                front.addElements(urls);
-//            }
-//        } else {
-//            stat.parseErrors(1);
-//        }
-//    }
-//    }
+    public List processPage(File webPage, String pageURL) {
+        List urlList = new ArrayList();
+        try {
+            int blogId = BlogDetector.getInstance().identifyURL(pageURL, new FileInputStream(webPage));
+
+            if (blogId > 0) {
+                BlogProcessor blogProcessor = getBlogProcessor(blogId);
+                BlogProcessingResult bean = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+
+        } catch (BlogCrawlingException e) {
+            e.printStackTrace();
+
+        }
+
+        return urlList;
+    }
+
+    private BlogProcessor getBlogProcessor(int blogId) {
+        return null;
+    }
 
 }

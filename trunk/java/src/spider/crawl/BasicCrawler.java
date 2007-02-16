@@ -1,5 +1,6 @@
 package spider.crawl;
 
+import edu.indiana.cs.webmining.blog.BlogProcessingSystem;
 import spider.util.Hashing;
 import spider.util.Helper;
 import spider.util.RobotExclusion;
@@ -40,10 +41,12 @@ public class BasicCrawler {
     protected Statistics stat = null;
     private String statFile = "statistics.txt";
     private boolean frontierAdd = true;
+
+    private static int DEFAULT_PAGE_SCORE = 1;
     //allow or disallow addition to frontier
 
     /**
-     * construct the crawler with the seeds
+     * construct the blog with the seeds
      *
      * @param seeds    - URLs that are starting points for crawl
      *                 maxPages - maximum pages to be fetched
@@ -58,9 +61,9 @@ public class BasicCrawler {
     }
 
     /**
-     * create a thread of crawler
+     * create a thread of blog
      *
-     * @return - crawler thread
+     * @return - blog thread
      */
     private Thread makeCrawlerThread() {
         Thread t = null;
@@ -127,6 +130,7 @@ public class BasicCrawler {
                         //System.out.println("Fetched Pages");
 
                         //extract links and add them to the frontier
+                        BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem();
                         for (int i = 0; i < urls.length; i++) {
                             //find the filename
                             String fileName = Hashing.getHashValue(urls[i]);
@@ -135,8 +139,9 @@ public class BasicCrawler {
                             if (f.exists()) {
                                 //score and add the URLs to frontier (if frontierAdd flag is true)
                                 if (frontierAdd) {
-                                    XMLParser xmlParser = new XMLParser(f);
-                                    addToFrontier(xmlParser, urls[i]);
+                                    blogProcessingSystem.processPage(f, urls[i]);
+                                    //  XMLParser xmlParser = new XMLParser(f);
+                                    // addToFrontier(xmlParser, urls[i]);
                                 } else {
                                     history.add(urls[i], fileName, -1);
                                 }
@@ -160,7 +165,7 @@ public class BasicCrawler {
         if (dir == null || seeds == null || maxPages == 0) {
             return false;
         }
-        System.out.println("starting crawler...");
+        System.out.println("starting blog...");
         //check if the directory exists
         boolean exists = (new File(dir)).exists();
         //if not exist then create one with that name
@@ -290,6 +295,53 @@ public class BasicCrawler {
     }
 
     /**
+     * score and add URls to the frontier
+     * more sophiticated code may extend or override the functionality
+     *
+     * @param p      - the XML parser, id - the filename of the page being parsed
+     * @param srcUrl
+     */
+    protected void addToFrontier(String srcUrl, String[] newLinks) {
+        if (newLinks != null) {
+//                double pageScore = getPageScore(p);
+            String fileName = Hashing.getHashValue(srcUrl);
+            history.add(srcUrl, fileName, DEFAULT_PAGE_SCORE);
+            //System.out.println(url+" "+pageScore+" "+Hashing.getHashValue(url));
+            Vector urls = new Vector();
+            for (int j = 0; j < newLinks.length; j++) {
+
+                //check if the redirected url exists and if so replace url with it
+                /*String rurl = null;
+                if ((rurl = Redirections.getLocation(newLinks[j]))
+                    != null) {
+                    newLinks[j] = rurl;
+                }*/
+
+                //find if the url violates known robot exclusion listings
+                String server = Helper.getHostNameWithPort(newLinks[j]);
+                Vector perm = robot.get(server);
+                if (perm != null) {
+                    if (RobotExclusion.isDisallowed(newLinks[j], perm)) {
+                        continue;
+                    }
+                }
+
+                //add to frontier if not in history and not has bad extension
+                if (!history.isInHistory(newLinks[j])
+                        && !bext.hasBadExtension(newLinks[j])
+                        && (newLinks[j] != null)) {
+                    urls.add(new FrontierElement(newLinks[j], DEFAULT_PAGE_SCORE));
+                }
+            }
+            if (urls.size() == 0) {
+                return;
+            }
+            front.addElements(urls);
+        }
+
+    }
+
+    /**
      * scores a page and returns the score
      * more sophisticated code may override the functionality
      */
@@ -389,7 +441,7 @@ public class BasicCrawler {
     }
 
     /**
-     * Allows to restart the crawler based on the last state of the history.
+     * Allows to restart the blog based on the last state of the history.
      * <p/>
      * loads history and fill up the corresponding frontier
      */
@@ -399,7 +451,7 @@ public class BasicCrawler {
         if (dir == null || seeds == null || maxPages == 0) {
             return false;
         }
-        System.out.println("restarting crawler...");
+        System.out.println("restarting blog...");
         //check if the directory exists
         boolean exists = (new File(dir)).exists();
         //if not exist then create one with that name

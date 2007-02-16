@@ -46,60 +46,27 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.crawler;
-
-import edu.indiana.cs.webmining.Constants;
-import edu.indiana.cs.webmining.bean.BlogProcessingResult;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+package edu.indiana.cs.webmining.blog;
 
 /**
  * User: Eran Chinthaka (echintha@cs.indiana.edu)
  * Date: Feb 2, 2007
  */
+public class BlogCrawlingException extends Exception {
 
-/**
- * This will be responsible for fetching a site from a given url. This will first tries to talk to the site, using http,
- * with 3 retry intervals and if successful will hand over  data extraction to BlogProcessors.
- */
-public class Crawler {
-    private HttpClient client;
-
-    public Crawler() {
-        // Create an instance of HttpClient. Let's share the same HTTP client with all the requests as creating http client
-        // for each and every client is considered to be expensive
-        client = new HttpClient();
-
+    public BlogCrawlingException() {
+        super();
     }
 
-    public BlogProcessingResult loadPage(String url, BlogProcessor responseHanlder) throws BlogCrawlingException {
-        GetMethod method = new GetMethod(url);
-        BlogProcessingResult blogDataEntry = null;
-        try {
-            // being nice be letting them know who we are
-            method.setRequestHeader(new Header(Constants.HEADER_USER_AGENT, Constants.USER_AGENT_VAL));
-            // Provide custom retry handler is necessary
-            method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-                    new DefaultHttpMethodRetryHandler(3, false));
-
-            // Execute the method.
-            int statusCode = client.executeMethod(method);
-
-            if (statusCode != HttpStatus.SC_OK) {
-                System.err.println("Method failed: " + method.getStatusLine());
-            }
-            // Read the response body.
-            blogDataEntry = responseHanlder.processBlog(url, method.getResponseBodyAsStream());
-        } catch (Exception e) {
-            throw new BlogCrawlingException(e);
-        } finally {
-            method.releaseConnection();
-        }
-        return blogDataEntry;
+    public BlogCrawlingException(String message) {
+        super(message);
     }
 
+    public BlogCrawlingException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public BlogCrawlingException(Throwable cause) {
+        super(cause);
+    }
 }

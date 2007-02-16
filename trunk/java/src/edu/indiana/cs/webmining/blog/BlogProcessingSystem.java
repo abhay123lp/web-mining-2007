@@ -1,0 +1,139 @@
+/* Copyright (C) 2004 The Trustees of Indiana University. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * 1) All redistributions of source code must retain the above copyright notice,
+ * the list of authors in the original source code, this list of conditions and
+ * the disclaimer listed in this license;
+ * 
+ * 2) All redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the disclaimer listed in this license in
+ * the documentation and/or other materials provided with the distribution;
+ * 
+ * 3) Any documentation included with all redistributions must include the
+ * following acknowledgement:
+ * 
+ * "This product includes software developed by the Indiana University Extreme!
+ * Lab. For further information please visit http://www.extreme.indiana.edu/"
+ * 
+ * Alternatively, this acknowledgment may appear in the software itself, and
+ * wherever such third-party acknowledgments normally appear.
+ * 
+ * 4) The name "Indiana University" or "Indiana University Extreme! Lab" shall
+ * not be used to endorse or promote products derived from this software without
+ * prior written permission from Indiana University. For written permission,
+ * please contact http://www.extreme.indiana.edu/.
+ * 
+ * 5) Products derived from this software may not use "Indiana University" name
+ * nor may "Indiana University" appear in their name, without prior written
+ * permission of the Indiana University.
+ * 
+ * Indiana University provides no reassurances that the source code provided
+ * does not infringe the patent or any other intellectual property rights of any
+ * other entity. Indiana University disclaims any liability to any recipient for
+ * claims brought by any other entity based on infringement of intellectual
+ * property rights or otherwise.
+ * 
+ * LICENSEE UNDERSTANDS THAT SOFTWARE IS PROVIDED "AS IS" FOR WHICH NO
+ * WARRANTIES AS TO CAPABILITIES OR ACCURACY ARE MADE. INDIANA UNIVERSITY GIVES
+ * NO WARRANTIES AND MAKES NO REPRESENTATION THAT SOFTWARE IS FREE OF
+ * INFRINGEMENT OF THIRD PARTY PATENT, COPYRIGHT, OR OTHER PROPRIETARY RIGHTS.
+ * INDIANA UNIVERSITY MAKES NO WARRANTIES THAT SOFTWARE IS FREE FROM "BUGS",
+ * "VIRUSES", "TROJAN HORSES", "TRAP DOORS", "WORMS", OR OTHER HARMFUL CODE.
+ * LICENSEE ASSUMES THE ENTIRE RISK AS TO THE PERFORMANCE OF SOFTWARE AND/OR
+ * ASSOCIATED MATERIALS, AND TO THE PERFORMANCE AND VALIDITY OF INFORMATION
+ * GENERATED USING SOFTWARE.
+ */
+
+package edu.indiana.cs.webmining.blog;
+
+import edu.indiana.cs.webmining.Constants;
+import edu.indiana.cs.webmining.blog.impl.BloggerProcessor;
+import edu.indiana.cs.webmining.blog.impl.BloglineProcessor;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author : Eran Chinthaka (echintha@cs.indiana.edu)
+ * @Date : Feb 15, 2007
+ * <p/>
+ * This will be responsible for all the blog url handling activities
+ */
+public class BlogProcessingSystem {
+
+    /**
+     * This will process a given blog page, using a blog specific processor and will return set of URLs to be fetched.
+     * Those urls must be fetched by a blog.
+     *
+     * @param webPage - the location where the web site is saved.
+     * @param pageURL - original url of the web page
+     * @return list of urls to be fetched.
+     * @throws BlogCrawlingException
+     */
+    public String[] processPage(File webPage, String pageURL) throws BlogCrawlingException {
+        List urlList = new ArrayList();
+        try {
+
+            // first let's get the blog id
+            int blogId = BlogDetector.getInstance().identifyURL(pageURL, new FileInputStream(webPage));
+
+            if (blogId > 0) {             // if this is a processable blog
+                // get the customized blog processor
+                BlogProcessor blogProcessor = getBlogProcessor(blogId);
+
+                // process it and get the grouped set of urls. The map returned will contain urls as the key
+                // and url type as the value.
+                Map result = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
+
+                // save the link connection informaion.
+                saveLinkInformation(result, pageURL);
+
+                // return the the set of urls to be fetched for further processing
+                return (String[]) result.keySet().toArray();
+
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+
+        }
+
+        return new String[]{};
+    }
+
+    /**
+     * This will save blog links information in to the database.
+     *
+     * @param result
+     * @param sourceURL
+     */
+    private void saveLinkInformation(Map result, String sourceURL) {
+        //TODO : get the links details from the map and save it to the Link table
+    }
+
+    /**
+     * This will return the BlogProcessor corresponding to the given blog id. This method can later be moved to a separate
+     * factory if required, but I don't see an immediate requirement for that now.
+     *
+     * @param blogId - the blog is that requires a blog processor
+     * @return
+     * @throws BlogCrawlingException
+     */
+    private BlogProcessor getBlogProcessor(int blogId) throws BlogCrawlingException {
+        switch (blogId) {
+            case Constants.BLOGLINES:
+                return new BloglineProcessor();
+            case Constants.BLOGGER:
+                return new BloggerProcessor();
+            default:
+                throw new BlogCrawlingException("No blog processor registered to process the blog id " + blogId);
+        }
+    }
+
+}

@@ -46,28 +46,20 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining;
+package edu.indiana.cs.webmining.blog.impl;
+
+import edu.indiana.cs.webmining.blog.BlogCrawlingException;
+import edu.indiana.cs.webmining.blog.BlogProcessor;
+
+import java.io.InputStream;
+import java.util.Map;
 
 /**
- * User: Eran Chinthaka (echintha@cs.indiana.edu)
- * Date: Feb 2, 2007
+ * @author : Eran Chinthaka (echintha@cs.indiana.edu)
+ * @Date : Feb 16, 2007
  */
-public abstract class Constants {
-    // This will hold all the system wide constants
-
-    // this is to be polite to the others. Let's let the blog web masters know who we are.
-    public static final String HEADER_USER_AGENT = "User-Agent";
-    public static final String USER_AGENT_VAL = "Graudate Class Project-CS-b659-Indiana Universirty Bloomington.";
-
-    // The link types
-    public static final int LINK_BLOG_TO_BLOG = 111;
-    public static final int LINK_BLOG_TO_ENTRY = 222;
-    public static final int LINK_ENTRY_TO_ENTRY = 333;
-
-    // Following constants will be used in identifying the blogs
-    public static final int NOT_A_BLOG = -1;
-    public static final int BLOG = 1;// These are the blogs that we know how to process
-    public static final int BLOGGER = 11;
-    public static final int BLOGSPOT = 12;
-    public static final int BLOGLINES = 13;
+public class GenericBlogProcessor implements BlogProcessor {
+    public Map processBlog(String url, InputStream in) throws BlogCrawlingException {
+        return null;
+    }
 }

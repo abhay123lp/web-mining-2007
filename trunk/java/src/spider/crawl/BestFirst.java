@@ -6,7 +6,7 @@ import spider.util.Stopper;
 import spider.util.XMLParser;
 
 /**
- * Best First crawler (that is extended from a BreadthFirst crawler)
+ * Best First blog (that is extended from a BreadthFirst blog)
  *
  * @author Gautam Pant
  */
@@ -55,6 +55,6 @@ public class BestFirst extends BasicCrawler {
     public void setQuery(String query) {
         this.query = query.toLowerCase();
         query = stp.stopString(query);
-	}
+    }
 
 }

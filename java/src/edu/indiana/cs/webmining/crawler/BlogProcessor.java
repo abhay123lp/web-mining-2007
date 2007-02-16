@@ -48,7 +48,7 @@
 
 package edu.indiana.cs.webmining.crawler;
 
-import edu.indiana.cs.webmining.bean.BlogDataBean;
+import edu.indiana.cs.webmining.bean.BlogProcessingResult;
 
 import java.io.InputStream;
 
@@ -66,6 +66,6 @@ public interface BlogProcessor {
      * @return BLogDataBean which has information extracted from the blog
      * @throws BlogCrawlingException
      */
-    public BlogDataBean processBlog(String url, InputStream in) throws BlogCrawlingException;
+    public BlogProcessingResult processBlog(String url, InputStream in) throws BlogCrawlingException;
 
 }

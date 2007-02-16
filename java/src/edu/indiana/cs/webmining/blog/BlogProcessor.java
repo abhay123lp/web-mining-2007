@@ -46,11 +46,10 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.crawler;
-
-import edu.indiana.cs.webmining.bean.BlogProcessingResult;
+package edu.indiana.cs.webmining.blog;
 
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * User: Eran Chinthaka (echintha@cs.indiana.edu)
@@ -63,9 +62,10 @@ public interface BlogProcessor {
      *
      * @param url - blog url
      * @param in  - input stream created for the html content of the url
-     * @return BLogDataBean which has information extracted from the blog
+     * @return a map of urls. The key of this map will be a url to a blog. And the value will be the type of the url.
+     *         For valid types, refer @see
      * @throws BlogCrawlingException
      */
-    public BlogProcessingResult processBlog(String url, InputStream in) throws BlogCrawlingException;
+    public Map processBlog(String url, InputStream in) throws BlogCrawlingException;
 
 }

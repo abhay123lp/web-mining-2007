@@ -8,7 +8,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * A crawler that builds context of a URL through DOM tree representation of an HTML page
+ * A blog that builds context of a URL through DOM tree representation of an HTML page
  *
  * @author Gautam Pant
  * @see BasicCrawler
@@ -167,7 +167,7 @@ public class DOMCrawler extends BasicCrawler {
     public void setQuery(String query) {
         this.query = query.toLowerCase();
         query = stp.stopString(query);
-	}
+    }
 
 
 }

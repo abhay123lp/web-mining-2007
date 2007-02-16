@@ -46,27 +46,20 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.crawler;
+package edu.indiana.cs.webmining.blog.impl;
+
+import edu.indiana.cs.webmining.blog.BlogCrawlingException;
+import edu.indiana.cs.webmining.blog.BlogProcessor;
+
+import java.io.InputStream;
+import java.util.Map;
 
 /**
- * User: Eran Chinthaka (echintha@cs.indiana.edu)
- * Date: Feb 2, 2007
+ * @author : Eran Chinthaka (echintha@cs.indiana.edu)
+ * @Date : Feb 16, 2007
  */
-public class BlogCrawlingException extends Exception {
-
-    public BlogCrawlingException() {
-        super();
-    }
-
-    public BlogCrawlingException(String message) {
-        super(message);
-    }
-
-    public BlogCrawlingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public BlogCrawlingException(Throwable cause) {
-        super(cause);
+public class BloglineProcessor implements BlogProcessor {
+    public Map processBlog(String url, InputStream in) throws BlogCrawlingException {
+        return null;
     }
 }

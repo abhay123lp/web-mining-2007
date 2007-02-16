@@ -3,7 +3,7 @@ package spider.crawl;
 import spider.util.Redirections;
 
 /**
- * Example code for running a crawler
+ * Example code for running a blog
  * make sure you put a valid e-mail address
  *
  * @author Gautam Pant
@@ -34,7 +34,7 @@ public class Tester {
         //set maximum frontier size (-1 for no limit)
         bf.setMaxFrontier(-1);
 
-        //if a best first crawler set a query
+        //if a best first blog set a query
         //bf.setQuery("University Iowa");
 
         //history of pages crawled

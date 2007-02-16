@@ -1,7 +1,7 @@
 package spider.crawl;
 
 /**
- * keeping track of crawler threads so that they can be stopped when none of them have further URLs to crawl
+ * keeping track of blog threads so that they can be stopped when none of them have further URLs to crawl
  *
  * @author Gautam Pant
  */

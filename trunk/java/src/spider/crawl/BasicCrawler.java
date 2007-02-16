@@ -1,6 +1,5 @@
 package spider.crawl;
 
-import spider.crawl.*;
 import spider.util.Hashing;
 import spider.util.Helper;
 import spider.util.RobotExclusion;
@@ -238,6 +237,7 @@ public class BasicCrawler {
         history.toFile(storageFile);
         return true;
     }
+
 
     /**
      * score and add URls to the frontier
@@ -505,7 +505,6 @@ public class BasicCrawler {
     public void setFrontierAdd(boolean b) {
         frontierAdd = b;
     }
-
 
 
 }

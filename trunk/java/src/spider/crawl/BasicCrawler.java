@@ -1,54 +1,5 @@
-/* Copyright (C) 2004 The Trustees of Indiana University. All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * 1) All redistributions of source code must retain the above copyright notice,
- * the list of authors in the original source code, this list of conditions and
- * the disclaimer listed in this license;
- * 
- * 2) All redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the disclaimer listed in this license in
- * the documentation and/or other materials provided with the distribution;
- * 
- * 3) Any documentation included with all redistributions must include the
- * following acknowledgement:
- * 
- * "This product includes software developed by the Indiana University Extreme!
- * Lab. For further information please visit http://www.extreme.indiana.edu/"
- * 
- * Alternatively, this acknowledgment may appear in the software itself, and
- * wherever such third-party acknowledgments normally appear.
- * 
- * 4) The name "Indiana University" or "Indiana University Extreme! Lab" shall
- * not be used to endorse or promote products derived from this software without
- * prior written permission from Indiana University. For written permission,
- * please contact http://www.extreme.indiana.edu/.
- * 
- * 5) Products derived from this software may not use "Indiana University" name
- * nor may "Indiana University" appear in their name, without prior written
- * permission of the Indiana University.
- * 
- * Indiana University provides no reassurances that the source code provided
- * does not infringe the patent or any other intellectual property rights of any
- * other entity. Indiana University disclaims any liability to any recipient for
- * claims brought by any other entity based on infringement of intellectual
- * property rights or otherwise.
- * 
- * LICENSEE UNDERSTANDS THAT SOFTWARE IS PROVIDED "AS IS" FOR WHICH NO
- * WARRANTIES AS TO CAPABILITIES OR ACCURACY ARE MADE. INDIANA UNIVERSITY GIVES
- * NO WARRANTIES AND MAKES NO REPRESENTATION THAT SOFTWARE IS FREE OF
- * INFRINGEMENT OF THIRD PARTY PATENT, COPYRIGHT, OR OTHER PROPRIETARY RIGHTS.
- * INDIANA UNIVERSITY MAKES NO WARRANTIES THAT SOFTWARE IS FREE FROM "BUGS",
- * "VIRUSES", "TROJAN HORSES", "TRAP DOORS", "WORMS", OR OTHER HARMFUL CODE.
- * LICENSEE ASSUMES THE ENTIRE RISK AS TO THE PERFORMANCE OF SOFTWARE AND/OR
- * ASSOCIATED MATERIALS, AND TO THE PERFORMANCE AND VALIDITY OF INFORMATION
- * GENERATED USING SOFTWARE.
- */
+package spider.crawl;
 
-package edu.indiana.cs.webmining.crawler;
-
-import spider.crawl.*;
 import spider.util.Hashing;
 import spider.util.Helper;
 import spider.util.RobotExclusion;
@@ -62,10 +13,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * @author : Eran Chinthaka (echintha@cs.indiana.edu)
- * @Date : Feb 15, 2007
+ * Performs breadth first crawling.
  * <p/>
- * Initial code extract from the works of Gautam Pant
+ * It treats the frontier as a FIFO queue
+ * picking up the next URL based on the order in which it was added to it.
+ * The crawler does not visit a page that it has already visited.
+ *
+ * @author Gautam Pant
  */
 public class BasicCrawler {
 
@@ -78,11 +32,11 @@ public class BasicCrawler {
     //hash table that stores visisted urls along with timestamp
     private String dir = null;
     private int maxThreads = 100; //maximum number of threads of the crawlers
-    protected Cache cache = null;
+    protected Cache c = null;
     protected Frontier front = null;
     private int topN = 1;
     private String storageFile = "default"; //history storing file
-    ActiveThreads activeThreads = new ActiveThreads();
+    ActiveThreads at = new ActiveThreads();
     protected BadExtensions bext = new BadExtensions();
     protected RobotExclusion robot = new RobotExclusion();
     //cache of robots permissions for servers based on robots.txt file
@@ -94,11 +48,9 @@ public class BasicCrawler {
     /**
      * construct the crawler with the seeds
      *
-     * @param seeds    - URLs that are starting points for crawl
-     *                 maxPages - maximum pages to be fetched
-     *                 dir - the directory to store the results in (the directory is created if it does not exist)
-     * @param maxPages
-     * @param dir
+     * @param seeds - URLs that are starting points for crawl
+     *              maxPages - maximum pages to be fetched
+     *              dir - the directory to store the results in (the directory is created if it does not exist)
      */
     public BasicCrawler(String[] seeds, long maxPages, String dir) {
         this.seeds = seeds;
@@ -108,8 +60,6 @@ public class BasicCrawler {
 
     /**
      * create a thread of crawler
-     *
-     * @return - crawler thread
      */
     private Thread makeCrawlerThread() {
         Thread t = null;
@@ -118,7 +68,7 @@ public class BasicCrawler {
             public void run() {
                 try {
                     //add to thread count
-                    activeThreads.add();
+                    at.add();
                     //while the required number of pages have not been crawled
                     //and frontier is non-empty
                     while (history.size() < maxPages) {
@@ -129,13 +79,14 @@ public class BasicCrawler {
                         //}
                         Vector links = new Vector();
                         for (int i = 0; i < topN; i++) {
-                            FrontierElement frontierElement = front.getElement();
+                            FrontierElement fe =
+                                    (FrontierElement) front.getElement();
                             //if nothing was returned then frontier must be empty
-                            if (frontierElement != null) {
-                                //System.out.println("Score:"+frontierElement.score);
+                            if (fe != null) {
+                                //System.out.println("Score:"+fe.score);
                                 // make sure that a page from history is not refetched
-                                if (!history.isInHistory(frontierElement.url)) {
-                                    links.add(frontierElement.url);
+                                if (!history.isInHistory(fe.url)) {
+                                    links.add(fe.url);
                                 }
                             } else {
                                 break;
@@ -144,7 +95,7 @@ public class BasicCrawler {
                         //if you got nothing from frontier sleep for 100ms
                         //and subtract from the thread count
                         if (links.size() == 0 && front.size() == 0) {
-                            activeThreads.subtract();
+                            at.subtract();
                             while (front.size() == 0) {
                                 try {
                                     Thread.sleep(100);
@@ -152,8 +103,8 @@ public class BasicCrawler {
                                     continue;
                                 }
                                 //if all the threads seem to be waiting
-                                if (activeThreads.get() == 0) {
-                                    //activeThreads.add();
+                                if (at.get() == 0) {
+                                    //at.add();
                                     //end the thread loop
                                     return;
                                 } else {
@@ -161,7 +112,7 @@ public class BasicCrawler {
                                     continue;
                                 }
                             }
-                            activeThreads.add();
+                            at.add();
                         }
 
                         String[] urls = new String[links.size()];
@@ -170,9 +121,9 @@ public class BasicCrawler {
                         }
 
                         //fetch pages and store it in a cache
-                        FetcherPool fetcherPool = new FetcherPool(cache, robot, stat);
+                        FetcherPool fp = new FetcherPool(c, robot, stat);
                         //System.out.println("Fetch Pages");
-                        fetcherPool.fetchPages(urls);
+                        fp.fetchPages(urls);
                         //System.out.println("Fetched Pages");
 
                         //extract links and add them to the frontier
@@ -180,12 +131,12 @@ public class BasicCrawler {
                             //find the filename
                             String fileName = Hashing.getHashValue(urls[i]);
                             //check in the cache
-                            File f = new File(cache.getPath(fileName) + fileName);
+                            File f = new File(c.getPath(fileName) + fileName);
                             if (f.exists()) {
                                 //score and add the URLs to frontier (if frontierAdd flag is true)
                                 if (frontierAdd) {
-                                    XMLParser xmlParser = new XMLParser(f);
-                                    addToFrontier(xmlParser, urls[i]);
+                                    XMLParser p = new XMLParser(f);
+                                    addToFrontier(p, urls[i]);
                                 } else {
                                     history.add(urls[i], fileName, -1);
                                 }
@@ -193,7 +144,7 @@ public class BasicCrawler {
                         }
 
                     }
-                    activeThreads.subtract();
+                    at.subtract();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -226,12 +177,12 @@ public class BasicCrawler {
         }
 
         //create cache
-        cache = new Cache();
+        c = new Cache();
         //set directory
-        cache.setPath(dir);
+        c.setPath(dir);
 
         //create a Frontier
-        front = new Frontier(maxFrontier, cache);
+        front = new Frontier(maxFrontier, c);
 
         //add the seed URLs to the frontier
         Vector urls = new Vector();
@@ -306,10 +257,10 @@ public class BasicCrawler {
 
                     //check if the redirected url exists and if so replace url with it
                     /*String rurl = null;
-                    if ((rurl = Redirections.getLocation(newLinks[j]))
-                        != null) {
-                        newLinks[j] = rurl;
-                    }*/
+                         if ((rurl = Redirections.getLocation(newLinks[j]))
+                             != null) {
+                             newLinks[j] = rurl;
+                         }*/
 
                     //find if the url violates known robot exclusion listings
                     String server = Helper.getHostNameWithPort(newLinks[j]);
@@ -464,12 +415,12 @@ public class BasicCrawler {
         }
 
         //create cache
-        cache = new Cache();
+        c = new Cache();
         //set directory
-        cache.setPath(dir);
+        c.setPath(dir);
 
         //create a Frontier
-        front = new Frontier(maxFrontier, cache);
+        front = new Frontier(maxFrontier, c);
 
         //set statistics file
         stat = new Statistics(System.currentTimeMillis(), history, front);
@@ -495,9 +446,9 @@ public class BasicCrawler {
                 for (Enumeration e = files.keys(); e.hasMoreElements();) {
                     String url = (String) e.nextElement();
                     String filename = (String) files.get(url);
-                    //System.out.println(cache.getPath(filename)+filename);
+                    //System.out.println(c.getPath(filename)+filename);
                     XMLParser p =
-                            new XMLParser(new File(cache.getPath(filename) + filename));
+                            new XMLParser(new File(c.getPath(filename) + filename));
                     addToFrontier(p, url);
                 }
                 bf.close();
@@ -550,10 +501,8 @@ public class BasicCrawler {
      *
      * @param b
      */
-    public void setFrontierAdd(boolean b) {
-        frontierAdd = b;
-    }
+	public void setFrontierAdd(boolean b) {
+		frontierAdd = b;
+	}
 
-
-    
 }

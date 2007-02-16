@@ -55,6 +55,7 @@ package edu.indiana.cs.webmining.util;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.TagNameFilter;
+import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
 import org.htmlparser.tags.LinkTag;
@@ -63,17 +64,27 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
 public class BlogDetector {
+
+    // Following constants will be used in identifying the blogs
+    public static final int NOT_A_BLOG = -1;
+    public static final int BLOG = 1;
+
+    // These are the blogs that we know how to process
+    public static final int BLOGGER = 11;
+    public static final int BLOGSPOT = 12;
+    public static final int BLOGLINES = 13;
+
     private static BlogDetector ourInstance = new BlogDetector();
 
-    private static List<String> knownBlogURLList;
+    private static Map<String, Integer> knownBlogURLList;
     private static Map<String, Boolean> blogPublishingFrameworks;
 
     public static BlogDetector getInstance() {
@@ -90,53 +101,54 @@ public class BlogDetector {
      * a bottleneck whilst crawlign, let's think about making this a generic class.
      */
     private void intialize() {
-        knownBlogURLList = new ArrayList<String>();
-        knownBlogURLList.add("blogspot.com");
-        knownBlogURLList.add("blog.myspace.com");
-        knownBlogURLList.add("blogger.com");
-        knownBlogURLList.add("weblogs.com");
-        knownBlogURLList.add("diaryland.com");
-        knownBlogURLList.add("livejournal.com");
-        knownBlogURLList.add("journalspace.com");
-        knownBlogURLList.add("blogalia.com");
-        knownBlogURLList.add("pitas.com");
-        knownBlogURLList.add("persianblog.com");
-        knownBlogURLList.add("bpersianlog.com");
-        knownBlogURLList.add("diaryhub.com");
-        knownBlogURLList.add("diaryhub.net");
-        knownBlogURLList.add("radio.weblogs.com");
-        knownBlogURLList.add("blogs.law.harvard.edu");
-        knownBlogURLList.add("blogs.it");
-        knownBlogURLList.add("manilasites.com");
-        knownBlogURLList.add("editthispage.com");
-        knownBlogURLList.add("weblogger.com");
-        knownBlogURLList.add("typepad");
-        knownBlogURLList.add("twoday.net");
-        knownBlogURLList.add("blogs.salon.com");
-        knownBlogURLList.add("blogs.salon.com");
-        knownBlogURLList.add("jroller.com");
-        knownBlogURLList.add("diarist.com");
-        knownBlogURLList.add("antville.org");
-        knownBlogURLList.add("bloggingnetwork.com");
-        knownBlogURLList.add("crimsonblog.com");
-        knownBlogURLList.add("skyblog.com");
-        knownBlogURLList.add("blog.pl");
-        knownBlogURLList.add("e-blog.pl");
-        knownBlogURLList.add("weblog.pl");
-        knownBlogURLList.add("monblogue.com");
-        knownBlogURLList.add("joueb.com");
-        knownBlogURLList.add("blogstudio.com");
-        knownBlogURLList.add("blog-city.com");
-        knownBlogURLList.add("blogsky.com");
-        knownBlogURLList.add("u-blog.net");
-        knownBlogURLList.add("bbarrapunto.com");
-        knownBlogURLList.add("blig");
-        knownBlogURLList.add("g-blog.net");
-        knownBlogURLList.add("babelogue.citypages.com");
-        knownBlogURLList.add("jevon.org");
-        knownBlogURLList.add("tripod.com");
-        knownBlogURLList.add("spaces.live.com");
-        knownBlogURLList.add("1060.org/blogxter");
+        knownBlogURLList = new HashMap<String, Integer>();
+        knownBlogURLList.put("blogspot.com", BLOGSPOT);
+        knownBlogURLList.put("blog.myspace.com", BLOG);
+        knownBlogURLList.put("blogger.com", BLOGGER);
+        knownBlogURLList.put("bloglines.com", BLOGLINES);
+        knownBlogURLList.put("weblogs.com", BLOG);
+        knownBlogURLList.put("diaryland.com", BLOG);
+        knownBlogURLList.put("livejournal.com", BLOG);
+        knownBlogURLList.put("journalspace.com", BLOG);
+        knownBlogURLList.put("blogalia.com", BLOG);
+        knownBlogURLList.put("pitas.com", BLOG);
+        knownBlogURLList.put("persianblog.com", BLOG);
+        knownBlogURLList.put("bpersianlog.com", BLOG);
+        knownBlogURLList.put("diaryhub.com", BLOG);
+        knownBlogURLList.put("diaryhub.net", BLOG);
+        knownBlogURLList.put("radio.weblogs.com", BLOG);
+        knownBlogURLList.put("blogs.law.harvard.edu", BLOG);
+        knownBlogURLList.put("blogs.it", BLOG);
+        knownBlogURLList.put("manilasites.com", BLOG);
+        knownBlogURLList.put("editthispage.com", BLOG);
+        knownBlogURLList.put("weblogger.com", BLOG);
+        knownBlogURLList.put("typepad", BLOG);
+        knownBlogURLList.put("twoday.net", BLOG);
+        knownBlogURLList.put("blogs.salon.com", BLOG);
+        knownBlogURLList.put("blogs.salon.com", BLOG);
+        knownBlogURLList.put("jroller.com", BLOG);
+        knownBlogURLList.put("diarist.com", BLOG);
+        knownBlogURLList.put("antville.org", BLOG);
+        knownBlogURLList.put("bloggingnetwork.com", BLOG);
+        knownBlogURLList.put("crimsonblog.com", BLOG);
+        knownBlogURLList.put("skyblog.com", BLOG);
+        knownBlogURLList.put("blog.pl", BLOG);
+        knownBlogURLList.put("e-blog.pl", BLOG);
+        knownBlogURLList.put("weblog.pl", BLOG);
+        knownBlogURLList.put("monblogue.com", BLOG);
+        knownBlogURLList.put("joueb.com", BLOG);
+        knownBlogURLList.put("blogstudio.com", BLOG);
+        knownBlogURLList.put("blog-city.com", BLOG);
+        knownBlogURLList.put("blogsky.com", BLOG);
+        knownBlogURLList.put("u-blog.net", BLOG);
+        knownBlogURLList.put("bbarrapunto.com", BLOG);
+        knownBlogURLList.put("blig", BLOG);
+        knownBlogURLList.put("g-blog.net", BLOG);
+        knownBlogURLList.put("babelogue.citypages.com", BLOG);
+        knownBlogURLList.put("jevon.org", BLOG);
+        knownBlogURLList.put("tripod.com", BLOG);
+        knownBlogURLList.put("spaces.live.com", BLOG);
+        knownBlogURLList.put("1060.org/blogxter", BLOG);
 
         blogPublishingFrameworks = new HashMap<String, Boolean>();
         blogPublishingFrameworks.put("http://www.sixapart.com/movabletype/", Boolean.TRUE);
@@ -155,20 +167,20 @@ public class BlogDetector {
      * We might improve this algorithm as and when we find interesting points.
      *
      * @param pageURL
+     * @param inputStream
      * @return
      */
-    public boolean isBlog(String pageURL) {
+    public int identifyURL(String pageURL, InputStream inputStream) {
         try {
-
             // first let's avoid traps. .
             if (pageURL == null || "".equals(pageURL)) {
-                return false;
+                return NOT_A_BLOG;
             }
 
-            return isBlog(new URL(pageURL));
+            return identifyURL(new URL(pageURL), inputStream);
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            return false;
+            return NOT_A_BLOG;
         }
     }
 
@@ -180,32 +192,40 @@ public class BlogDetector {
      * <p/>
      * We might improve this algorithm as and when we find interesting points.
      *
-     * @param pageURL
+     * @param pageURL     - url of the page
+     * @param inputStream - input stream to the web page under consideration. If you pass null to this, this method will
+     *                    open a connection to the page if required.
      * @return
      */
-    public boolean isBlog(URL pageURL) {
+    public int identifyURL(URL pageURL, InputStream inputStream) {
+        int status = -1;
+
         // sorry, we do not handle anything other than http. Can there be smtp or tcp blogs?
         if (!"http".equals(pageURL.getProtocol())) {
-            return false;
+            return NOT_A_BLOG;
         }
 
-        // First let's look at the blog address. If the word blog is in the host address or if this is one of the known
-        // blogs then we are done, with the minimal effort
+        // First let's look at the blog address. Let's see whether this is a known blog
         String hostAddress = pageURL.getHost();
-        if (hostAddress.contains("blog") || isKnownBlog(hostAddress)) {
-            return true;
+        if ((status = getBlogId(hostAddress)) != -1) {
+            return status;
         }
 
         // now let's see whether the url contains, blog as a word
-        if (pageURL.getFile().contains("blog")) {
-            return true;
+        if (hostAddress.contains("blog") || pageURL.getFile().contains("blog")) {
+            return BLOG;
         }
 
         // hmm, now surface scans are over. Let's look at the page now.
 
         try {
 // first let's see whether title has XX's blog in it
-            Page page = new Page(pageURL.openConnection());
+            Page page;
+            if (inputStream == null) {
+                page = new Page(pageURL.openConnection());
+            } else {
+                page = new Page(new InputStreamSource(inputStream));
+            }
             Parser parser = new Parser(new Lexer(page));
             TagNameFilter titleFilter = new TagNameFilter("title");
             NodeList titles = parser.parse(titleFilter);
@@ -213,7 +233,7 @@ public class BlogDetector {
             if (titles.size() == 1) {
                 String titleText = ((TitleTag) titles.elementAt(0)).getTitle();
                 if (titleText != null && ((titleText.indexOf("blog") > -1) || titleText.indexOf("weblog") > -1)) {
-                    return true;
+                    return BLOG;
                 }
             }
 
@@ -222,30 +242,33 @@ public class BlogDetector {
 
         } catch (ParserException e) {
             e.printStackTrace();
-            return false;
+            return NOT_A_BLOG;
 
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return NOT_A_BLOG;
 
         }
 
     }
 
-    private boolean isKnownBlog(String hostAddress) {
-        for (int i = 0; i < knownBlogURLList.size(); i++) {
-            if (hostAddress.indexOf(knownBlogURLList.get(i)) > -1) {
-                return true;
+    private int getBlogId(String hostAddress) {
+
+        Iterator<String> knownBlogNames = knownBlogURLList.keySet().iterator();
+        while (knownBlogNames.hasNext()) {
+            String blogName = knownBlogNames.next();
+            if (hostAddress.indexOf(blogName) > -1) {
+                return knownBlogURLList.get(blogName);
             }
         }
-        return false;
+        return -1;
     }
 
     /**
      * @param pageURL
-     * @return
+     * @return The blog id or -1 if it is not a blog.
      */
-    private boolean hasLinkToBlogFramework(URL pageURL) {
+    private int hasLinkToBlogFramework(URL pageURL) {
         try {
             Page page = new Page(pageURL.openConnection());
             Parser parser = new Parser(new Lexer(page));
@@ -258,17 +281,17 @@ public class BlogDetector {
                 LinkTag tag = (LinkTag) node;
                 String url = tag.getLink();
                 if (blogPublishingFrameworks.get(url) != null) {
-                    return true;
+                    return BLOG;
                 }
             }
         } catch (ParserException e) {
-            return false;
+            return NOT_A_BLOG;
 
         } catch (IOException e) {
-            return false;
+            return NOT_A_BLOG;
 
         }
 
-        return false;
+        return NOT_A_BLOG;
     }
 }

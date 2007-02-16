@@ -46,54 +46,70 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.util;
-
-import junit.framework.TestCase;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+package edu.indiana.cs.webmining.crawler;
 
 /**
- * User: Eran Chinthaka (echintha@cs.indiana.edu)
- * Date: Feb 1, 2007
+ * @author : Eran Chinthaka (echintha@cs.indiana.edu)
+ * @Date : Feb 15, 2007
+ * <p/>
+ * This will be responsible for all the blog url handling activities
  */
-public class BlogDetectorTest extends TestCase {
+public class BlogProcessingSystem {
 
-    private String blogs = "test-resources/blogs.txt";
-    private String nonBlogs = "test-resources/non-blogs.txt";
-
-    public void testBlogDetection() {
-        BlogDetector blogDetector = BlogDetector.getInstance();
-
-        try {
-            System.out.println("---- Checking Blog Sites ----");
-            // first let's see how our tool responds to good urls
-            BufferedReader in = new BufferedReader(new FileReader(blogs));
-            String str;
-            while ((str = in.readLine()) != null) {
-                if (!str.startsWith("#") && !"".equals(str.trim())) {  // alowing for lines to be commented out.
-                    System.out.println("site = " + str);
-                    assertTrue(blogDetector.identifyURL(str, null) != -1);
-                }
-            }
-            in.close();
-
-            System.out.println("\n\n---- Checking Non-Blog Sites ----");
-
-            // next non-blogs
-            in = new BufferedReader(new FileReader(nonBlogs));
-            while ((str = in.readLine()) != null) {
-                if (!str.startsWith("#")) {  // alowing for lines to be commented out.
-                    System.out.println("site = " + str);
-                    assertTrue(blogDetector.identifyURL(str, null) == -1);
-                }
-            }
-            in.close();
-
-        } catch (IOException e) {
-            System.out.println("Too bad. We've got an IOException" + e);
-        }
-    }
+    /**
+     * This will process a given blog page, using a blog specific processor and will return set of URLs to be fetched.
+     * Those urls must be fetched by a crawler.
+     *
+     * @param webPage
+     * @param pageURL
+     */
+//    public void processPage(File webPage, String pageURL) {
+//
+//        BlogDetector.getInstance().isBlog(pageURL)
+//
+//        {
+//        if (p.startParser()) {
+//            String[] newLinks = p.getLinks();
+//            if (newLinks != null) {
+//                double pageScore = getPageScore(p);
+//                String fileName = Hashing.getHashValue(url);
+//                history.add(url, fileName, pageScore);
+//                //System.out.println(url+" "+pageScore+" "+Hashing.getHashValue(url));
+//                Vector urls = new Vector();
+//                for (int j = 0; j < newLinks.length; j++) {
+//
+//                    //check if the redirected url exists and if so replace url with it
+//                    /*String rurl = null;
+//                    if ((rurl = Redirections.getLocation(newLinks[j]))
+//                        != null) {
+//                        newLinks[j] = rurl;
+//                    }*/
+//
+//                    //find if the url violates known robot exclusion listings
+//                    String server = Helper.getHostNameWithPort(newLinks[j]);
+//                    Vector perm = robot.get(server);
+//                    if (perm != null) {
+//                        if (RobotExclusion.isDisallowed(newLinks[j], perm)) {
+//                            continue;
+//                        }
+//                    }
+//
+//                    //add to frontier if not in history and not has bad extension
+//                    if (!history.isInHistory(newLinks[j])
+//                            && !bext.hasBadExtension(newLinks[j])
+//                            && (newLinks[j] != null)) {
+//                        urls.add(new FrontierElement(newLinks[j], pageScore));
+//                    }
+//                }
+//                if (urls.size() == 0) {
+//                    return;
+//                }
+//                front.addElements(urls);
+//            }
+//        } else {
+//            stat.parseErrors(1);
+//        }
+//    }
+//    }
 
 }

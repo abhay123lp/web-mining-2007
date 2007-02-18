@@ -54,6 +54,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import edu.indiana.cs.webmining.blog.BlogDetector;
+
 /**
  * User: Eran Chinthaka (echintha@cs.indiana.edu)
  * Date: Feb 1, 2007

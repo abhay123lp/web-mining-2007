@@ -49,6 +49,8 @@
 
 package edu.indiana.cs.webmining.util;
 
+import java.sql.Statement;
+
 /**
  * The Using class provides implementations of the 'Loan pattern', similar to
  * the 'using' keyword in C# and Python 2.5.
@@ -64,7 +66,8 @@ public class Using {
      * @return The result of invoking user.run
      * @throws java.sql.SQLException
      */
-    public static <R, T, E extends Exception> T using(
+    @SuppressWarnings("unchecked")
+    public static <R extends Statement, T, E extends Exception> T using(
             R rsrc,
             ResourceUser<R, T, E> user)
             throws E {
@@ -77,10 +80,8 @@ public class Using {
         }
         finally {
             try {
-                // We trust user to pass a resource that has a close()
-                // method
                 if (rsrc != null)
-                    ((Disposable) rsrc).close();
+                    rsrc.close();
             } catch (Exception e) {
                 // Ideally we'd like to catch only exceptions of type E
                 // but type erasure gets in the way

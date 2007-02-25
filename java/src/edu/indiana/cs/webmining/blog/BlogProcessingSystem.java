@@ -68,8 +68,12 @@ import java.util.Map;
 public class BlogProcessingSystem {
 
     /**
-     * This will process a given blog page, using a blog specific processor and will return set of URLs to be fetched.
-     * Those urls must be fetched by a blog.
+     * This will process/save a given web page. First this needs to identify whether the given url
+     * is a blog or not. If it is a blog, then this should handover the processing of the page
+     * to the relevant BlogProcessor which will return a set of URLs to be fetched by the crawler.
+     * <p/>
+     * Having got the return from the Blog processor, this method should then save all the relevant
+     * information, like link information, the whole page, etc,
      *
      * @param webPage - the location where the web site is saved.
      * @param pageURL - original url of the web page
@@ -80,7 +84,8 @@ public class BlogProcessingSystem {
         List urlList = new ArrayList();
         try {
 
-            // first let's get the blog id
+            // first let's get the blog id. If this URL is not a blog, this should return
+            // Constants.NOT_A_BLOG
             int blogId = BlogDetector.getInstance().identifyURL(pageURL, new FileInputStream(webPage));
 
             if (blogId > 0) {             // if this is a processable blog
@@ -100,8 +105,7 @@ public class BlogProcessingSystem {
             }
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-
+            throw new BlogCrawlingException(e);
         }
 
         return new String[]{};

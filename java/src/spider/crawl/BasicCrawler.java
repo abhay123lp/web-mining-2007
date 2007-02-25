@@ -139,9 +139,8 @@ public class BasicCrawler {
                             if (f.exists()) {
                                 //score and add the URLs to frontier (if frontierAdd flag is true)
                                 if (frontierAdd) {
+                                    // Now I am taking control of the crawler - Eran Chinthaka
                                     blogProcessingSystem.processPage(f, urls[i]);
-                                    //  XMLParser xmlParser = new XMLParser(f);
-                                    // addToFrontier(xmlParser, urls[i]);
                                 } else {
                                     history.add(urls[i], fileName, -1);
                                 }

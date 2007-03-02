@@ -96,6 +96,7 @@ public class DBInitializer {
                             addNode(url);
                             res = getNodeID(url);
                         }
+                        stmt.close();
                         return res;
                     }
 

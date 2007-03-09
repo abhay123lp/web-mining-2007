@@ -48,7 +48,9 @@
 
 package edu.indiana.cs.webmining.blog.impl;
 
+import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.blog.BlogCrawlingException;
+import edu.indiana.cs.webmining.blog.BlogDetector;
 import edu.indiana.cs.webmining.blog.BlogProcessor;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
@@ -61,16 +63,26 @@ import org.htmlparser.util.ParserException;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
  * @Date : Feb 16, 2007
  */
 public class GenericBlogProcessor implements BlogProcessor {
+
+    private BlogDetector blogDetector;
+
+    public GenericBlogProcessor() {
+        blogDetector = BlogDetector.getInstance();
+    }
+
     public String[] processBlog(String blogURL, InputStream in) throws BlogCrawlingException {
 
+        // using a set here to avoid duplicates
         Set<String> linksToBlogs = new TreeSet<String>();
 
         try {
@@ -88,11 +100,19 @@ public class GenericBlogProcessor implements BlogProcessor {
             for (int i = 0; i < anchorTagsList.size(); i++) {
                 Node node = anchorTagsList.elementAt(i);
                 LinkTag tag = (LinkTag) node;
-                String taglink = tag.getLinkText();
-                linksToBlogs.add(tag.getLink());
+                if (blogDetector.identifyURL(tag.getLink(), null) != Constants.NOT_A_BLOG) {
+                    linksToBlogs.add(tag.getLink());
+                }
             }
 
-            return (String[]) linksToBlogs.toArray();
+            String[] links = new String[linksToBlogs.size()];
+            int count = 0;
+            Iterator<String> iterator = linksToBlogs.iterator();
+            for (String linksToBlog : linksToBlogs) {
+                links[count++] = linksToBlog;
+            }
+
+            return links;
 
         } catch (ParserException e) {
             throw new BlogCrawlingException(e);

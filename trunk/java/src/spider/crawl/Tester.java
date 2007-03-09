@@ -11,12 +11,13 @@ import spider.util.Redirections;
 public class Tester {
 
     //PLEASE PUT YOU E-MAIL FOR HTTP REQUESTS
-    public static String email = "test@test.com";
+    public static String email = "echintha@cs.indiana.edu";
 
     public static void main(String[] args) {
         //a list of seeds
-        String[] urls = new String[1];
-        urls[0] = "http://dollar.biz.uiowa.edu";
+        String[] urls = new String[2];
+        urls[0] = "http://hot.blogrolling.com/";
+        urls[1] = "http://www.bloglines.com/blog/chinthaka";
 
         //number of pages to crawl
         int maxPages = 100;

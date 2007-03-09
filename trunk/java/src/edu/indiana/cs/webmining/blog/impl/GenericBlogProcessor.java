@@ -100,8 +100,11 @@ public class GenericBlogProcessor implements BlogProcessor {
             for (int i = 0; i < anchorTagsList.size(); i++) {
                 Node node = anchorTagsList.elementAt(i);
                 LinkTag tag = (LinkTag) node;
-                if (blogDetector.identifyURL(tag.getLink(), null) != Constants.NOT_A_BLOG) {
-                    linksToBlogs.add(tag.getLink());
+                String linkURL = tag.getLink();
+
+                if (blogDetector.identifyURL(linkURL, null) != Constants.NOT_A_BLOG) {
+                    System.out.println("*BLOG* " + linkURL);
+                    linksToBlogs.add(linkURL);
                 }
             }
 

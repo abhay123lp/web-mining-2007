@@ -48,16 +48,13 @@
 
 package edu.indiana.cs.webmining.blog;
 
-import edu.indiana.cs.webmining.Constants;
-import edu.indiana.cs.webmining.blog.impl.BloggerProcessor;
-import edu.indiana.cs.webmining.blog.impl.BloglineProcessor;
+import edu.indiana.cs.webmining.blog.impl.GenericBlogProcessor;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -90,17 +87,17 @@ public class BlogProcessingSystem {
 
             if (blogId > 0) {             // if this is a processable blog
                 // get the customized blog processor
-                BlogProcessor blogProcessor = getBlogProcessor(blogId);
+                BlogProcessor blogProcessor = new GenericBlogProcessor();
 
                 // process it and get the grouped set of urls. The map returned will contain urls as the key
                 // and url type as the value.
-                Map result = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
+                List result = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
 
                 // save the link connection informaion.
                 saveLinkInformation(result, pageURL);
 
                 // return the the set of urls to be fetched for further processing
-                return (String[]) result.keySet().toArray();
+                return (String[]) result.toArray();
 
             }
 
@@ -117,27 +114,9 @@ public class BlogProcessingSystem {
      * @param result
      * @param sourceURL
      */
-    private void saveLinkInformation(Map result, String sourceURL) {
+    private void saveLinkInformation(List result, String sourceURL) {
         //TODO : get the links details from the map and save it to the Link table
     }
 
-    /**
-     * This will return the BlogProcessor corresponding to the given blog id. This method can later be moved to a separate
-     * factory if required, but I don't see an immediate requirement for that now.
-     *
-     * @param blogId - the blog is that requires a blog processor
-     * @return
-     * @throws BlogCrawlingException
-     */
-    private BlogProcessor getBlogProcessor(int blogId) throws BlogCrawlingException {
-        switch (blogId) {
-            case Constants.BLOGLINES:
-                return new BloglineProcessor();
-            case Constants.BLOGGER:
-                return new BloggerProcessor();
-            default:
-                throw new BlogCrawlingException("No blog processor registered to process the blog id " + blogId);
-        }
-    }
 
 }

@@ -48,6 +48,7 @@
 
 package edu.indiana.cs.webmining.blog;
 
+import edu.indiana.cs.webmining.blog.impl.FileBasedBlogDataStorage;
 import edu.indiana.cs.webmining.blog.impl.GenericBlogProcessor;
 
 import java.io.File;
@@ -63,6 +64,13 @@ import java.util.List;
  * This will be responsible for all the blog url handling activities
  */
 public class BlogProcessingSystem {
+
+    private BlogDataStorage blogDataStorage;
+
+
+    public BlogProcessingSystem() {
+        blogDataStorage = new FileBasedBlogDataStorage();
+    }
 
     /**
      * This will process/save a given web page. First this needs to identify whether the given url
@@ -94,7 +102,7 @@ public class BlogProcessingSystem {
                 String[] result = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
 
                 // save the link connection information.
-                saveLinkInformation(result, pageURL);
+                blogDataStorage.store(result, pageURL);
 
                 // return the the set of urls to be fetched for further processing
                 return result;
@@ -115,7 +123,11 @@ public class BlogProcessingSystem {
      * @param sourceURL
      */
     private void saveLinkInformation(String[] result, String sourceURL) {
-        //TODO : get the links details from the map and save it to the Link table
+        for (int i = 0; i < result.length; i++) {
+            String link = result[i];
+            System.out.println("link = " + link);
+
+        }
     }
 
 

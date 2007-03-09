@@ -49,7 +49,6 @@
 package edu.indiana.cs.webmining.blog;
 
 import java.io.InputStream;
-import java.util.List;
 
 /**
  * User: Eran Chinthaka (echintha@cs.indiana.edu)
@@ -65,6 +64,6 @@ public interface BlogProcessor {
      * @return a list of urls - these are the urls identified as pointing to other blogs.
      * @throws BlogCrawlingException
      */
-    public List processBlog(String url, InputStream in) throws BlogCrawlingException;
+    public String[] processBlog(String url, InputStream in) throws BlogCrawlingException;
 
 }

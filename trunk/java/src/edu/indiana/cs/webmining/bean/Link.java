@@ -51,19 +51,17 @@ package edu.indiana.cs.webmining.bean;
 
 /**
  * @author Eran Chinthaka (echintha@cs.indiana.edu)
- * @since  Feb 11, 2007
+ * @since Feb 11, 2007
  */
 public class Link {
     private int sourceId;
     private int destId;
-    private int type;
 
-    public Link(int sourceId, int destId, int type) {
+    public Link(int sourceId, int destId) {
         this.sourceId = sourceId;
         this.destId = destId;
-        this.type = type;
     }
-    
+
     public int getSourceId() {
         return sourceId;
     }
@@ -80,11 +78,4 @@ public class Link {
         this.destId = destId;
     }
 
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
 }

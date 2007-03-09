@@ -297,7 +297,6 @@ public class BasicCrawler {
      * score and add URls to the frontier
      * more sophiticated code may extend or override the functionality
      *
-     * @param p      - the XML parser, id - the filename of the page being parsed
      * @param srcUrl
      */
     protected void addToFrontier(String srcUrl, String[] newLinks) {

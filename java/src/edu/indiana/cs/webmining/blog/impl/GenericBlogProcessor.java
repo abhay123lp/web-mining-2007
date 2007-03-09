@@ -52,14 +52,14 @@ import edu.indiana.cs.webmining.blog.BlogCrawlingException;
 import edu.indiana.cs.webmining.blog.BlogProcessor;
 
 import java.io.InputStream;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
  * @Date : Feb 16, 2007
  */
 public class GenericBlogProcessor implements BlogProcessor {
-    public Map processBlog(String url, InputStream in) throws BlogCrawlingException {
+    public List processBlog(String url, InputStream in) throws BlogCrawlingException {
         return null;
     }
 }

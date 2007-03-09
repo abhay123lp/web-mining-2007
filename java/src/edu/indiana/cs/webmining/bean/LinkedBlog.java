@@ -46,20 +46,16 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.blog.impl;
+package edu.indiana.cs.webmining.bean;
 
-import edu.indiana.cs.webmining.blog.BlogCrawlingException;
-import edu.indiana.cs.webmining.blog.BlogProcessor;
-
-import java.io.InputStream;
-import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
- * @Date : Feb 16, 2007
+ * @Date : Mar 8, 2007
  */
-public class BloggerProcessor implements BlogProcessor {
-    public Map processBlog(String url, InputStream in) throws BlogCrawlingException {
-        return null;
+public class LinkedBlog extends ArrayList {
+    public LinkedBlog(Blog blog, int anInt) {
+
     }
 }

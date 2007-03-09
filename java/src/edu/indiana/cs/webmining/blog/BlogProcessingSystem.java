@@ -91,13 +91,13 @@ public class BlogProcessingSystem {
 
                 // process it and get the grouped set of urls. The map returned will contain urls as the key
                 // and url type as the value.
-                List result = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
+                String[] result = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
 
-                // save the link connection informaion.
+                // save the link connection information.
                 saveLinkInformation(result, pageURL);
 
                 // return the the set of urls to be fetched for further processing
-                return (String[]) result.toArray();
+                return result;
 
             }
 
@@ -114,7 +114,7 @@ public class BlogProcessingSystem {
      * @param result
      * @param sourceURL
      */
-    private void saveLinkInformation(List result, String sourceURL) {
+    private void saveLinkInformation(String[] result, String sourceURL) {
         //TODO : get the links details from the map and save it to the Link table
     }
 

@@ -50,16 +50,54 @@ package edu.indiana.cs.webmining.blog.impl;
 
 import edu.indiana.cs.webmining.blog.BlogCrawlingException;
 import edu.indiana.cs.webmining.blog.BlogProcessor;
+import org.htmlparser.Node;
+import org.htmlparser.Parser;
+import org.htmlparser.filters.TagNameFilter;
+import org.htmlparser.lexer.Lexer;
+import org.htmlparser.lexer.Page;
+import org.htmlparser.tags.LinkTag;
+import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 
 import java.io.InputStream;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
  * @Date : Feb 16, 2007
  */
 public class GenericBlogProcessor implements BlogProcessor {
-    public List processBlog(String url, InputStream in) throws BlogCrawlingException {
-        return null;
+    public String[] processBlog(String blogURL, InputStream in) throws BlogCrawlingException {
+
+        Set<String> linksToBlogs = new TreeSet<String>();
+
+        try {
+
+            Page page = new Page(in, null);
+            Parser parser = new Parser(new Lexer(page));
+
+            // register a filter to extract all the anchor tags
+            TagNameFilter anchorTagsFilter = new TagNameFilter("a");
+
+            StringBuffer buf = new StringBuffer();
+            NodeList anchorTagsList = parser.parse(anchorTagsFilter);
+
+
+            for (int i = 0; i < anchorTagsList.size(); i++) {
+                Node node = anchorTagsList.elementAt(i);
+                LinkTag tag = (LinkTag) node;
+                String taglink = tag.getLinkText();
+                linksToBlogs.add(tag.getLink());
+            }
+
+            return (String[]) linksToBlogs.toArray();
+
+        } catch (ParserException e) {
+            throw new BlogCrawlingException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new BlogCrawlingException(e);
+        }
     }
 }

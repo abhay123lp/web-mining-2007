@@ -22,7 +22,7 @@ import java.util.Vector;
 public class BasicCrawler {
 
     private String[] seeds = null;
-    protected Hashtable seedDomain = new Hashtable();
+    protected Hashtable<String, String> seedDomain = new Hashtable<String, String>();
     private long maxPages = 0; //maximum number of pages to fetch
     private int maxFrontier = 10000;
     //maximum size of the frontier (-1 for infinite)
@@ -81,7 +81,7 @@ public class BasicCrawler {
                         //if(front.toString().length() > 0) {
                         //	System.out.println(front.toString());
                         //}
-                        Vector links = new Vector();
+                        Vector<String> links = new Vector<String>();
                         for (int i = 0; i < topN; i++) {
                             FrontierElement frontierElement = front.getElement();
                             //if nothing was returned then frontier must be empty
@@ -120,7 +120,7 @@ public class BasicCrawler {
 
                         String[] urls = new String[links.size()];
                         for (int i = 0; i < links.size(); i++) {
-                            urls[i] = (String) links.get(i);
+                            urls[i] = links.get(i);
                         }
 
                         //fetch pages and store it in a cache
@@ -140,7 +140,8 @@ public class BasicCrawler {
                                 //score and add the URLs to frontier (if frontierAdd flag is true)
                                 if (frontierAdd) {
                                     // Now I am taking control of the crawler - Eran Chinthaka
-                                    blogProcessingSystem.processPage(f, urls[i]);
+                                    String[] linksToBeRetrieved = blogProcessingSystem.processPage(f, urls[i]);
+                                    addLinksToFrontier(linksToBeRetrieved);
                                 } else {
                                     history.add(urls[i], fileName, -1);
                                 }
@@ -156,6 +157,15 @@ public class BasicCrawler {
         };
         t = new Thread(r);
         return t;
+    }
+
+    private void addLinksToFrontier(String[] linksToBeRetrieved) {
+        Vector<FrontierElement> frontierElements = new Vector<FrontierElement>();
+        for (String aLinksToBeRetrieved : linksToBeRetrieved) {
+            frontierElements.add(new FrontierElement(aLinksToBeRetrieved, 1));
+        }
+
+        front.addElements(frontierElements);
     }
 
     public boolean startCrawl() {
@@ -189,7 +199,7 @@ public class BasicCrawler {
         front = new Frontier(maxFrontier, cache);
 
         //add the seed URLs to the frontier
-        Vector urls = new Vector();
+        Vector<FrontierElement> urls = new Vector<FrontierElement>();
         for (int i = 0; i < seeds.length; i++) {
             seeds[i] = Helper.getCanonical(seeds[i]);
             if (seeds[i] == null) {
@@ -257,7 +267,7 @@ public class BasicCrawler {
                 String fileName = Hashing.getHashValue(url);
                 history.add(url, fileName, pageScore);
                 //System.out.println(url+" "+pageScore+" "+Hashing.getHashValue(url));
-                Vector urls = new Vector();
+                Vector<FrontierElement> urls = new Vector<FrontierElement>();
                 for (int j = 0; j < newLinks.length; j++) {
 
                     //check if the redirected url exists and if so replace url with it
@@ -305,7 +315,7 @@ public class BasicCrawler {
             String fileName = Hashing.getHashValue(srcUrl);
             history.add(srcUrl, fileName, DEFAULT_PAGE_SCORE);
             //System.out.println(url+" "+pageScore+" "+Hashing.getHashValue(url));
-            Vector urls = new Vector();
+            Vector<FrontierElement> urls = new Vector<FrontierElement>();
             for (int j = 0; j < newLinks.length; j++) {
 
                 //check if the redirected url exists and if so replace url with it
@@ -483,7 +493,7 @@ public class BasicCrawler {
         if (oldHist.exists()) {
             try {
                 BufferedReader bf = new BufferedReader(new FileReader(oldHist));
-                Hashtable files = new Hashtable();
+                Hashtable<String, String> files = new Hashtable<String, String>();
                 String line = null;
                 while ((line = bf.readLine()) != null) {
                     String[] parts = line.split("\\s+");
@@ -494,9 +504,9 @@ public class BasicCrawler {
                     files.put(parts[1], parts[2]);
 
                 }
-                for (Enumeration e = files.keys(); e.hasMoreElements();) {
-                    String url = (String) e.nextElement();
-                    String filename = (String) files.get(url);
+                for (Enumeration<String> e = files.keys(); e.hasMoreElements();) {
+                    String url = e.nextElement();
+                    String filename = files.get(url);
                     //System.out.println(cache.getPath(filename)+filename);
                     XMLParser p =
                             new XMLParser(new File(cache.getPath(filename) + filename));

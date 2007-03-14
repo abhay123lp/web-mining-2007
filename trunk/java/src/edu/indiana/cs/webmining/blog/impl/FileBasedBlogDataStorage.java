@@ -91,6 +91,11 @@ public class FileBasedBlogDataStorage implements BlogDataStorage {
 //                out.write("**********************************************************************************\n");
 //            }
 
+            if (file.length() == 0) {
+                out.write("*********************************************************************************\n");
+                out.write(" Source Blog = " + sourceBlog + "\n");
+                out.write("**********************************************************************************\n");
+            }
 
             for (String destinationURL : destinationURLs) {
                 out.write(destinationURL + "\n");

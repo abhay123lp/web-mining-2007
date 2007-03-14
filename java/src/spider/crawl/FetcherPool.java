@@ -1,6 +1,13 @@
 package spider.crawl;
 
-import spider.util.*;
+import spider.util.Fetcher;
+import spider.util.HTMLParser;
+import spider.util.Hashing;
+import spider.util.Helper;
+import spider.util.Page;
+import spider.util.Redirections;
+import spider.util.RobotExclusion;
+import spider.util.ThreadTimer;
 
 import java.io.File;
 import java.util.Vector;
@@ -211,6 +218,6 @@ public class FetcherPool {
                 e.printStackTrace();
                 continue;
             }
-		}
-	}
+        }
+    }
 }

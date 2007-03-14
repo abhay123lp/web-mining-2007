@@ -247,8 +247,7 @@ public class BlogDetector {
     private int getBlogId(String hostAddress) {
 
         Iterator<String> knownBlogNames = knownBlogURLList.keySet().iterator();
-        while (knownBlogNames.hasNext()) {
-            String blogName = knownBlogNames.next();
+        for (String blogName : knownBlogURLList.keySet()) {
             if (hostAddress.indexOf(blogName) > -1) {
                 return knownBlogURLList.get(blogName);
             }

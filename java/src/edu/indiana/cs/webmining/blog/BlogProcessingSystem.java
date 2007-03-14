@@ -81,13 +81,15 @@ public class BlogProcessingSystem {
     Logger logger = Logger.getLogger(SYSTEM_NAME);
 
     public BlogProcessingSystem() {
-        blogDataStorage = new FileBasedBlogDataStorage();
+
         try {
 
             Properties props = new Properties();
             props.load(new FileInputStream("etc/blog-detection.properties"));
 
-            FileHandler fileHandler = new FileHandler(props.getProperty("log-file"), 1000000, 10, true);
+            blogDataStorage = new FileBasedBlogDataStorage(props.getProperty("blog-data-folder"));
+
+            FileHandler fileHandler = new FileHandler(props.getProperty("log-file"), true);
             fileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(fileHandler);
             ConsoleHandler consoleHandler = new ConsoleHandler();

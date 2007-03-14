@@ -75,7 +75,7 @@ public class BasicCrawler {
                     activeThreads.add();
                     //while the required number of pages have not been crawled
                     //and frontier is non-empty
-                    while (history.size() < maxPages) {
+                    while (history.size() < maxPages || maxPages == -1) {
                         // System.out.println("Frontier:"+ front.size());
                         //select pages to crawl (pick top 10)
                         //if(front.toString().length() > 0) {

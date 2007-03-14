@@ -1,6 +1,12 @@
 package spider.crawl;
 
-import spider.util.*;
+import spider.util.BadURLList;
+import spider.util.Helper;
+import spider.util.Redirections;
+import spider.util.RobotExclusion;
+import spider.util.Stemmer;
+import spider.util.Stopper;
+import spider.util.XMLParser;
 
 import java.util.Collections;
 import java.util.Enumeration;

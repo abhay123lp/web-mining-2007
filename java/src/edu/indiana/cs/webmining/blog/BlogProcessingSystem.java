@@ -61,6 +61,7 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -78,9 +79,12 @@ public class BlogProcessingSystem {
     public BlogProcessingSystem() {
         blogDataStorage = new FileBasedBlogDataStorage();
         try {
-            logger.addHandler(new FileHandler("logs/blog-processing.log", true));
+            FileHandler fileHandler = new FileHandler("logs/blog-processing-%g.log", true);
+            fileHandler.setFormatter(new SimpleFormatter());
+            logger.addHandler(fileHandler);
             ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.INFO);
+            consoleHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(consoleHandler);
         } catch (IOException e) {
             e.printStackTrace();

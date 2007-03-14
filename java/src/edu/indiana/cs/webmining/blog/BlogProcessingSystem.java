@@ -87,13 +87,15 @@ public class BlogProcessingSystem {
             Properties props = new Properties();
             props.load(new FileInputStream("etc/blog-detection.properties"));
 
-            FileHandler fileHandler = new FileHandler(props.getProperty("log-file"), true);
+            FileHandler fileHandler = new FileHandler(props.getProperty("log-file"), 1000000, 10, true);
             fileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(fileHandler);
             ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.INFO);
             consoleHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(consoleHandler);
+
+            logger.setUseParentHandlers(false);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -107,7 +107,6 @@ public class BlogDetector {
         knownBlogURLList.put("blogspot.com", Constants.BLOG);
         knownBlogURLList.put("blog.myspace.com", Constants.BLOG);
         knownBlogURLList.put("blogger.com", Constants.BLOG);
-        knownBlogURLList.put("bloglines.com/blog/", Constants.BLOG);
         knownBlogURLList.put("weblogs.com", Constants.BLOG);
         knownBlogURLList.put("diaryland.com", Constants.BLOG);
         knownBlogURLList.put("livejournal.com", Constants.BLOG);
@@ -276,15 +275,17 @@ public class BlogDetector {
 
     private int getBlogId(URL pageURL) {
         String hostAddress = pageURL.getHost();
+
+        if (deceivingNonBlogs.containsKey(hostAddress)) {
+            return (pageURL.toString().contains(deceivingNonBlogs.get(hostAddress))) ? Constants.BLOG : Constants.NOT_A_BLOG;
+        }
+
         for (String blogName : knownBlogURLList.keySet()) {
             if (hostAddress.indexOf(blogName) > -1) {
                 return Constants.BLOG;
             }
         }
 
-        if (deceivingNonBlogs.containsKey(hostAddress)) {
-            return (pageURL.toString().contains(deceivingNonBlogs.get(hostAddress))) ? Constants.BLOG : Constants.NOT_A_BLOG;
-        }
         return 0;
     }
 

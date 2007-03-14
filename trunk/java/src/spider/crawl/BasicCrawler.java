@@ -131,19 +131,19 @@ public class BasicCrawler {
 
                         //extract links and add them to the frontier
                         BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem();
-                        for (int i = 0; i < urls.length; i++) {
+                        for (String url : urls) {
                             //find the filename
-                            String fileName = Hashing.getHashValue(urls[i]);
+                            String fileName = Hashing.getHashValue(url);
                             //check in the cache
                             File f = new File(cache.getPath(fileName) + fileName);
                             if (f.exists()) {
                                 //score and add the URLs to frontier (if frontierAdd flag is true)
                                 if (frontierAdd) {
                                     // Now I am taking control of the crawler - Eran Chinthaka
-                                    String[] linksToBeRetrieved = blogProcessingSystem.processPage(f, urls[i]);
+                                    String[] linksToBeRetrieved = blogProcessingSystem.processPage(f, url);
                                     addLinksToFrontier(linksToBeRetrieved);
                                 } else {
-                                    history.add(urls[i], fileName, -1);
+                                    history.add(url, fileName, -1);
                                 }
                             }
                         }
@@ -174,7 +174,6 @@ public class BasicCrawler {
         if (dir == null || seeds == null || maxPages == 0) {
             return false;
         }
-        System.out.println("starting blog...");
         //check if the directory exists
         boolean exists = (new File(dir)).exists();
         //if not exist then create one with that name
@@ -214,7 +213,6 @@ public class BasicCrawler {
             //fes.add(new FrontierElement(seeds[i], 1));
         }
         front.addElements(urls);
-        System.out.println("Frontier:" + front.size());
 
         stat = new Statistics(System.currentTimeMillis(), history, front);
         stat.setFile(statFile);

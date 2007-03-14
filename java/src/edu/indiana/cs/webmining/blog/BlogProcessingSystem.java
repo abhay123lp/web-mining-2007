@@ -54,8 +54,13 @@ import edu.indiana.cs.webmining.blog.impl.GenericBlogProcessor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -67,9 +72,19 @@ public class BlogProcessingSystem {
 
     private BlogDataStorage blogDataStorage;
 
+    public static final String SYSTEM_NAME = "BlogProcessingSystem";
+    Logger logger = Logger.getLogger(SYSTEM_NAME);
 
     public BlogProcessingSystem() {
         blogDataStorage = new FileBasedBlogDataStorage();
+        try {
+            logger.addHandler(new FileHandler("logs/blog-processing.log", true));
+            ConsoleHandler consoleHandler = new ConsoleHandler();
+            consoleHandler.setLevel(Level.INFO);
+            logger.addHandler(consoleHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

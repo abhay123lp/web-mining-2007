@@ -71,10 +71,13 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class BlogDetector {
 
     private static BlogDetector ourInstance = new BlogDetector();
+
+    private Logger logger = Logger.getLogger(BlogProcessingSystem.SYSTEM_NAME);
 
     private static Map<String, Integer> knownBlogURLList;
     private static Map<String, Boolean> blogPublishingFrameworks;
@@ -148,6 +151,9 @@ public class BlogDetector {
         blogPublishingFrameworks.put("http://www.modblog.com", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.feedblitz.com", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.lifetype.net/", Boolean.TRUE);
+
+        logger.fine("Blog Detection System initialized ......");
+
     }
 
     /**
@@ -171,7 +177,7 @@ public class BlogDetector {
 
             return identifyURL(new URL(pageURL), inputStream);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.fine("Malformed URL " + pageURL + " passed for blog identification " + e.getMessage());
             return Constants.NOT_A_BLOG;
         }
     }
@@ -233,11 +239,11 @@ public class BlogDetector {
             return hasLinkToBlogFramework(pageURL);
 
         } catch (ParserException e) {
-            e.printStackTrace();
+            logger.fine("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fine("IO Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         }
@@ -276,9 +282,11 @@ public class BlogDetector {
                 }
             }
         } catch (ParserException e) {
+            logger.fine("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         } catch (IOException e) {
+            logger.fine("IO Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         }

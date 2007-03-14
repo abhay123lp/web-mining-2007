@@ -80,6 +80,7 @@ public class BlogDetector {
     private Logger logger = Logger.getLogger(BlogProcessingSystem.SYSTEM_NAME);
 
     private static Map<String, Integer> knownBlogURLList;
+    private static Map<String, Integer> history;
     private static Map<String, Boolean> blogPublishingFrameworks;
 
     public static BlogDetector getInstance() {
@@ -100,7 +101,7 @@ public class BlogDetector {
         knownBlogURLList.put("blogspot.com", Constants.BLOGSPOT);
         knownBlogURLList.put("blog.myspace.com", Constants.BLOG);
         knownBlogURLList.put("blogger.com", Constants.BLOGGER);
-        knownBlogURLList.put("bloglines.com", Constants.BLOGLINES);
+        knownBlogURLList.put("bloglines.com/blog/", Constants.BLOGLINES);
         knownBlogURLList.put("weblogs.com", Constants.BLOG);
         knownBlogURLList.put("diaryland.com", Constants.BLOG);
         knownBlogURLList.put("livejournal.com", Constants.BLOG);
@@ -152,6 +153,8 @@ public class BlogDetector {
         blogPublishingFrameworks.put("http://www.feedblitz.com", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.lifetype.net/", Boolean.TRUE);
 
+        history = new HashMap<String, Integer>();
+
         logger.fine("Blog Detection System initialized ......");
 
     }
@@ -175,7 +178,16 @@ public class BlogDetector {
                 return Constants.NOT_A_BLOG;
             }
 
-            return identifyURL(new URL(pageURL), inputStream);
+            // first let's check in the cache
+            Integer urlType = history.get(pageURL);
+
+            if (urlType == null) {
+                // cache miss
+                urlType = identifyURL(new URL(pageURL), inputStream);
+                history.put(pageURL, urlType);
+            }
+
+            return urlType;
         } catch (MalformedURLException e) {
             logger.fine("Malformed URL " + pageURL + " passed for blog identification " + e.getMessage());
             return Constants.NOT_A_BLOG;

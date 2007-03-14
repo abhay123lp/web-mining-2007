@@ -50,6 +50,9 @@ package edu.indiana.cs.webmining.blog;
 
 import edu.indiana.cs.webmining.blog.impl.FileBasedBlogDataStorage;
 import edu.indiana.cs.webmining.blog.impl.GenericBlogProcessor;
+import spider.crawl.BasicCrawler;
+import spider.crawl.Globals;
+import spider.util.Redirections;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,6 +60,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -79,7 +83,11 @@ public class BlogProcessingSystem {
     public BlogProcessingSystem() {
         blogDataStorage = new FileBasedBlogDataStorage();
         try {
-            FileHandler fileHandler = new FileHandler("logs/blog-processing-%g.log", true);
+
+            Properties props = new Properties();
+            props.load(new FileInputStream("etc/blog-detection.properties"));
+
+            FileHandler fileHandler = new FileHandler(props.getProperty("log-file"), true);
             fileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(fileHandler);
             ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -149,5 +157,54 @@ public class BlogProcessingSystem {
         }
     }
 
+    public static void main(String[] args) {
+
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream(new File("etc/blog-detection.properties")));
+
+            String seedUrls = props.getProperty("seed-urls");
+            //a list of seeds
+            String[] urls = seedUrls.split(",");
+
+            //number of pages to crawl
+            int maxPages = Integer.parseInt(props.getProperty("max-pages"));
+
+            //Folder to create to store the cache files (downloaded pages)
+            String data = props.getProperty("data-folder");
+
+            long startTime = System.currentTimeMillis();
+
+            BasicCrawler bf = new BasicCrawler(urls, maxPages, data);
+
+            //simultaneous threads of crawlers
+            bf.setMaxThreads(Integer.parseInt(props.getProperty("max-threads")));
+
+            //set maximum frontier size (-1 for no limit)
+            bf.setMaxFrontier(Integer.parseInt(props.getProperty("frontier-size")));
+
+            //history of pages crawled
+            bf.setStorageFile(props.getProperty("crawl-history"));
+
+            //log of a few statistics - file updated every minute
+            bf.setStatFile(props.getProperty("statitics-file"));
+
+            //set the e-mail address to go with the http request
+            String email;
+            Globals.setMail(props.getProperty("email"));
+
+            bf.startCrawl();
+
+            long endTime = System.currentTimeMillis();
+            long total = endTime - startTime;
+            System.out.println("Total Time: " + total);
+
+            //info on redirected pages
+            Redirections.toFile(props.getProperty("redirection-log"));
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
 
 }

@@ -83,11 +83,15 @@ public class FileBasedBlogDataStorage implements BlogDataStorage {
 // I am using a file which has a name by hashing the url of the source blog
             String fileName = Hashing.getHashValue(sourceBlog) + ".txt";
             File file = new File(storageFolder, fileName);
-            if (!file.isFile()) {
-                file.createNewFile();
-            }
-
             BufferedWriter out = new BufferedWriter(new FileWriter(file, true));
+//            if (!file.isFile()) {
+//                file.createNewFile();
+//                out.write("*********************************************************************************\n");
+//                out.write(" Source Blog = " + sourceBlog + "\n");
+//                out.write("**********************************************************************************\n");
+//            }
+
+
             for (String destinationURL : destinationURLs) {
                 out.write(destinationURL + "\n");
             }
@@ -103,5 +107,9 @@ public class FileBasedBlogDataStorage implements BlogDataStorage {
             e.printStackTrace();
 
         }
+    }
+
+    private void writeFileHeader(File file, String sourceBlog) {
+
     }
 }

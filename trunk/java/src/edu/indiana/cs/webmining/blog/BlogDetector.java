@@ -69,7 +69,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -82,6 +81,13 @@ public class BlogDetector {
     private static Map<String, Integer> knownBlogURLList;
     private static Map<String, Integer> history;
     private static Map<String, Boolean> blogPublishingFrameworks;
+
+    /**
+     * Some blogs urls appear to be pointing to blogs, but they are not blogs actually. For example,
+     * a links that contains www.bloglines.com but doesn't contain /blog part is not a blog. It is
+     * just a link to the bloglines.com site. So we need to remove them being identified as blogs.
+     */
+    private static Map<String, String> deceivingNonBlogs;
 
     public static BlogDetector getInstance() {
         return ourInstance;
@@ -98,10 +104,10 @@ public class BlogDetector {
      */
     private void intialize() {
         knownBlogURLList = new HashMap<String, Integer>();
-        knownBlogURLList.put("blogspot.com", Constants.BLOGSPOT);
+        knownBlogURLList.put("blogspot.com", Constants.BLOG);
         knownBlogURLList.put("blog.myspace.com", Constants.BLOG);
-        knownBlogURLList.put("blogger.com", Constants.BLOGGER);
-        knownBlogURLList.put("bloglines.com/blog/", Constants.BLOGLINES);
+        knownBlogURLList.put("blogger.com", Constants.BLOG);
+        knownBlogURLList.put("bloglines.com/blog/", Constants.BLOG);
         knownBlogURLList.put("weblogs.com", Constants.BLOG);
         knownBlogURLList.put("diaryland.com", Constants.BLOG);
         knownBlogURLList.put("livejournal.com", Constants.BLOG);
@@ -154,6 +160,9 @@ public class BlogDetector {
         blogPublishingFrameworks.put("http://www.lifetype.net/", Boolean.TRUE);
 
         history = new HashMap<String, Integer>();
+
+        deceivingNonBlogs = new HashMap<String, String>();
+        deceivingNonBlogs.put("www.bloglines.com", "www.bloglines.com/blog/");
 
         logger.fine("Blog Detection System initialized ......");
 
@@ -215,14 +224,17 @@ public class BlogDetector {
             return Constants.NOT_A_BLOG;
         }
 
-        // First let's look at the blog address. Let's see whether this is a known blog
-        String hostAddress = pageURL.getHost();
-        if ((status = getBlogId(hostAddress)) != -1) {
+        // First let's look at the blog address.
+        // let's see whether this is a url appears to be blog, but not really a blog
+//        for(String blogHost : )
+
+        // Let's see whether this is a known blog
+        if ((status = getBlogId(pageURL)) != 0) {
             return status;
         }
 
         // now let's see whether the url contains, blog as a word
-        if (hostAddress.contains("blog") || pageURL.getFile().contains("blog")) {
+        if (pageURL.getHost().contains("blog") || pageURL.getFile().contains("blog")) {
             return Constants.BLOG;
         }
 
@@ -262,15 +274,18 @@ public class BlogDetector {
 
     }
 
-    private int getBlogId(String hostAddress) {
-
-        Iterator<String> knownBlogNames = knownBlogURLList.keySet().iterator();
+    private int getBlogId(URL pageURL) {
+        String hostAddress = pageURL.getHost();
         for (String blogName : knownBlogURLList.keySet()) {
             if (hostAddress.indexOf(blogName) > -1) {
-                return knownBlogURLList.get(blogName);
+                return Constants.BLOG;
             }
         }
-        return -1;
+
+        if (deceivingNonBlogs.containsKey(hostAddress)) {
+            return (pageURL.toString().contains(deceivingNonBlogs.get(hostAddress))) ? Constants.BLOG : Constants.NOT_A_BLOG;
+        }
+        return 0;
     }
 
     /**

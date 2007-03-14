@@ -51,6 +51,7 @@ package edu.indiana.cs.webmining.blog.impl;
 import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.blog.BlogCrawlingException;
 import edu.indiana.cs.webmining.blog.BlogDetector;
+import edu.indiana.cs.webmining.blog.BlogProcessingSystem;
 import edu.indiana.cs.webmining.blog.BlogProcessor;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
@@ -66,6 +67,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 
 /**
@@ -75,6 +77,7 @@ import java.util.TreeSet;
 public class GenericBlogProcessor implements BlogProcessor {
 
     private BlogDetector blogDetector;
+    private Logger logger = Logger.getLogger(BlogProcessingSystem.SYSTEM_NAME);
 
     public GenericBlogProcessor() {
         blogDetector = BlogDetector.getInstance();
@@ -103,7 +106,7 @@ public class GenericBlogProcessor implements BlogProcessor {
                 String linkURL = tag.getLink();
 
                 if (blogDetector.identifyURL(linkURL, null) != Constants.NOT_A_BLOG) {
-                    System.out.println("*BLOG* " + linkURL);
+                    logger.info(" *BLOG Detected* ==> " + linkURL);
                     linksToBlogs.add(linkURL);
                 }
             }

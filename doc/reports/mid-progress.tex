@@ -1,0 +1,41 @@
+\documentclass{article}
+
+\author{Eran Chintaka\\
+  Michael Conover\\
+  Michel Salim}
+
+\title{Blog Mining: mid-term progress report}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+\section{Infrastructure}
+We have written Java classes for interfacing with the MySQL database
+back-end and with the Jung graph library
+
+\section{Crawler}
+Eran?
+
+\section{Link-based similarity}
+We currently have two algorithms implemented:
+\begin{itemize}
+\item A friend-of-a-friend (FOAF) algorithm that operates on a
+  subgraph consisting of the starting node, nodes connected by its
+  outlinks (D=1) and the nodes connected from those nodes (D=2). We
+  are considering extending this to also include the parents of the
+  D=1 set, or even all the grandparents of D=2, on the intuition that
+  nodes with high correferentiality are more likely to be similar
+
+\item the HITS algorithm provided by the Jung framework. This
+  currently does not provide very interesting results; most likely
+  because of weaknesses in the node selection process for the initial
+  subgraph (see above)
+\end{itemize}
+
+\section{Content-based similarity}
+We are using the Word Vector Tool (WVTool) for doing statistical
+analysis of the documents crawled.
+
+\end{document}

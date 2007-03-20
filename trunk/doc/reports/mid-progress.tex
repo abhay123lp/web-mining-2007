@@ -1,25 +1,41 @@
 \documentclass{article}
 
-\author{Eran Chintaka\\
+\author{Eran Chinthaka\\
   Michael Conover\\
   Michel Salim}
 
-\title{Blog Mining: mid-term progress report}
+\title{Blog Mining: Project Progress Report}
 
 \begin{document}
 \maketitle
 
 \section{Introduction}
 
-\section{Infrastructure}
-We have written Java classes for interfacing with the MySQL database
-back-end and with the Jung graph library
+\section{Implementation Details}
+The project contains three basic modules, namely; crawler to gather links
+structure and the content of blogs, persistance layer, implemented using a
+database, to store all the collected data and a framework which runs on the
+collected data to do predictions based on links and content-based similarity.
 
-\section{Crawler}
-Eran?
+\subsection{Crawler}
+We extended the java crawler implementation \cite{JavaCrawler} to crawl only the
+blogs and extracted blog links information, together with the content of them. 
+Content might later be used to do a content-based similarity checking to verify
+the predictions. 
+We evaluated multiple criterias to be used during the blog detection process and
+all these criterias were derived from the patterns identified using currently
+active blogs. Some of the criterias include prediction based on the urls and
+the content of those pages. 
 
-\section{Link-based similarity}
-We currently have two algorithms implemented:
+\subsection{Persistance Layer}
+We implemented a persistance layer to store and retrieve collected data on top
+of a database. Currently we rely on MySQL but we have no hard dependency on that
+database. 
+
+\subsection{Link-based similarity}
+We evaluated various algorithms which can be used in the area of blog detection
+and currently have two algorithms implemented:
+
 \begin{itemize}
 \item A friend-of-a-friend (FOAF) algorithm that operates on a
   subgraph consisting of the starting node, nodes connected by its
@@ -34,8 +50,16 @@ We currently have two algorithms implemented:
   subgraph (see above)
 \end{itemize}
 
-\section{Content-based similarity}
+\subsection{Content-based similarity}
 We are using the Word Vector Tool (WVTool) for doing statistical
 analysis of the documents crawled.
+
+\begin{thebibliography}{9}
+
+	\bibitem{JavaCrawler} 
+	  
+	  \emph{Multi-threaded crawlers in Java} \htmladdnormallink{http://informatics.indiana.edu/fil/IS/JavaCrawlers/}{http://informatics.indiana.edu/fil/IS/JavaCrawlers/}
+
+\end{thebibliography}
 
 \end{document}

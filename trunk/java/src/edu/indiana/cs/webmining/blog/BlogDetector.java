@@ -133,6 +133,7 @@ public class BlogDetector {
         knownBlogURLList.put("diarist.com", Constants.BLOG);
         knownBlogURLList.put("antville.org", Constants.BLOG);
         knownBlogURLList.put("bloggingnetwork.com", Constants.BLOG);
+        knownBlogURLList.put("wired.com", Constants.BLOG);
         knownBlogURLList.put("crimsonblog.com", Constants.BLOG);
         knownBlogURLList.put("skyblog.com", Constants.BLOG);
         knownBlogURLList.put("wordpress.com", Constants.BLOG);
@@ -312,6 +313,9 @@ public class BlogDetector {
                     return Constants.BLOG;
                 }
             }
+
+            page = new Page(pageURL.openConnection());
+            parser = new Parser(new Lexer(page));
             TagNameFilter aTag = new TagNameFilter("a");
             NodeList nl = parser.parse(aTag);
 
@@ -338,7 +342,7 @@ public class BlogDetector {
 
     public static void main(String[] args) {
         BlogDetector blogDetector = new BlogDetector();
-        int result = blogDetector.identifyURL("http://zeldman.com/", null);
+        int result = blogDetector.identifyURL("http://thismodernworld.com", null);
         System.out.println("result = " + result);
     }
 }

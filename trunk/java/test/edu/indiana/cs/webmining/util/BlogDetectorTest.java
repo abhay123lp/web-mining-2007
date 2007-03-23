@@ -116,6 +116,11 @@ public class BlogDetectorTest extends TestCase {
         linksToBeAvoided.put("http://drudgereport.com", Boolean.TRUE);
         linksToBeAvoided.put("http://zeldman.com", Boolean.TRUE);
         linksToBeAvoided.put("http://truthlaidbear.com", Boolean.TRUE);
+        linksToBeAvoided.put("http://tenth-muse.com", Boolean.TRUE);
+        linksToBeAvoided.put("http://janegalt.net", Boolean.TRUE);    // can not connect using crawler
+        linksToBeAvoided.put("http://parastood.com", Boolean.TRUE);   // url redirection in a weird way
+        linksToBeAvoided.put("http://khabgard.com", Boolean.TRUE);     // character set encoding problem
+        linksToBeAvoided.put("http://denbeste.nu", Boolean.TRUE);     // URL redirection
 
         try {
             URL blogRollingTop500Page = new URL("http://www.blogrolling.com/top.phtml");

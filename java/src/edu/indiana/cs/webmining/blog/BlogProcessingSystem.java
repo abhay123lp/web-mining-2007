@@ -79,13 +79,14 @@ public class BlogProcessingSystem {
 
     public static final String SYSTEM_NAME = "BlogProcessingSystem";
     Logger logger = Logger.getLogger(SYSTEM_NAME);
+    public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
 
     public BlogProcessingSystem() {
 
         try {
 
             Properties props = new Properties();
-            props.load(new FileInputStream("etc/blog-detection.properties"));
+            props.load(new FileInputStream(BLOG_DETECTION_PROPERTIES));
 
             blogDataStorage = new FileBasedBlogDataStorage(props.getProperty("blog-data-folder"));
 
@@ -165,7 +166,7 @@ public class BlogProcessingSystem {
 
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream(new File("etc/blog-detection.properties")));
+            props.load(new FileInputStream(new File(BLOG_DETECTION_PROPERTIES)));
 
             String seedUrls = props.getProperty("seed-urls");
             //a list of seeds

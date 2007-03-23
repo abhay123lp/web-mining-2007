@@ -55,6 +55,7 @@ package edu.indiana.cs.webmining.blog;
 import edu.indiana.cs.webmining.Constants;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
+import org.htmlparser.filters.RegexFilter;
 import org.htmlparser.filters.TagNameFilter;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
@@ -65,12 +66,19 @@ import org.htmlparser.tags.TitleTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class BlogDetector {
@@ -90,6 +98,8 @@ public class BlogDetector {
      */
     private static Map<String, String> deceivingNonBlogs;
     private static final String APPLICATION_RSS_XML_TYPE = "application/rss+xml";
+    private static final String APPLICATION_ATOM_XML_TYPE = "application/atom+xml";
+    private File blogHistoryFileName;
 
     public static BlogDetector getInstance() {
         return ourInstance;
@@ -97,6 +107,38 @@ public class BlogDetector {
 
     private BlogDetector() {
         intialize();
+
+        initHistory();
+
+        Runtime.getRuntime().addShutdownHook(new ShutDownHook(this));
+    }
+
+    private void initHistory() {
+        Properties props = new Properties();
+        try {
+
+            history = new HashMap<String, Integer>();
+
+            props.load(new FileInputStream(new File(BlogProcessingSystem.BLOG_DETECTION_PROPERTIES)));
+            blogHistoryFileName = new File(props.getProperty("blog-history"));
+
+            if (blogHistoryFileName.isFile()) {
+                BufferedReader in = new BufferedReader(new FileReader(blogHistoryFileName));
+                String blogURL;
+                while ((blogURL = in.readLine()) != null) {
+                    history.put(blogURL, Constants.BLOG);
+                }
+                in.close();
+
+            } else {
+                blogHistoryFileName.createNewFile();
+            }
+
+
+        } catch (IOException e) {
+            logger.info("Can not load blog history.");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -163,7 +205,6 @@ public class BlogDetector {
         blogPublishingFrameworks.put("http://www.lifetype.net/", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.wordpress.com/", Boolean.TRUE);
 
-        history = new HashMap<String, Integer>();
 
         deceivingNonBlogs = new HashMap<String, String>();
         deceivingNonBlogs.put("www.bloglines.com", "www.bloglines.com/blog/");
@@ -267,7 +308,7 @@ public class BlogDetector {
             return hasLinkToBlogFramework(pageURL);
 
         } catch (ParserException e) {
-            logger.fine("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
+            logger.info("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         } catch (IOException e) {
@@ -300,22 +341,25 @@ public class BlogDetector {
      */
     private int hasLinkToBlogFramework(URL pageURL) {
         try {
-            Page page = new Page(pageURL.openConnection());
-            Parser parser = new Parser(new Lexer(page));
+            Parser parser = new Parser(pageURL.openConnection());
+
+
             TagNameFilter linkTag = new TagNameFilter("link");
+
+            RegexFilter regexFilter = new RegexFilter();
 
             NodeList nodeList = parser.parse(linkTag);
 
             TagNode tag;
             for (int i = 0; i < nodeList.size(); i++) {
                 tag = (TagNode) nodeList.elementAt(i);
-                if (APPLICATION_RSS_XML_TYPE.equalsIgnoreCase(tag.getAttribute("type"))) {
+                String typeAttribute = tag.getAttribute("type");
+                if (APPLICATION_RSS_XML_TYPE.equalsIgnoreCase(typeAttribute) || APPLICATION_ATOM_XML_TYPE.equalsIgnoreCase(typeAttribute)) {
                     return Constants.BLOG;
                 }
             }
 
-            page = new Page(pageURL.openConnection());
-            parser = new Parser(new Lexer(page));
+            parser = new Parser(pageURL.openConnection());
             TagNameFilter aTag = new TagNameFilter("a");
             NodeList nl = parser.parse(aTag);
 
@@ -342,7 +386,50 @@ public class BlogDetector {
 
     public static void main(String[] args) {
         BlogDetector blogDetector = new BlogDetector();
-        int result = blogDetector.identifyURL("http://thismodernworld.com", null);
+        int result = blogDetector.identifyURL("http://www.oliverwillis.com", null);
         System.out.println("result = " + result);
+    }
+
+
+    @Override
+    protected void finalize() throws Throwable {
+        saveHistory();
+
+    }
+
+    public void saveHistory() throws IOException {
+        System.out.print("Saving the history ....");
+
+        BufferedWriter out = new BufferedWriter(new FileWriter(blogHistoryFileName));
+
+        for (String blogLink : history.keySet()) {
+            if (history.get(blogLink) == Constants.BLOG) {
+                out.write(blogLink + "\n");
+            }
+        }
+
+        out.close();
+
+        System.out.println("Done.");
+    }
+
+
+    class ShutDownHook extends Thread {
+
+        private BlogDetector blogDetector;
+
+
+        public ShutDownHook(BlogDetector blogDetector) {
+            this.blogDetector = blogDetector;
+        }
+
+        public void run() {
+            try {
+                blogDetector.saveHistory();
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
+        }
     }
 }

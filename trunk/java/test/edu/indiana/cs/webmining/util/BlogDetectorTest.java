@@ -48,13 +48,25 @@
 
 package edu.indiana.cs.webmining.util;
 
+import edu.indiana.cs.webmining.Constants;
+import edu.indiana.cs.webmining.blog.BlogDetector;
 import junit.framework.TestCase;
+import org.htmlparser.Node;
+import org.htmlparser.Parser;
+import org.htmlparser.filters.TagNameFilter;
+import org.htmlparser.lexer.Lexer;
+import org.htmlparser.lexer.Page;
+import org.htmlparser.tags.LinkTag;
+import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
-import edu.indiana.cs.webmining.blog.BlogDetector;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: Eran Chinthaka (echintha@cs.indiana.edu)
@@ -96,6 +108,46 @@ public class BlogDetectorTest extends TestCase {
         } catch (IOException e) {
             System.out.println("Too bad. We've got an IOException" + e);
         }
+    }
+
+    public void testBlogRollingTop500Blogs() throws IOException, ParserException {
+
+        Map<String, Boolean> linksToBeAvoided = new HashMap<String, Boolean>();
+        linksToBeAvoided.put("http://drudgereport.com", Boolean.TRUE);
+        linksToBeAvoided.put("http://zeldman.com", Boolean.TRUE);
+        linksToBeAvoided.put("http://truthlaidbear.com", Boolean.TRUE);
+
+        try {
+            URL blogRollingTop500Page = new URL("http://www.blogrolling.com/top.phtml");
+            Page page = new Page(blogRollingTop500Page.openConnection());
+            Parser parser = new Parser(new Lexer(page));
+
+            BlogDetector detector = BlogDetector.getInstance();
+
+            TagNameFilter linkTag = new TagNameFilter("a");
+
+            NodeList nl = parser.parse(linkTag);
+
+            for (int i = 0; i < nl.size(); i++) {
+                Node node = nl.elementAt(i);
+                LinkTag linkTagNode = (LinkTag) node;
+
+                // I don't wanna analyze all the links here. When  I was looking at the top 500 page
+                // all the links that were linking to blogs, had target="_blank"
+                if ("_blank".equals(linkTagNode.getAttribute("target")) && linkTagNode.getAttribute("title") != null) {
+                    String pageURL = linkTagNode.getLink();
+                    System.out.println("Link = " + pageURL);
+                    if (!linksToBeAvoided.containsKey(pageURL)) {
+                        assertTrue(detector.identifyURL(pageURL, null) == Constants.BLOG);
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+
+        }
+
+
     }
 
 }

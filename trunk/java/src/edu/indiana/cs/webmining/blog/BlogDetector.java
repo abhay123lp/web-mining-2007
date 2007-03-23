@@ -135,6 +135,7 @@ public class BlogDetector {
         knownBlogURLList.put("bloggingnetwork.com", Constants.BLOG);
         knownBlogURLList.put("crimsonblog.com", Constants.BLOG);
         knownBlogURLList.put("skyblog.com", Constants.BLOG);
+        knownBlogURLList.put("wordpress.com", Constants.BLOG);
         knownBlogURLList.put("blog.pl", Constants.BLOG);
         knownBlogURLList.put("e-blog.pl", Constants.BLOG);
         knownBlogURLList.put("weblog.pl", Constants.BLOG);
@@ -159,6 +160,7 @@ public class BlogDetector {
         blogPublishingFrameworks.put("http://www.modblog.com", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.feedblitz.com", Boolean.TRUE);
         blogPublishingFrameworks.put("http://www.lifetype.net/", Boolean.TRUE);
+        blogPublishingFrameworks.put("http://www.wordpress.com/", Boolean.TRUE);
 
         history = new HashMap<String, Integer>();
 
@@ -310,16 +312,14 @@ public class BlogDetector {
                     return Constants.BLOG;
                 }
             }
-
-
             TagNameFilter aTag = new TagNameFilter("a");
-            NodeList nl = parser.parse(linkTag);
+            NodeList nl = parser.parse(aTag);
 
             for (int i = 0; i < nl.size(); i++) {
                 Node node = nl.elementAt(i);
                 LinkTag linkTagNode = (LinkTag) node;
                 String url = linkTagNode.getLink();
-                if (blogPublishingFrameworks.get(url) != null) {
+                if (url != null && (url.contains("feed:") || blogPublishingFrameworks.get(url) != null)) {
                     return Constants.BLOG;
                 }
             }
@@ -334,5 +334,11 @@ public class BlogDetector {
         }
 
         return Constants.NOT_A_BLOG;
+    }
+
+    public static void main(String[] args) {
+        BlogDetector blogDetector = new BlogDetector();
+        int result = blogDetector.identifyURL("http://zeldman.com/", null);
+        System.out.println("result = " + result);
     }
 }

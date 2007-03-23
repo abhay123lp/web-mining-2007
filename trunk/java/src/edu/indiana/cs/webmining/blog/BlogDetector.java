@@ -59,6 +59,7 @@ import org.htmlparser.filters.TagNameFilter;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
 import org.htmlparser.lexer.Page;
+import org.htmlparser.nodes.TagNode;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.tags.TitleTag;
 import org.htmlparser.util.NodeList;
@@ -88,6 +89,7 @@ public class BlogDetector {
      * just a link to the bloglines.com site. So we need to remove them being identified as blogs.
      */
     private static Map<String, String> deceivingNonBlogs;
+    private static final String APPLICATION_RSS_XML_TYPE = "application/rss+xml";
 
     public static BlogDetector getInstance() {
         return ourInstance;
@@ -258,7 +260,7 @@ public class BlogDetector {
                 }
             }
 
-            // now let's see there is a link for major blog publishing frameworks, within the page
+            // now let's see there is a link for major blog publishing frameworks or has an RSS feed, within the page
             return hasLinkToBlogFramework(pageURL);
 
         } catch (ParserException e) {
@@ -297,14 +299,26 @@ public class BlogDetector {
         try {
             Page page = new Page(pageURL.openConnection());
             Parser parser = new Parser(new Lexer(page));
-            TagNameFilter f2 = new TagNameFilter("a");
+            TagNameFilter linkTag = new TagNameFilter("link");
 
-            NodeList nl = parser.parse(f2);
+            NodeList nodeList = parser.parse(linkTag);
+
+            TagNode tag;
+            for (int i = 0; i < nodeList.size(); i++) {
+                tag = (TagNode) nodeList.elementAt(i);
+                if (APPLICATION_RSS_XML_TYPE.equalsIgnoreCase(tag.getAttribute("type"))) {
+                    return Constants.BLOG;
+                }
+            }
+
+
+            TagNameFilter aTag = new TagNameFilter("a");
+            NodeList nl = parser.parse(linkTag);
 
             for (int i = 0; i < nl.size(); i++) {
                 Node node = nl.elementAt(i);
-                LinkTag tag = (LinkTag) node;
-                String url = tag.getLink();
+                LinkTag linkTagNode = (LinkTag) node;
+                String url = linkTagNode.getLink();
                 if (blogPublishingFrameworks.get(url) != null) {
                     return Constants.BLOG;
                 }

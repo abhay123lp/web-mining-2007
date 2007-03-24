@@ -253,8 +253,8 @@ public class Frontier {
      */
     public synchronized String toString() {
         StringBuffer fbuffer = new StringBuffer("");
-        for (int i = 0; i < v.size(); i++) {
-            fbuffer.append(((FrontierElement) v.get(i)).url + ":" + ((FrontierElement) v.get(i)).score + "  ");
+        for (Object aV : v) {
+            fbuffer.append(((FrontierElement) aV).url).append(":").append(((FrontierElement) aV).score).append("  ");
         }
         return fbuffer.toString().trim();
     }
@@ -302,10 +302,10 @@ public class Frontier {
         for (int i = 0; i < blacklist.length; i++) {
             blacklist[i] = blacklist[i].toLowerCase();
             url = url.toLowerCase();
-            if (url.matches(".*"+blacklist[i]+".*")) {
-				return true;	
-			} 	
-		}		
-		return false;			
-	}
+            if (url.matches(".*" + blacklist[i] + ".*")) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

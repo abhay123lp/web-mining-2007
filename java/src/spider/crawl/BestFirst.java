@@ -34,8 +34,7 @@ public class BestFirst extends BasicCrawler {
             st = new Stemmer();
             query = st.stem(query);
         }
-        double score = Helper.getSim(query, text);
-        return score;
+        return Helper.getSim(query, text);
     }
 
     /**

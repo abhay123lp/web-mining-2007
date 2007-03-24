@@ -18,11 +18,7 @@ public class BadURLList {
 
     public synchronized static boolean isBadURL(String URL) {
         if (URL != null) {
-            if (list.containsKey(URL)) {
-                return true;
-            } else {
-                return false;
-            }
+            return list.containsKey(URL);
         } else {
             return true;
         }

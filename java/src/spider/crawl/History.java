@@ -43,10 +43,7 @@ public class History {
      * find if a url is in history
      */
     public synchronized boolean isInHistory(String url) {
-        if (ht.containsKey(url)) {
-            return true;
-        }
-        return false;
+        return ht.containsKey(url);
     }
 
     /**
@@ -141,7 +138,7 @@ public class History {
      */
     public Hashtable getHistory() {
         return ht;
-	}
-	
+    }
+
 
 }

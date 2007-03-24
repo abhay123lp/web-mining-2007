@@ -80,7 +80,7 @@ public class HTMLParser extends ParserCallback {
     String cleanText(String text) {
         String result = null;
         if (text == null)
-            text = new String("");
+            text = "";
         try {
             Pattern exp = Pattern.compile("[_\\W+]");
             String[] parts = exp.split(text);
@@ -95,7 +95,7 @@ public class HTMLParser extends ParserCallback {
             while (q.hasMoreTokens()) {
                 String next = q.nextToken();
                 if (!stop.isStopWord(next)) {
-                    stopText.append(next + " ");
+                    stopText.append(next).append(" ");
                 } else {
                     //System.out.println("Stop Word:"+next);
                 }
@@ -161,7 +161,7 @@ public class HTMLParser extends ParserCallback {
                     }
                     break;
                 case 1: //start tag
-                    xml.append("<" + se.tag);
+                    xml.append("<").append(se.tag);
                     MutableAttributeSet a = se.attribs;
                     String href = (String) a.getAttribute(HTML.Attribute.HREF);
                     URL link = null;
@@ -183,14 +183,14 @@ public class HTMLParser extends ParserCallback {
                             break;
                         }
                         StringBuffer attributes = new StringBuffer("");
-                        attributes.append("href" + "=\"" + uri + "\" ");
-                        xml.append(" " + (attributes.toString()).trim());
+                        attributes.append("href" + "=\"").append(uri).append("\" ");
+                        xml.append(" ").append((attributes.toString()).trim());
                     }
                     xml.append(">\n");
 
                     break;
                 case 2: //end tag
-                    xml.append("</" + se.tag + ">\n");
+                    xml.append("</").append(se.tag).append(">\n");
                     break;
             }
         }
@@ -213,7 +213,7 @@ public class HTMLParser extends ParserCallback {
      * @param stemmer The stemmer to set
      */
     public void setStemmer(boolean stemmer) {
-		this.stemmer = stemmer;
-	}
+        this.stemmer = stemmer;
+    }
 
 }

@@ -245,7 +245,7 @@ public class XMLParser {
                 if (t != null) {
                     String nodeText = t.getNodeValue().trim();
                     if (nodeText.length() > 0) {
-                        textBuffer.append(nodeText + " ");
+                        textBuffer.append(nodeText).append(" ");
                     }
                 }
             }
@@ -293,7 +293,7 @@ public class XMLParser {
                         traverseText(agg_node, linkTextBuffer, level - rel_depth);
                         String linkText = linkTextBuffer.toString().trim();
                         if (ht.get(url) == null) {
-                            ht.put(url, linkText.toString().trim());
+                            ht.put(url, linkText.trim());
                         }
                     }
                 }
@@ -338,7 +338,7 @@ public class XMLParser {
                                 traverseText(agg_node, linkTextBuffer, level - rel_depth);
                                 String linkText = linkTextBuffer.toString().trim();
                                 String[] linkTextWords = linkText.split("[\\W+_]");
-                                contexts.add(agg_node.getNodeName() + " " + linkTextWords.length + " " + linkText.toString().trim());
+                                contexts.add(agg_node.getNodeName() + " " + linkTextWords.length + " " + linkText.trim());
                                 if (agg_node.getNodeName().equals("html")) {
                                     break;
                                 }
@@ -415,8 +415,8 @@ public class XMLParser {
                     }
                 }
             }
-			traverseLinkContextAdaptive(n, ht, w, level + 1);	
-		}		
-	}
-	
+            traverseLinkContextAdaptive(n, ht, w, level + 1);
+        }
+    }
+
 }

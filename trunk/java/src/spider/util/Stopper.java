@@ -56,7 +56,7 @@ public class Stopper {
             if (isStopWord(terms[i])) {
                 continue;
             }
-            sb.append(terms[i] + " ");
+            sb.append(terms[i]).append(" ");
         }
         return sb.toString().trim();
     }

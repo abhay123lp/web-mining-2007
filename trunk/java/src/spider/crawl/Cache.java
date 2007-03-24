@@ -80,9 +80,8 @@ public class Cache {
         if (extraCachePath) {
             extraPath = fileName.substring(0, 3) + "/";
         }
-        String completePath = path + extraPath;
         //System.out.println(completePath);
-        return completePath;
+        return path + extraPath;
     }
 
     /**
@@ -96,7 +95,7 @@ public class Cache {
             sb.append("/");
             path = sb.toString();
         }
-		this.path = path;
-	}
+        this.path = path;
+    }
 
 }

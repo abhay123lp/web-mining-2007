@@ -28,7 +28,7 @@ public class DOMCrawler extends BasicCrawler {
     protected int delta = -1; //the relative depth at which to set the aggregation node
     //if negative the parent is used as the aggregation node
     protected Stopper stp = new Stopper("stop_words");
-    ;
+
 
     public DOMCrawler(String[] seeds, long maxPages, String dir) {
         super(seeds, maxPages, dir);

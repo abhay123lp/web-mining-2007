@@ -9,3 +9,16 @@ http://www.1060.org/blogxter/publish/5
 http://www.jayallen.org/journey
 http://www.mobilitysite.com/
 http://slashdot.org/
+http://www.tbray.org/ongoing/
+http://salimma.livejournal.com/
+http://hircus.wordpress.com/
+http://twitter.com/CaliLewis
+http://blog.wired.com/sterling/
+http://insanecats.com/
+# Planet aggregators (good for hubs)
+http://www.go-mono.com/monologue/
+http://planet.maemo.org/
+http://planet.gnome.org/
+###
+http://www.kk.org/cooltools/
+http://www.schneier.com/blog/

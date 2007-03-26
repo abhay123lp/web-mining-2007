@@ -245,6 +245,10 @@ public class BlogDetector {
         } catch (MalformedURLException e) {
             logger.fine("Malformed URL " + pageURL + " passed for blog identification " + e.getMessage());
             return Constants.NOT_A_BLOG;
+        } catch (RuntimeException e) {
+            // TODO: figure out how to specifically catch Parsing Exception
+            System.err.println("Runtime exception (e.g. timeouts) for " + pageURL);
+            return Constants.NOT_A_BLOG;
         }
     }
 

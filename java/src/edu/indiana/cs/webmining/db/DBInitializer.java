@@ -49,19 +49,13 @@
 
 package edu.indiana.cs.webmining.db;
 
-import edu.indiana.cs.webmining.util.ResourceUser;
-import edu.indiana.cs.webmining.util.Using;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * @author Michel Salim <msalim@cs.indiana.edu>
@@ -71,78 +65,7 @@ public class DBInitializer {
 
     private static Connection conn;
 
-    private static void addNode(String url) throws SQLException {
-        String queryStr = "INSERT INTO blogs (url) "
-                + "VALUES ('" + url + "');";
-
-        Statement stmt = conn.createStatement();
-        stmt.execute(queryStr);
-        stmt.close();
-    }
-
-    private static int getNodeID(final String url) throws SQLException {
-        ResourceUser<Statement, Integer, SQLException> user =
-                new ResourceUser<Statement, Integer, SQLException>() {
-
-                    public Integer run(Statement stmt) throws SQLException {
-                        // TODO Auto-generated method stub
-                        String queryStr = "SELECT id FROM blogs "
-                                + "WHERE url='" + url + "';";
-                        int res;
-                        ResultSet results = stmt.executeQuery(queryStr);
-                        if (results.first()) {
-                            res = results.getInt(1);
-                        } else {
-                            addNode(url);
-                            res = getNodeID(url);
-                        }
-                        stmt.close();
-                        return res;
-                    }
-
-                };
-
-        //System.out.println("Finding ID for " + url);
-        Statement stmt = conn.createStatement();
-        return Using.using(stmt, user);
-    }
-
-    private static void addLink(String src, String dest) {
-        Statement stmt;
-        try {
-            final int srcid = getNodeID(src);
-            final int destid = getNodeID(dest);
-            ResourceUser<Statement, Object, SQLException> user =
-                    new ResourceUser<Statement, Object, SQLException>() {
-
-                        public Object run(Statement stmt) throws SQLException {
-                            // TODO Auto-generated method stub
-                            String queryStr = "INSERT IGNORE INTO links (srcid, destid) "
-                                    + "VALUES (" + srcid + ", " + destid + ");";
-                            stmt.execute(queryStr);
-
-                            return null;
-                        }
-
-                    };
-            stmt = conn.createStatement();
-            Using.using(stmt, user);
-        } catch (SQLException e) {
-            System.err.println("Link addition failed:");
-            System.err.println(e.getMessage());
-        }
-    }
-
-    /**
-     * Sanitizes a URL by removing within-site link etc.
-     *
-     * @param url Original URL
-     * @return The sanitized URL
-     * @throws MalformedURLException
-     */
-    public static String sanitizeURL(String url) throws MalformedURLException {
-        return new URL(url).getHost().toLowerCase();
-    }
+ 
 
     /**
      * @param args
@@ -162,17 +85,17 @@ public class DBInitializer {
 
             try {
                 conn = DBManager.getConnection();
-                //StringTokenizer tokens;
+                int count = 0;
                 String[] tokens;
-                String src;
-                String dest;
                 String line = reader.readLine();
                 while (line != null) {
+                    ++count;
+                    if ((count % 1000) == 0) {
+                        System.out.println("Added " + count + " links");
+                    }
                     tokens = line.split("[\\s,]+");
                     try {
-                        src = sanitizeURL(tokens[1]);
-                        dest = sanitizeURL(tokens[0]);
-                        addLink(src, dest);
+                        DBManager.addLink(tokens[1], tokens[0]);
                     } catch (MalformedURLException e) {
                         System.err.println("Malformed URL: " + e.getMessage());
                     }
@@ -184,6 +107,7 @@ public class DBInitializer {
             } catch (SQLException e) {
                 System.err.println("Failed to open database connection");
                 e.printStackTrace();
+                return;
             }
 
             reader.close();
@@ -192,6 +116,7 @@ public class DBInitializer {
             return;
         } catch (IOException e) {
             System.err.println("Cannot perform IO operation");
+            return;
         }
         System.out.println("Database populated");
 	}

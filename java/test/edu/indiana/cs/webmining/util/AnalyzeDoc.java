@@ -31,9 +31,9 @@ public class AnalyzeDoc {
 
         String words = m.replaceAll(" ");
         WVTool wvtool = new WVTool(true);
-        
         System.out.println(m.replaceAll(" "));
 
+        
 
     }
     public static void main(String[] args) {

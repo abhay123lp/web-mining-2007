@@ -49,6 +49,7 @@
 
 package edu.indiana.cs.webmining.util;
 
+import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 /**
@@ -69,7 +70,8 @@ public class Using {
     @SuppressWarnings("unchecked")
     public static <R extends Statement, T, E extends Exception> T using(
             R rsrc,
-            ResourceUser<R, T, E> user)
+            ResourceUser<R, T, E> user,
+            boolean closep)
             throws E {
         T result = null;
         String errMsg = "using: ";
@@ -80,13 +82,13 @@ public class Using {
         }
         finally {
             try {
-                if (rsrc != null)
+                if (rsrc != null && closep)
                     rsrc.close();
             } catch (Exception e) {
                 // Ideally we'd like to catch only exceptions of type E
                 // but type erasure gets in the way
                 Exception myE = new Exception(errMsg
-                        + "\nCannot close statement: "
+                        + "\nCannot close resource: "
                         + e.getMessage());
                 // Java type erasure is broken
                 throw (E) myE;

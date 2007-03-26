@@ -52,10 +52,12 @@ package edu.indiana.cs.webmining.db;
 import edu.indiana.cs.webmining.bean.Blog;
 import edu.indiana.cs.webmining.bean.Link;
 import edu.indiana.cs.webmining.bean.LinkedBlog;
+import edu.indiana.cs.webmining.blog.BlogUtils;
 import edu.indiana.cs.webmining.util.ResourceUser;
 import edu.indiana.cs.webmining.util.Using;
 
 import java.io.FileInputStream;
+import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -75,15 +77,45 @@ public class DBManager {
     private static PreparedStatement stmtGetAllLinks;
     private static PreparedStatement stmtGetPredecessors;
     private static PreparedStatement stmtGetSuccessors;
+    private static PreparedStatement stmtAddBlog;
+    private static PreparedStatement stmtAddExtBlog;
+    private static PreparedStatement stmtGetBlogID;
+    private static PreparedStatement stmtAddLink;
+    private static ResourceUser<PreparedStatement, Integer, SQLException> blogIDuser;
+    private static ResourceUser<PreparedStatement, Object, SQLException> voidUser;
     private static ResourceUser<PreparedStatement, ArrayList<Blog>, SQLException> pstmtUser;
     private static ResourceUser<PreparedStatement, ArrayList<LinkedBlog>, SQLException> pstmtLinkUser;
+
+    
+    /* Resource user getters */
+    private static ResourceUser<PreparedStatement, Object, SQLException>
+    getVoidUser() {
+        if (voidUser == null) {
+            voidUser =
+                new ResourceUser<PreparedStatement, Object, SQLException>() {
+
+                public Object run(PreparedStatement stmt) throws SQLException {
+                    stmt.execute();
+                    return null;
+                }
+
+            };
+        }
+        return voidUser;
+    }
 
     private static void initialize() throws SQLException {
         try {
             // Load MySQL connector
             Class.forName("com.mysql.jdbc.Driver").newInstance();
 
-            FileInputStream propstream = new FileInputStream("/home/gonzo/web-mining-2007/java/etc/login.prop");
+//            System.out.println("JDBC driver loaded");
+            
+            
+            FileInputStream propstream = new FileInputStream("etc/login.prop");
+            
+//            System.out.println("Properties file loaded");
+            
             Properties prop = new Properties();
             prop.load(propstream);
             propstream.close();
@@ -151,7 +183,7 @@ public class DBManager {
                             + "WHERE srcid = (SELECT id FROM blogs "
                             + "WHERE url=?);");
         }
-        return Using.using(stmtGetSuccessors, pstmtLinkUser);
+        return Using.using(stmtGetSuccessors, pstmtLinkUser, false);
     }
 
     public static ArrayList<LinkedBlog> getPredecessors(final String url) throws SQLException {
@@ -163,7 +195,7 @@ public class DBManager {
                             + "WHERE url=?);");
         }
         stmtGetPredecessors.setString(1, url);
-        return Using.using(stmtGetPredecessors, pstmtLinkUser);
+        return Using.using(stmtGetPredecessors, pstmtLinkUser, false);
     }
 
     public static ArrayList<LinkedBlog> getNeighbors(String url) throws SQLException {
@@ -177,7 +209,7 @@ public class DBManager {
             stmtGetAllBlogs =
                     conn.prepareStatement("SELECT id, url FROM blogs;");
         }
-        return Using.using(stmtGetAllBlogs, pstmtUser);
+        return Using.using(stmtGetAllBlogs, pstmtUser, false);
     }
 
     public static ArrayList<Link> getAllLinks() throws SQLException {
@@ -199,7 +231,81 @@ public class DBManager {
                         return res;
                     }
                 };
-        return Using.using(stmtGetAllLinks, user);
+        return Using.using(stmtGetAllLinks, user, false);
     }
+
+    private static void addBlog(String url) throws SQLException {
+        if (stmtAddBlog == null) {
+            stmtAddBlog = 
+                conn.prepareStatement("INSERT INTO blogs (url) "
+                        + "VALUES (?)");
+        }
+        stmtAddBlog.setString(1, url);
+        stmtAddBlog.execute();
+        return;
+    }
+
+    private static int getBlogID(String url) throws SQLException {
+        
+//        System.out.println("Looking up internal ID for " + url);
+        if (stmtGetBlogID == null) {
+            stmtGetBlogID =
+                conn.prepareStatement("SELECT id FROM blogs "
+                        + "WHERE url=?;");
+        }
+        stmtGetBlogID.setString(1, url);
+
+        int res;
+        ResultSet results = stmtGetBlogID.executeQuery();
+        if (results.first()) {
+            res = results.getInt(1);
+        } else {
+            addBlog(url);
+            res = getBlogID(url);
+        }
+        return res;
+    }
+            
+    public static int addExtBlog(String url) throws SQLException, MalformedURLException {
+        if (stmtAddExtBlog == null) {
+            stmtAddExtBlog =
+                conn.prepareStatement("INSERT IGNORE INTO extblogs (url, internal_id) "
+                        + "VALUES (?, ?);");
+        }
+        String sanitized_url = BlogUtils.sanitizeURL(url);
+        int internal_id = getBlogID(sanitized_url);
+        
+//        System.out.println("Adding (" + url + ", "
+//                + sanitized_url + ", "
+//                + internal_id + ")");
+        
+        stmtAddExtBlog.setString(1, url);
+        stmtAddExtBlog.setInt(2, internal_id);
+        
+        stmtAddExtBlog.execute();
+        return internal_id;
+    }
+ 
+    public static void addLink(String src, String dest) throws MalformedURLException {
+        try {
+            final int srcid = addExtBlog(src);
+            final int destid = addExtBlog(dest);
+            if (stmtAddLink == null) {
+                stmtAddLink =
+                    conn.prepareStatement("INSERT IGNORE INTO links (srcid, destid) "
+                    + "VALUES (?, ?);");
+            }
+
+            stmtAddLink.setInt(1, srcid);
+            stmtAddLink.setInt(2, destid);
+
+            Using.using(stmtAddLink, getVoidUser(), false);
+        } catch (SQLException e) {
+            System.err.println("Link addition failed:");
+            System.err.println(e.getMessage());
+        }
+    }
+
+
 
 }

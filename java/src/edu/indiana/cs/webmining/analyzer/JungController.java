@@ -5,6 +5,8 @@ package edu.indiana.cs.webmining.analyzer;
 
 import edu.indiana.cs.webmining.bean.Blog;
 import edu.indiana.cs.webmining.bean.Link;
+import edu.indiana.cs.webmining.bean.LinkedBlog;
+import edu.indiana.cs.webmining.db.DBManager;
 import edu.uci.ics.jung.graph.DirectedEdge;
 import edu.uci.ics.jung.graph.Edge;
 import edu.uci.ics.jung.graph.Graph;
@@ -14,6 +16,7 @@ import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.impl.SimpleDirectedSparseVertex;
 import edu.uci.ics.jung.utils.UserData;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,11 +57,12 @@ public class JungController implements GraphController {
     public Vertex makeVertex(Blog b) {
         int id = b.getId();
         String url = b.getUrl();
+
         if (urlVertexMap.containsKey(url)) {
             return urlVertexMap.get(url);
         }
         Vertex v = new SimpleDirectedSparseVertex();
-        v.addUserDatum("url", url, UserData.CLONE);
+        v.addUserDatum("url", url, UserData.SHARED);
         urlVertexMap.put(url, v);
         vertexURLMap.put(v, url);
         idVertexMap.put(id, v);
@@ -162,6 +166,65 @@ public class JungController implements GraphController {
 
         return createSubGraph(vertices, edges);
     }
+   
+    // Subgraph static constructors
+    
+    /**
+     * Creates companion graph as described by Dean and Herzinger:
+     * - parents and parents' children (co-cited ciblings)
+     * - children and children's parents (co-referencing siblings)
+     */
+    public static JungController createCompanionGraph(String url) throws SQLException {
+        JungController jc = new JungController();
+        Blog start = DBManager.getBlog(url);
+               
+        if (start == null) {
+            // Throw exception instead?
+            return jc;
+        }
+        
+        Vertex startVertex = jc.makeVertex(start);
+        jc.graph.addVertex(startVertex); 
+        
+        for (LinkedBlog pb: DBManager.getPredecessors(url)) {
+            Vertex pv = jc.makeVertex(pb.getBlog());
+            DirectedEdge pe = new DirectedSparseEdge(pv, startVertex);
+            pe.setUserDatum("linkType", pb.getLinkType(), UserData.SHARED);
+            jc.graph.addVertex(pv);
+            jc.graph.addEdge(pe);
+            
+            // Now get siblings
+            for (LinkedBlog sb: DBManager.getSuccessors(pb.getBlog().getUrl())) {
+                Vertex sv = jc.makeVertex(sb.getBlog());
+                DirectedEdge se = new DirectedSparseEdge(pv, sv);
+                se.setUserDatum("linkType", sb.getLinkType(), UserData.SHARED);
+                jc.graph.addVertex(sv);
+                jc.graph.addEdge(se);
+            }
+            
+        }
+        for (LinkedBlog cb: DBManager.getSuccessors(url)) {
+            Vertex cv = jc.makeVertex(cb.getBlog());
+            DirectedEdge ce = new DirectedSparseEdge(startVertex, cv);
+            ce.setUserDatum("linkType", cb.getLinkType(), UserData.SHARED);
+            jc.graph.addVertex(cv);
+            jc.graph.addEdge(ce);
+            
+            // Now get siblings
+            for (LinkedBlog sb: DBManager.getPredecessors(cb.getBlog().getUrl())) {
+                Vertex sv = jc.makeVertex(sb.getBlog());
+                DirectedEdge se = new DirectedSparseEdge(sv, cv);
+                se.setUserDatum("linkType", sb.getLinkType(), UserData.SHARED);
+                jc.graph.addVertex(sv);
+                jc.graph.addEdge(se);
+            }
+            
+        }
+        return jc;
 
+    }
+    private interface IGetNodes<A> {
+        public Collection<A> get(A node) throws SQLException;
+    }
 
 }

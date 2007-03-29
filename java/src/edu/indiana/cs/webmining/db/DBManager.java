@@ -64,11 +64,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author Michel Salim <msalim@cs.indiana.edu>
@@ -96,14 +92,14 @@ public class DBManager {
     getVoidUser() {
         if (voidUser == null) {
             voidUser =
-                new ResourceUser<PreparedStatement, Object, SQLException>() {
+                    new ResourceUser<PreparedStatement, Object, SQLException>() {
 
-                public Object run(PreparedStatement stmt) throws SQLException {
-                    stmt.execute();
-                    return null;
-                }
+                        public Object run(PreparedStatement stmt) throws SQLException {
+                            stmt.execute();
+                            return null;
+                        }
 
-            };
+                    };
         }
         return voidUser;
     }
@@ -125,42 +121,42 @@ public class DBManager {
             propstream.close();
 
             String connStr = "jdbc:mysql://localhost/blogmining?user="
-                + prop.getProperty("user")
-                + "&password="
-                + prop.getProperty("password");
+                    + prop.getProperty("user")
+                    + "&password="
+                    + prop.getProperty("password");
             System.out.println("connStr=" + connStr);
             conn = DriverManager.getConnection(connStr);
             pstmtUser =
-                new ResourceUser<PreparedStatement, ArrayList<Blog>, SQLException>() {
+                    new ResourceUser<PreparedStatement, ArrayList<Blog>, SQLException>() {
 
-                public ArrayList<Blog> run(PreparedStatement stmt) throws SQLException {
-                    ArrayList<Blog> res = new ArrayList<Blog>();
-                    ResultSet rs = stmt.executeQuery();
-                    if (!rs.first()) return res;
-                    res.add(new Blog(rs.getInt(1), rs.getString(2)));
-                    while (rs.next()) {
-                        res.add(new Blog(rs.getInt(1), rs.getString(2)));
-                    }
-                    rs.close();
-                    return res;
-                }
+                        public ArrayList<Blog> run(PreparedStatement stmt) throws SQLException {
+                            ArrayList<Blog> res = new ArrayList<Blog>();
+                            ResultSet rs = stmt.executeQuery();
+                            if (!rs.first()) return res;
+                            res.add(new Blog(rs.getInt(1), rs.getString(2)));
+                            while (rs.next()) {
+                                res.add(new Blog(rs.getInt(1), rs.getString(2)));
+                            }
+                            rs.close();
+                            return res;
+                        }
 
-            };
+                    };
             pstmtLinkUser =
-                new ResourceUser<PreparedStatement, ArrayList<LinkedBlog>, SQLException>() {
+                    new ResourceUser<PreparedStatement, ArrayList<LinkedBlog>, SQLException>() {
 
-                public ArrayList<LinkedBlog> run(PreparedStatement stmt) throws SQLException {
-                    ArrayList<LinkedBlog> res = new ArrayList<LinkedBlog>();
-                    ResultSet rs = stmt.executeQuery();
-                    if (!rs.first()) return res;
-                    res.add(new LinkedBlog(new Blog(rs.getInt(1), rs.getString(2)), rs.getInt(3)));
-                    while (rs.next()) {
-                        res.add(new LinkedBlog(new Blog(rs.getInt(1), rs.getString(2)), rs.getInt(3)));
-                    }
-                    rs.close();
-                    return res;
-                }
-            };
+                        public ArrayList<LinkedBlog> run(PreparedStatement stmt) throws SQLException {
+                            ArrayList<LinkedBlog> res = new ArrayList<LinkedBlog>();
+                            ResultSet rs = stmt.executeQuery();
+                            if (!rs.first()) return res;
+                            res.add(new LinkedBlog(new Blog(rs.getInt(1), rs.getString(2)), rs.getInt(3)));
+                            while (rs.next()) {
+                                res.add(new LinkedBlog(new Blog(rs.getInt(1), rs.getString(2)), rs.getInt(3)));
+                            }
+                            rs.close();
+                            return res;
+                        }
+                    };
         } catch (Exception e) {
             throw new SQLException("Connection unavailable");
         }
@@ -182,11 +178,12 @@ public class DBManager {
     private static PreparedStatement getStmtGetBlog() throws SQLException {
         if (stmtGetBlog == null) {
             stmtGetBlog =
-                conn.prepareStatement("SELECT id FROM blogs "
-                        + "WHERE url=?");
+                    conn.prepareStatement("SELECT id FROM blogs "
+                            + "WHERE url=?");
         }
         return stmtGetBlog;
     }
+
     public static Blog getBlog(String url) throws SQLException {
         Blog answer = null;
         PreparedStatement stmt = getStmtGetBlog();
@@ -197,17 +194,18 @@ public class DBManager {
         }
         return answer;
     }
-    
+
     private static PreparedStatement getStmtGetSuccessors() throws SQLException {
         if (stmtGetSuccessors == null) {
             stmtGetSuccessors =
-                conn.prepareStatement("SELECT id, url, type FROM links AS l JOIN blogs AS b "
-                        + "ON l.destid = b.id "
-                        + "WHERE srcid = (SELECT id FROM blogs "
-                        + "WHERE url=?);");
+                    conn.prepareStatement("SELECT id, url, type FROM links AS l JOIN blogs AS b "
+                            + "ON l.destid = b.id "
+                            + "WHERE srcid = (SELECT id FROM blogs "
+                            + "WHERE url=?);");
         }
         return stmtGetSuccessors;
     }
+
     public static ArrayList<LinkedBlog> getSuccessors(final String url) throws SQLException {
 
         return Using.using(getStmtGetSuccessors(), pstmtLinkUser, false);
@@ -216,13 +214,14 @@ public class DBManager {
     private static PreparedStatement getStmtGetPredecessors() throws SQLException {
         if (stmtGetPredecessors == null) {
             stmtGetPredecessors =
-                conn.prepareStatement("SELECT id, url, type FROM links AS l JOIN blogs AS b "
-                        + "ON l.srcid = b.id "
-                        + "WHERE destid = (SELECT id FROM blogs "
-                        + "WHERE url=?);");
+                    conn.prepareStatement("SELECT id, url, type FROM links AS l JOIN blogs AS b "
+                            + "ON l.srcid = b.id "
+                            + "WHERE destid = (SELECT id FROM blogs "
+                            + "WHERE url=?);");
         }
         return stmtGetPredecessors;
     }
+
     public static ArrayList<LinkedBlog> getPredecessors(final String url) throws SQLException {
         stmtGetPredecessors.setString(1, url);
         return Using.using(getStmtGetPredecessors(), pstmtLinkUser, false);
@@ -237,7 +236,7 @@ public class DBManager {
     public static ArrayList<Blog> getAllBlogs() throws SQLException {
         if (stmtGetAllBlogs == null) {
             stmtGetAllBlogs =
-                conn.prepareStatement("SELECT id, url FROM blogs;");
+                    conn.prepareStatement("SELECT id, url FROM blogs;");
         }
         return Using.using(stmtGetAllBlogs, pstmtUser, false);
     }
@@ -245,31 +244,31 @@ public class DBManager {
     public static ArrayList<Link> getAllLinks() throws SQLException {
         if (stmtGetAllLinks == null) {
             stmtGetAllLinks =
-                conn.prepareStatement("SELECT srcid, destid FROM links;");
+                    conn.prepareStatement("SELECT srcid, destid FROM links;");
         }
         ResourceUser<PreparedStatement, ArrayList<Link>, SQLException> user =
-            new ResourceUser<PreparedStatement, ArrayList<Link>, SQLException>() {
+                new ResourceUser<PreparedStatement, ArrayList<Link>, SQLException>() {
 
-            public ArrayList<Link> run(PreparedStatement stmt) throws SQLException {
-                ArrayList<Link> res = new ArrayList<Link>();
-                ResultSet rs = stmt.executeQuery();
-                if (!rs.first()) return res;
-                res.add(new Link(rs.getInt(1), rs.getInt(2)));
-                while (rs.next()) {
-                    res.add(new Link(rs.getInt(1), rs.getInt(2)));
-                }
-                rs.close();
-                return res;
-            }
-        };
+                    public ArrayList<Link> run(PreparedStatement stmt) throws SQLException {
+                        ArrayList<Link> res = new ArrayList<Link>();
+                        ResultSet rs = stmt.executeQuery();
+                        if (!rs.first()) return res;
+                        res.add(new Link(rs.getInt(1), rs.getInt(2)));
+                        while (rs.next()) {
+                            res.add(new Link(rs.getInt(1), rs.getInt(2)));
+                        }
+                        rs.close();
+                        return res;
+                    }
+                };
         return Using.using(stmtGetAllLinks, user, false);
     }
 
     private static void addBlog(String url) throws SQLException {
         if (stmtAddBlog == null) {
-            stmtAddBlog = 
-                conn.prepareStatement("INSERT INTO blogs (url) "
-                        + "VALUES (?)");
+            stmtAddBlog =
+                    conn.prepareStatement("INSERT INTO blogs (url) "
+                            + "VALUES (?)");
         }
         stmtAddBlog.setString(1, url);
         stmtAddBlog.execute();
@@ -281,8 +280,8 @@ public class DBManager {
 //      System.out.println("Looking up internal ID for " + url);
         if (stmtGetBlogID == null) {
             stmtGetBlogID =
-                conn.prepareStatement("SELECT id FROM blogs "
-                        + "WHERE url=?;");
+                    conn.prepareStatement("SELECT id FROM blogs "
+                            + "WHERE url=?;");
         }
         stmtGetBlogID.setString(1, url);
 
@@ -301,8 +300,8 @@ public class DBManager {
     public static int addExtBlog(String url) throws SQLException, MalformedURLException {
         if (stmtAddExtBlog == null) {
             stmtAddExtBlog =
-                conn.prepareStatement("INSERT IGNORE INTO extblogs (url, internal_id) "
-                        + "VALUES (?, ?);");
+                    conn.prepareStatement("INSERT IGNORE INTO extblogs (url, internal_id) "
+                            + "VALUES (?, ?);");
         }
         String sanitized_url = BlogUtils.sanitizeURL(url);
         int internal_id = getBlogID(sanitized_url);
@@ -324,8 +323,8 @@ public class DBManager {
             final int destid = addExtBlog(dest);
             if (stmtAddLink == null) {
                 stmtAddLink =
-                    conn.prepareStatement("INSERT IGNORE INTO links (srcid, destid) "
-                            + "VALUES (?, ?);");
+                        getConnection().prepareStatement("INSERT IGNORE INTO links (srcid, destid) "
+                                + "VALUES (?, ?);");
             }
 
             stmtAddLink.setInt(1, srcid);
@@ -339,5 +338,4 @@ public class DBManager {
     }
 
 
-    
 }

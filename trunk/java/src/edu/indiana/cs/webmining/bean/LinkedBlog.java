@@ -1,4 +1,4 @@
-/* Copyright (C) 2004 The Trustees of Indiana University. All rights reserved.
+/* Copyright (C) 2007 The Trustees of Indiana University. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,14 +48,22 @@
 
 package edu.indiana.cs.webmining.bean;
 
-import java.util.ArrayList;
-
 /**
- * @author : Eran Chinthaka (echintha@cs.indiana.edu)
+ * @author : Michel Salim (msalim@cs.indiana.edu)
  * @Date : Mar 8, 2007
  */
-public class LinkedBlog extends ArrayList {
-    public LinkedBlog(Blog blog, int anInt) {
 
+public class LinkedBlog {
+    private Blog blog;
+    private int linkType;
+    public LinkedBlog(Blog blog, int linkType) {
+        this.blog = blog;
+        this.linkType = linkType;
+    }
+    public Blog getBlog() {
+        return blog;
+    }
+    public int getLinkType() {
+        return linkType;
     }
 }

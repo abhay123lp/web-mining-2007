@@ -66,12 +66,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSourceFactory;
+
 /**
  * @author Michel Salim <msalim@cs.indiana.edu>
  * @since Feb 10, 2007
  */
 public class DBManager {
 
+    private static DataSource dataSource;
     private static Connection conn;
     private static PreparedStatement stmtGetBlog;
     private static PreparedStatement stmtGetAllBlogs;
@@ -106,26 +111,16 @@ public class DBManager {
 
     private static void initialize() throws SQLException {
         try {
-            // Load MySQL connector
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
 
-//          System.out.println("JDBC driver loaded");
-
-
-            FileInputStream propstream = new FileInputStream("etc/login.prop");
-
-//          System.out.println("Properties file loaded");
+            FileInputStream propstream = new FileInputStream("etc/local-sql.prop");
 
             Properties prop = new Properties();
             prop.load(propstream);
             propstream.close();
 
-            String connStr = "jdbc:mysql://localhost/blogmining?user="
-                    + prop.getProperty("user")
-                    + "&password="
-                    + prop.getProperty("password");
-            System.out.println("connStr=" + connStr);
-            conn = DriverManager.getConnection(connStr);
+            
+            dataSource = BasicDataSourceFactory.createDataSource(prop);
+
             pstmtUser =
                     new ResourceUser<PreparedStatement, ArrayList<Blog>, SQLException>() {
 
@@ -169,10 +164,10 @@ public class DBManager {
      * @throws SQLException
      */
     public static Connection getConnection() throws SQLException {
-        if (conn == null) {
+        if (dataSource == null) {
             initialize();
         }
-        return conn;
+        return dataSource.getConnection();
     }
 
     private static PreparedStatement getStmtGetBlog() throws SQLException {

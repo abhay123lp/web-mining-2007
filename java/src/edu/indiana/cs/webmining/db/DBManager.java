@@ -98,7 +98,7 @@ public class DBManager {
     
     private static void initialize() throws SQLException {
         try {
-
+            // dataSource might have already been initialized
             if (dataSource == null) {
                 FileInputStream propstream = new FileInputStream("etc/sql-local.prop");
 
@@ -180,7 +180,7 @@ public class DBManager {
     /* Prepared Statements */
     
     private PreparedStatement getStmtGetBlog() throws SQLException {
-        if (stmtGetBlog == null) {
+        if (stmtGetBlog == null || stmtGetBlog.isClosed()) {
             stmtGetBlog =
                     getConnection().prepareStatement("SELECT id FROM blogs "
                             + "WHERE url=?");
@@ -189,7 +189,7 @@ public class DBManager {
     }
 
     private PreparedStatement getStmtGetPredecessors() throws SQLException {
-        if (stmtGetPredecessors == null) {
+        if (stmtGetPredecessors == null || stmtGetPredecessors.isClosed()) {
             stmtGetPredecessors =
                     getConnection().prepareStatement("SELECT id, url, type FROM links AS l JOIN blogs AS b "
                             + "ON l.srcid = b.id "
@@ -200,7 +200,7 @@ public class DBManager {
     }
 
     private PreparedStatement getStmtGetSuccessors() throws SQLException {
-        if (stmtGetSuccessors == null) {
+        if (stmtGetSuccessors == null || stmtGetSuccessors.isClosed()) {
             stmtGetSuccessors =
                     getConnection().prepareStatement("SELECT id, url, type FROM links AS l JOIN blogs AS b "
                             + "ON l.destid = b.id "
@@ -272,7 +272,7 @@ public class DBManager {
     }
 
     public ArrayList<Link> getAllLinks() throws SQLException {
-        if (stmtGetAllLinks == null) {
+        if (stmtGetAllLinks == null || stmtGetAllLinks.isClosed()) {
             stmtGetAllLinks =
                     getConnection().prepareStatement("SELECT srcid, destid FROM links;");
         }
@@ -295,7 +295,7 @@ public class DBManager {
     }
 
     private void addBlog(String url) throws SQLException {
-        if (stmtAddBlog == null) {
+        if (stmtAddBlog == null || stmtAddBlog.isClosed()) {
             stmtAddBlog =
                     getConnection().prepareStatement("INSERT INTO blogs (url) "
                             + "VALUES (?)");
@@ -308,7 +308,7 @@ public class DBManager {
     private int getBlogID(String url) throws SQLException {
 
 //      System.out.println("Looking up internal ID for " + url);
-        if (stmtGetBlogID == null) {
+        if (stmtGetBlogID == null || stmtGetBlogID.isClosed()) {
             stmtGetBlogID =
                     getConnection().prepareStatement("SELECT id FROM blogs "
                             + "WHERE url=?;");
@@ -328,7 +328,7 @@ public class DBManager {
     }
 
     public int addExtBlog(String url) throws SQLException, MalformedURLException {
-        if (stmtAddExtBlog == null) {
+        if (stmtAddExtBlog == null || stmtAddExtBlog.isClosed()) {
             stmtAddExtBlog =
                     getConnection().prepareStatement("INSERT IGNORE INTO extblogs (url, internal_id) "
                             + "VALUES (?, ?);");
@@ -351,7 +351,7 @@ public class DBManager {
         try {
             final int srcid = addExtBlog(src);
             final int destid = addExtBlog(dest);
-            if (stmtAddLink == null) {
+            if (stmtAddLink == null || stmtAddLink.isClosed()) {
                 stmtAddLink =
                         getConnection().prepareStatement("INSERT IGNORE INTO links (srcid, destid) "
                                 + "VALUES (?, ?);");

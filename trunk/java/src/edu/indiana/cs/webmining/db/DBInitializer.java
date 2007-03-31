@@ -84,7 +84,7 @@ public class DBInitializer {
             reader = new BufferedReader(new FileReader(args[0]));
 
             try {
-                conn = DBManager.getConnection();
+                DBManager dbman = new DBManager();
                 int count = 0;
                 String[] tokens;
                 String line = reader.readLine();
@@ -95,7 +95,7 @@ public class DBInitializer {
                     }
                     tokens = line.split("[\\s,]+");
                     try {
-                        DBManager.addLink(tokens[1], tokens[0]);
+                        dbman.addLink(tokens[1], tokens[0]);
                     } catch (MalformedURLException e) {
                         System.err.println("Malformed URL: " + e.getMessage());
                     }
@@ -103,7 +103,7 @@ public class DBInitializer {
                     line = reader.readLine();
                 }
                 reader.readLine();
-                conn.close();
+                dbman.closeConnection();
             } catch (SQLException e) {
                 System.err.println("Failed to open database connection");
                 e.printStackTrace();

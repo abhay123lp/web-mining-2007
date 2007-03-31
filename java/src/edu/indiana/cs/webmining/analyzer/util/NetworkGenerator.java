@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class NetworkGenerator {
 
-    private Connection conn;
+    private DBManager dbman;
     private Random rng;
     private ArrayList<Topic> topics;
     private HashMap<String, ArrayList<String>> topicAuthorities;
@@ -28,7 +28,7 @@ public class NetworkGenerator {
 
     private void initialize() {
         try {
-            conn = DBManager.getConnection();
+            dbman = new DBManager();
         } catch (SQLException e) {
             e.printStackTrace();
         }

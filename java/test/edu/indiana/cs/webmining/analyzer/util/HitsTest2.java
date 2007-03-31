@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class HitsTest2 {
 
-	private static Connection conn;
+	private static DBManager dbman;
 	
 	public static ArrayList<String> getNeighbors(String node) {
 		ArrayList<String> res = new ArrayList<String>();
@@ -31,7 +31,7 @@ public class HitsTest2 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			conn = DBManager.getConnection();
+			dbman = new DBManager();
 		} catch (SQLException e) {
 			System.err.println("Cannot acquire connection");
 		}

@@ -27,6 +27,7 @@ import java.util.HashSet;
  * @since Feb 15, 2007
  */
 public class JungController implements GraphController {
+    private DBManager dbman;
     private Graph graph;
 
     private HashMap<String, Vertex> urlVertexMap;
@@ -45,15 +46,19 @@ public class JungController implements GraphController {
         idVertexMap = new HashMap<Integer, Vertex>();
     }
 
-    public JungController() {
+    public JungController() throws SQLException {
+        dbman = new DBManager();
         initialize();
     }
 
     public JungController(ArrayList<Blog> blogs, ArrayList<Link> links) {
-        this();
         this.graph = createGraph(blogs, links);
     }
 
+    private DBManager getDBcontroller() {
+        return dbman;
+    }
+    
     public Vertex makeVertex(Blog b) {
         int id = b.getId();
         String url = b.getUrl();
@@ -176,7 +181,8 @@ public class JungController implements GraphController {
      */
     public static JungController createCompanionGraph(String url) throws SQLException {
         JungController jc = new JungController();
-        Blog start = DBManager.getBlog(url);
+        DBManager dbman = jc.getDBcontroller();
+        Blog start = dbman.getBlog(url);
                
         if (start == null) {
             // Throw exception instead?
@@ -186,7 +192,7 @@ public class JungController implements GraphController {
         Vertex startVertex = jc.makeVertex(start);
         jc.graph.addVertex(startVertex); 
         
-        for (LinkedBlog pb: DBManager.getPredecessors(url)) {
+        for (LinkedBlog pb: dbman.getPredecessors(url)) {
             Vertex pv = jc.makeVertex(pb.getBlog());
             DirectedEdge pe = new DirectedSparseEdge(pv, startVertex);
             pe.setUserDatum("linkType", pb.getLinkType(), UserData.SHARED);
@@ -194,7 +200,7 @@ public class JungController implements GraphController {
             jc.graph.addEdge(pe);
             
             // Now get siblings
-            for (LinkedBlog sb: DBManager.getSuccessors(pb.getBlog().getUrl())) {
+            for (LinkedBlog sb: dbman.getSuccessors(pb.getBlog().getUrl())) {
                 Vertex sv = jc.makeVertex(sb.getBlog());
                 DirectedEdge se = new DirectedSparseEdge(pv, sv);
                 se.setUserDatum("linkType", sb.getLinkType(), UserData.SHARED);
@@ -203,7 +209,7 @@ public class JungController implements GraphController {
             }
             
         }
-        for (LinkedBlog cb: DBManager.getSuccessors(url)) {
+        for (LinkedBlog cb: dbman.getSuccessors(url)) {
             Vertex cv = jc.makeVertex(cb.getBlog());
             DirectedEdge ce = new DirectedSparseEdge(startVertex, cv);
             ce.setUserDatum("linkType", cb.getLinkType(), UserData.SHARED);
@@ -211,7 +217,7 @@ public class JungController implements GraphController {
             jc.graph.addEdge(ce);
             
             // Now get siblings
-            for (LinkedBlog sb: DBManager.getPredecessors(cb.getBlog().getUrl())) {
+            for (LinkedBlog sb: dbman.getPredecessors(cb.getBlog().getUrl())) {
                 Vertex sv = jc.makeVertex(sb.getBlog());
                 DirectedEdge se = new DirectedSparseEdge(sv, cv);
                 se.setUserDatum("linkType", sb.getLinkType(), UserData.SHARED);
@@ -220,11 +226,10 @@ public class JungController implements GraphController {
             }
             
         }
+        // Done with batch operations, return connection to pool
+        dbman.closeConnection();
         return jc;
 
-    }
-    private interface IGetNodes<A> {
-        public Collection<A> get(A node) throws SQLException;
     }
 
 }

@@ -49,9 +49,8 @@
 package edu.indiana.cs.webmining.blog.impl;
 
 import edu.indiana.cs.webmining.blog.BlogDataStorage;
-import edu.indiana.cs.webmining.db.DBManager;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.sql.SQLException;
 
 /**
@@ -62,15 +61,28 @@ public class DBBasedBlogDataStorage implements BlogDataStorage {
 
 
     public void store(String[] destinationURLs, String sourceBlog) {
+//        try {
+//            DBManager dbManager = new DBManager();
+//            for (String destinationURL : destinationURLs) {
+//                try {
+//                    dbManager.addLink(sourceBlog, destinationURL);
+//                } catch (MalformedURLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//
+//        }
+
+        BlogDBManager blogDBManager = null;
         try {
-            DBManager dbManager = new DBManager();
-            for (String destinationURL : destinationURLs) {
-                try {
-                    dbManager.addLink(sourceBlog, destinationURL);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-            }
+            blogDBManager = BlogDBManager.getInstance();
+            blogDBManager.insertBlogLinks(sourceBlog, destinationURLs);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
         } catch (SQLException e) {
             e.printStackTrace();
 

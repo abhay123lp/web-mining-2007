@@ -8,13 +8,13 @@
     <description>
         description
     </description>
-    <property name="lib.dir" value="./lib"/>
-    <property name="build.dir" value="./build"/>
-    <property name="src.dir" value="./src"/>
-    <property name="test.dir" value="./test"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="build.dir" value="build"/>
+    <property name="src.dir" value="src"/>
+    <property name="test.dir" value="test"/>
     <property name="build.dest" value="${build.dir}/classes"/>
     <property name="test.dest" value="${build.dir}/test-classes"/>
-    <property name="build.lib" value="./build/lib"/>
+    <property name="build.lib" value="build/lib"/>
 
     <path id="classpath">
         <fileset dir="${lib.dir}">
@@ -31,14 +31,10 @@
     </target>
 
     <target name="compile" depends="setenv">
-        <javac srcdir="${src.dir}" destdir="${build.dest}" debug="${debug}" deprecation="${deprecation}"
+        <javac srcdir="${src.dir}" destdir="${build.dest}" debug="${debug}"
+               deprecation="${deprecation}"
                classpathref="classpath">
         </javac>
-    </target>
-    <target name="jar" depends="compile">
-        <jar jarfile="${build.lib}/crawler.jar" basedir="${build.dir}">
-            <include name="**"/>
-        </jar>
     </target>
 
     <target name="test-compile" depends="compile, jar">
@@ -59,6 +55,23 @@
                 </fileset>
             </batchtest>
         </junit>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${build.dir}/crawler.jar" basedir="${build.dest}">
+            <manifest>
+                <attribute name="Main-Class"
+                           value="edu.indiana.cs.webmining.blog.BlogProcessingSystem"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${build.dir}/crawler.jar" fork="true" maxmemory="512m" classpathref="classpath">
+            <classpath>
+                <pathelement location="lib/htmlparser.jar"/>
+            </classpath>
+        </java>
     </target>
 
 </project>

@@ -117,17 +117,18 @@ public class BlogDBManager {
         addMutlipleExternalBlogs(connection, destinationURLs);
 
         // finally let's add the links between them
+        addLink(source, destinationURLs, connection);
         connectionPool.free(connection);
 
     }
 
-    public void addLink(String src, String dest[], Connection connection) throws MalformedURLException {
+    private void addLink(String src, String dest[], Connection connection) throws MalformedURLException {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_BLOG_LINK);
 
             for (String destinationURL : dest) {
-                preparedStatement.setInt(1, blogIDList.get(src));
-                preparedStatement.setInt(2, blogIDList.get(destinationURL));
+                preparedStatement.setInt(1, blogIDList.get(BlogUtils.sanitizeURL(src)));
+                preparedStatement.setInt(2, blogIDList.get(BlogUtils.sanitizeURL(destinationURL)));
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
@@ -149,7 +150,7 @@ public class BlogDBManager {
         preparedStatement.executeBatch();
     }
 
-    public int addSingleExternalBlog(String url, Connection connection) throws SQLException, MalformedURLException {
+    private int addSingleExternalBlog(String url, Connection connection) throws SQLException, MalformedURLException {
         PreparedStatement stmtAddExtBlog = connection.prepareStatement(SQL_INSERT_EXT_BLOG);
         String sanitizedURL = BlogUtils.sanitizeURL(url);
         int internalID = getBlogID(sanitizedURL, connection);
@@ -188,6 +189,25 @@ public class BlogDBManager {
         PreparedStatement stmtAddBlog = connection.prepareStatement("INSERT INTO blogs (url) "
                 + "VALUES (?)");
         stmtAddBlog.setString(1, url);
-        return stmtAddBlog.executeUpdate();
+
+        stmtAddBlog.executeUpdate();
+
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM blogs WHERE url=?;");
+        preparedStatement.setString(1, url);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        return resultSet.next() ? resultSet.getInt(1) : -1;
+    }
+
+    public static void main(String[] args) {
+        try {
+            BlogDBManager blogDBManager = BlogDBManager.getInstance();
+            blogDBManager.insertBlogLinks("http://bloglines.com/blogs/chinthaka", new String[]{"http://dummy.org", "http://test.org"});
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
     }
 }

@@ -48,7 +48,7 @@
 
 package edu.indiana.cs.webmining.blog;
 
-import edu.indiana.cs.webmining.blog.impl.FileBasedBlogDataStorage;
+import edu.indiana.cs.webmining.blog.impl.DBBasedBlogDataStorage;
 import edu.indiana.cs.webmining.blog.impl.GenericBlogProcessor;
 import spider.crawl.BasicCrawler;
 import spider.crawl.Globals;
@@ -88,7 +88,8 @@ public class BlogProcessingSystem {
             Properties props = new Properties();
             props.load(new FileInputStream(BLOG_DETECTION_PROPERTIES));
 
-            blogDataStorage = new FileBasedBlogDataStorage(props.getProperty("blog-data-folder"));
+            blogDataStorage = new DBBasedBlogDataStorage();
+//            blogDataStorage = new FileBasedBlogDataStorage(props.getProperty("blog-data-folder"));
 
             FileHandler fileHandler = new FileHandler(props.getProperty("log-file"), true);
             fileHandler.setFormatter(new SimpleFormatter());

@@ -82,11 +82,11 @@ public class Frontier {
             boolean worst = false; //flag is set when a URL to be added is worse than the worst in the frontier
 
             //get the top scored url to be added
-            FrontierElement top = (FrontierElement) fes.firstElement();
-            //if the top score is worse than the worst and there is no more room then return
-            if ((top.score <= getWorstScore()) && (max_size > 0) && (v.size() > max_size)) {
-                return true;
-            }
+//            FrontierElement top = (FrontierElement) fes.firstElement();
+//            //if the top score is worse than the worst and there is no more room then return
+//            if ((top.score <= getWorstScore()) && (max_size > 0) && (v.size() > max_size)) {
+//                return true;
+//            }
             //System.out.println("**"+v.size()+"  "+h.size());
             //for each of the URLs to be added
             int count = 0; //test

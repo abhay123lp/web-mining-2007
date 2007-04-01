@@ -107,7 +107,7 @@ public class GenericBlogProcessor implements BlogProcessor {
 
                 if (blogDetector.identifyURL(linkURL, null) != Constants.NOT_A_BLOG) {
                     // logger.info(" *BLOG Detected* ==> " + linkURL);
-                    System.out.println("*BLOG Detected* ==> " + linkURL);
+//                    System.out.println("*BLOG Detected* ==> " + linkURL);
                     linksToBlogs.add(linkURL);
                 }
             }

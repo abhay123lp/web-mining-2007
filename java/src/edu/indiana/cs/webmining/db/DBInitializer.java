@@ -63,9 +63,6 @@ import java.sql.SQLException;
  */
 public class DBInitializer {
 
-    private static Connection conn;
-
- 
 
     /**
      * @param args

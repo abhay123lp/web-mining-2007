@@ -78,6 +78,8 @@ public class BlogDBManager {
     private ConcurrentHashMap<String, Integer> blogIDList = new ConcurrentHashMap<String, Integer>();
 
     private static BlogDBManager blogDBManager;
+    private static final String SQL_INSERT_EXT_BLOG = "INSERT IGNORE INTO extblogs (url, internal_id) VALUES (?, ?);";
+    private static final String SQL_INSERT_BLOG_LINK = "INSERT IGNORE INTO links (srcid, destid) VALUES (?, ?);";
 
 
     private BlogDBManager() throws IOException {
@@ -87,7 +89,7 @@ public class BlogDBManager {
         try {
             dbDriver = props.getProperty("driverClassName");
             dbURL = props.getProperty("url");
-            connectionPool = new ConnectionPool(dbDriver, dbURL, 15, 5,
+            connectionPool = new ConnectionPool(dbDriver, dbURL, props.getProperty("username"), props.getProperty("password"), 15, 5,
                     true);
 
         } catch (SQLException e) {
@@ -112,24 +114,52 @@ public class BlogDBManager {
         addSingleExternalBlog(source, connection);
 
         // then add the destination blog urls
+        addMutlipleExternalBlogs(connection, destinationURLs);
 
         // finally let's add the links between them
-
+        connectionPool.free(connection);
 
     }
 
+    public void addLink(String src, String dest[], Connection connection) throws MalformedURLException {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_BLOG_LINK);
+
+            for (String destinationURL : dest) {
+                preparedStatement.setInt(1, blogIDList.get(src));
+                preparedStatement.setInt(2, blogIDList.get(destinationURL));
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+
+        } catch (SQLException e) {
+            System.err.println("Link addition failed:");
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private void addMutlipleExternalBlogs(Connection connection, String[] destinationURLs) throws SQLException, MalformedURLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_EXT_BLOG);
+        for (String destinationURL : destinationURLs) {
+            String sanitizedURL = BlogUtils.sanitizeURL(destinationURL);
+            preparedStatement.setString(1, sanitizedURL);
+            preparedStatement.setInt(2, getBlogID(sanitizedURL, connection));
+            preparedStatement.addBatch();
+        }
+        preparedStatement.executeBatch();
+    }
+
     public int addSingleExternalBlog(String url, Connection connection) throws SQLException, MalformedURLException {
-        PreparedStatement stmtAddExtBlog = connection.prepareStatement("INSERT IGNORE INTO extblogs (url, internal_id) "
-                + "VALUES (?, ?);");
-        String sanitized_url = BlogUtils.sanitizeURL(url);
-        int internal_id = getBlogID(sanitized_url, connection);
+        PreparedStatement stmtAddExtBlog = connection.prepareStatement(SQL_INSERT_EXT_BLOG);
+        String sanitizedURL = BlogUtils.sanitizeURL(url);
+        int internalID = getBlogID(sanitizedURL, connection);
 
         stmtAddExtBlog.setString(1, url);
-        stmtAddExtBlog.setInt(2, internal_id);
+        stmtAddExtBlog.setInt(2, internalID);
 
         stmtAddExtBlog.execute();
 
-        return internal_id;
+        return internalID;
     }
 
     private int getBlogID(String url, Connection connection) throws SQLException {

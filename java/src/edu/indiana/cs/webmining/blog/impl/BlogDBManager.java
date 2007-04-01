@@ -48,6 +48,7 @@
 
 package edu.indiana.cs.webmining.blog.impl;
 
+import edu.indiana.cs.webmining.blog.BlogProcessingSystem;
 import edu.indiana.cs.webmining.blog.BlogUtils;
 import edu.indiana.cs.webmining.db.ConnectionPool;
 
@@ -72,6 +73,8 @@ public class BlogDBManager {
     private ConnectionPool connectionPool;
     private String dbDriver = "com.mysql.jdbc.Driver";
     private String dbURL = "jdbc:mysql://localhost/";
+
+    private static long totalCount = 0;
 
     private PreparedStatement blogDataInsertionStatement;
 
@@ -119,6 +122,11 @@ public class BlogDBManager {
         // finally let's add the links between them
         addLink(source, destinationURLs, connection);
         connectionPool.free(connection);
+
+        totalCount += destinationURLs.length;
+
+        System.out.println("Total processed pages " + BlogProcessingSystem.totatProcessedPageCount);
+        System.out.println("Total blogs saved = " + totalCount);
 
     }
 

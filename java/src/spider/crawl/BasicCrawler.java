@@ -75,7 +75,10 @@ public class BasicCrawler {
                     activeThreads.add();
                     //while the required number of pages have not been crawled
                     //and frontier is non-empty
-                    while (history.size() < maxPages || maxPages == -1) {
+                    BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem();
+
+//                    while (history.size() < maxPages || maxPages == -1) {
+                    while (maxPages == -1) {
                         // System.out.println("Frontier:"+ front.size());
                         //select pages to crawl (pick top 10)
                         //if(front.toString().length() > 0) {
@@ -126,11 +129,12 @@ public class BasicCrawler {
                         //fetch pages and store it in a cache
                         FetcherPool fetcherPool = new FetcherPool(cache, robot, stat);
                         //System.out.println("Fetch Pages");
+
+                        System.out.println("Fetching " + urls.length + " urls ...");
                         fetcherPool.fetchPages(urls);
                         //System.out.println("Fetched Pages");
 
                         //extract links and add them to the frontier
-                        BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem();
                         for (String url : urls) {
                             //find the filename
                             String fileName = Hashing.getHashValue(url);

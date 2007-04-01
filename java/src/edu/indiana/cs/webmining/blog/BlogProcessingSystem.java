@@ -81,6 +81,8 @@ public class BlogProcessingSystem {
     Logger logger = Logger.getLogger(SYSTEM_NAME);
     public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
 
+    public static long totatProcessedPageCount = 0;
+
     public BlogProcessingSystem() {
 
         try {
@@ -120,6 +122,7 @@ public class BlogProcessingSystem {
      */
     public String[] processPage(File webPage, String pageURL) throws BlogCrawlingException {
         List urlList = new ArrayList();
+        totatProcessedPageCount++;
         try {
 
             // first let's get the blog id. If this URL is not a blog, this should return

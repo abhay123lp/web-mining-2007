@@ -251,7 +251,7 @@ public class BlogDetector {
     public int identifyURL(String pageURL, InputStream inputStream) {
         try {
             // first let's avoid traps. .
-            if (pageURL == null || "".equals(pageURL)) {
+            if (pageURL == null || "".equals(pageURL) || isMediaFile(pageURL)) {
                 return Constants.NOT_A_BLOG;
             }
 
@@ -292,7 +292,7 @@ public class BlogDetector {
         int status = -1;
 
         // sorry, we do not handle anything other than http. Can there be smtp or tcp blogs?
-        if (!"http".equals(pageURL.getProtocol())) {
+        if (!"http".equals(pageURL.getProtocol()) || isMediaFile(pageURL.getFile())) {
             return Constants.NOT_A_BLOG;
         }
 
@@ -336,7 +336,7 @@ public class BlogDetector {
             return hasLinkToBlogFramework(pageURL);
 
         } catch (ParserException e) {
-            logger.info("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
+            System.out.println("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         } catch (IOException e) {

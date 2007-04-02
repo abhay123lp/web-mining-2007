@@ -308,6 +308,7 @@ public class BlogDetector {
                 }
             }
 
+            page.close();
             // now let's see there is a link for major blog publishing frameworks or has an RSS feed, within the page
             return hasLinkToBlogFramework(pageURL);
 
@@ -344,8 +345,9 @@ public class BlogDetector {
      * @return The blog id or -1 if it is not a blog.
      */
     private int hasLinkToBlogFramework(URL pageURL) {
+        Parser parser;
         try {
-            Parser parser = new Parser(pageURL.openConnection());
+            parser = new Parser(pageURL.openConnection());
 
 
             TagNameFilter linkTag = new TagNameFilter("link");
@@ -382,6 +384,8 @@ public class BlogDetector {
         } catch (IOException e) {
             logger.fine("IO Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
+
+        } finally {
 
         }
 

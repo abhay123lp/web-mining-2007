@@ -48,8 +48,16 @@
 
 package edu.indiana.cs.webmining.blog;
 
+import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.blog.impl.DBBasedBlogDataStorage;
-import edu.indiana.cs.webmining.blog.impl.GenericBlogProcessor;
+import org.htmlparser.Node;
+import org.htmlparser.Parser;
+import org.htmlparser.filters.TagNameFilter;
+import org.htmlparser.lexer.Lexer;
+import org.htmlparser.lexer.Page;
+import org.htmlparser.tags.LinkTag;
+import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 import spider.crawl.BasicCrawler;
 import spider.crawl.Globals;
 import spider.util.Redirections;
@@ -58,9 +66,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -81,7 +94,9 @@ public class BlogProcessingSystem {
     Logger logger = Logger.getLogger(SYSTEM_NAME);
     public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
 
+
     public static long totatProcessedPageCount = 0;
+    private BlogDetector blogDetector = BlogDetector.getInstance();
 
     public BlogProcessingSystem() {
 
@@ -121,21 +136,24 @@ public class BlogProcessingSystem {
      * @throws BlogCrawlingException
      */
     public String[] processPage(File webPage, String pageURL) throws BlogCrawlingException {
+
+        // let's not fetch media files
+        if (blogDetector.isMediaFile(pageURL)) return new String[0];
+
+
         List urlList = new ArrayList();
         totatProcessedPageCount++;
         try {
 
             // first let's get the blog id. If this URL is not a blog, this should return
             // Constants.NOT_A_BLOG
-            int blogId = BlogDetector.getInstance().identifyURL(pageURL, new FileInputStream(webPage));
+            int blogId = blogDetector.identifyURL(pageURL, new FileInputStream(webPage));
 
             if (blogId > 0) {             // if this is a processable blog
-                // get the customized blog processor
-                BlogProcessor blogProcessor = new GenericBlogProcessor();
 
                 // process it and get the grouped set of urls. The map returned will contain urls as the key
                 // and url type as the value.
-                String[] result = blogProcessor.processBlog(pageURL, new FileInputStream(webPage));
+                String[] result = processBlog(pageURL, new FileInputStream(webPage));
 
                 // save the link connection information.
                 blogDataStorage.store(result, pageURL);
@@ -151,6 +169,52 @@ public class BlogProcessingSystem {
 
         return new String[]{};
     }
+
+    public String[] processBlog(String blogURL, InputStream in) throws BlogCrawlingException {
+
+        // using a set here to avoid duplicates
+        Set<String> linksToBlogs = new TreeSet<String>();
+
+        try {
+
+            Page page = new Page(in, null);
+            Parser parser = new Parser(new Lexer(page));
+
+            // register a filter to extract all the anchor tags
+            TagNameFilter anchorTagsFilter = new TagNameFilter("a");
+
+            StringBuffer buf = new StringBuffer();
+            NodeList anchorTagsList = parser.parse(anchorTagsFilter);
+
+
+            for (int i = 0; i < anchorTagsList.size(); i++) {
+                Node node = anchorTagsList.elementAt(i);
+                LinkTag tag = (LinkTag) node;
+                String linkURL = tag.getLink();
+
+                if (!blogDetector.isMediaFile(linkURL) && blogDetector.identifyURL(linkURL, null) != Constants.NOT_A_BLOG) {
+                    // logger.info(" *BLOG Detected* ==> " + linkURL);
+//                    System.out.println("*BLOG Detected* ==> " + linkURL);
+                    linksToBlogs.add(linkURL);
+                }
+            }
+
+            String[] links = new String[linksToBlogs.size()];
+            int count = 0;
+            Iterator<String> iterator = linksToBlogs.iterator();
+            for (String linksToBlog : linksToBlogs) {
+                links[count++] = linksToBlog;
+            }
+
+            return links;
+
+        } catch (ParserException e) {
+            throw new BlogCrawlingException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new BlogCrawlingException(e);
+        }
+    }
+
 
     /**
      * This will save blog links information in to the database.

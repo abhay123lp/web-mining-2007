@@ -46,85 +46,39 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.blog.impl;
+package edu.indiana.cs.webmining.blog;
 
-import edu.indiana.cs.webmining.Constants;
-import edu.indiana.cs.webmining.blog.BlogCrawlingException;
-import edu.indiana.cs.webmining.blog.BlogDetector;
-import edu.indiana.cs.webmining.blog.BlogProcessingSystem;
-import edu.indiana.cs.webmining.blog.BlogProcessor;
-import org.htmlparser.Node;
-import org.htmlparser.Parser;
-import org.htmlparser.filters.TagNameFilter;
-import org.htmlparser.lexer.Lexer;
-import org.htmlparser.lexer.Page;
-import org.htmlparser.tags.LinkTag;
-import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
+import spider.crawl.BasicCrawler;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Logger;
-
+import java.io.File;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
- * @Date : Feb 16, 2007
+ * @Date : Apr 1, 2007
  */
-public class GenericBlogProcessor implements BlogProcessor {
+public class Controller {
 
-    private BlogDetector blogDetector;
-    private Logger logger = Logger.getLogger(BlogProcessingSystem.SYSTEM_NAME);
+    private BasicCrawler crawler;
+    private Queue<Job> jobQueue = new ConcurrentLinkedQueue<Job>();
 
-    public GenericBlogProcessor() {
-        blogDetector = BlogDetector.getInstance();
+    public Controller(BasicCrawler crawler) {
+        this.crawler = crawler;
     }
 
-    public String[] processBlog(String blogURL, InputStream in) throws BlogCrawlingException {
+    public synchronized void processPage(File file, String pageURL) {
+        jobQueue.add(new Job(file, pageURL));
+    }
 
-        // using a set here to avoid duplicates
-        Set<String> linksToBlogs = new TreeSet<String>();
-
-        try {
-
-            Page page = new Page(in, null);
-            Parser parser = new Parser(new Lexer(page));
-
-            // register a filter to extract all the anchor tags
-            TagNameFilter anchorTagsFilter = new TagNameFilter("a");
-
-            StringBuffer buf = new StringBuffer();
-            NodeList anchorTagsList = parser.parse(anchorTagsFilter);
+    class Job {
+        File file;
+        String pageURL;
 
 
-            for (int i = 0; i < anchorTagsList.size(); i++) {
-                Node node = anchorTagsList.elementAt(i);
-                LinkTag tag = (LinkTag) node;
-                String linkURL = tag.getLink();
-
-                if (blogDetector.identifyURL(linkURL, null) != Constants.NOT_A_BLOG) {
-                    // logger.info(" *BLOG Detected* ==> " + linkURL);
-//                    System.out.println("*BLOG Detected* ==> " + linkURL);
-                    linksToBlogs.add(linkURL);
-                }
-            }
-
-            String[] links = new String[linksToBlogs.size()];
-            int count = 0;
-            Iterator<String> iterator = linksToBlogs.iterator();
-            for (String linksToBlog : linksToBlogs) {
-                links[count++] = linksToBlog;
-            }
-
-            return links;
-
-        } catch (ParserException e) {
-            throw new BlogCrawlingException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new BlogCrawlingException(e);
+        public Job(File file, String pageURL) {
+            this.file = file;
+            this.pageURL = pageURL;
         }
     }
 }

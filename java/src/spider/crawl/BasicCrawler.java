@@ -130,7 +130,7 @@ public class BasicCrawler {
                         FetcherPool fetcherPool = new FetcherPool(cache, robot, stat);
                         //System.out.println("Fetch Pages");
 
-                        System.out.println("Fetching " + urls.length + " urls ...");
+                        System.out.println("Fetching " + urls.length + " url(s) ...");
                         fetcherPool.fetchPages(urls);
                         //System.out.println("Fetched Pages");
 

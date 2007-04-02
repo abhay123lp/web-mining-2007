@@ -77,6 +77,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -90,6 +91,9 @@ public class BlogDetector {
     private static Map<String, Integer> knownBlogURLList;
     private static Map<String, Integer> history;
     private static Map<String, Boolean> blogPublishingFrameworks;
+
+    private static Hashtable<String, Boolean> knowsMediaFiles;
+
 
     /**
      * Some blogs urls appear to be pointing to blogs, but they are not blogs actually. For example,
@@ -111,6 +115,15 @@ public class BlogDetector {
         initHistory();
 
         Runtime.getRuntime().addShutdownHook(new ShutDownHook(this));
+    }
+
+    public boolean isMediaFile(String pageURL) {
+        if (pageURL.lastIndexOf(".") == (pageURL.length() - 4)) {
+            String fileExtension = pageURL.substring(pageURL.lastIndexOf(".") + 1, pageURL.length());
+            return knowsMediaFiles.contains(fileExtension);
+        } else {
+            return false;
+        }
     }
 
     private void initHistory() {
@@ -208,6 +221,16 @@ public class BlogDetector {
 
         deceivingNonBlogs = new HashMap<String, String>();
         deceivingNonBlogs.put("www.bloglines.com", "www.bloglines.com/blog/");
+
+        knowsMediaFiles = new Hashtable<String, Boolean>();
+        knowsMediaFiles.put("mp3", Boolean.TRUE);
+        knowsMediaFiles.put("pdf", Boolean.TRUE);
+        knowsMediaFiles.put("mov", Boolean.TRUE);
+        knowsMediaFiles.put("avi", Boolean.TRUE);
+        knowsMediaFiles.put("jpg", Boolean.TRUE);
+        knowsMediaFiles.put("gif", Boolean.TRUE);
+        knowsMediaFiles.put("png", Boolean.TRUE);
+        knowsMediaFiles.put("fla", Boolean.TRUE);
 
         logger.fine("Blog Detection System initialized ......");
 
@@ -393,9 +416,9 @@ public class BlogDetector {
     }
 
     public static void main(String[] args) {
-        BlogDetector blogDetector = new BlogDetector();
-        int result = blogDetector.identifyURL("http://www.oliverwillis.com", null);
-        System.out.println("result = " + result);
+
+        String pageURL = "http://www.chinthaka.org/kfndkfndnkn?.ifnis.knik/ijasd/test.mp3";
+
     }
 
 

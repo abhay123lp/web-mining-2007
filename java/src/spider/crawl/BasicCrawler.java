@@ -163,7 +163,7 @@ public class BasicCrawler {
         return t;
     }
 
-    private void addLinksToFrontier(String[] linksToBeRetrieved) {
+    public synchronized void addLinksToFrontier(String[] linksToBeRetrieved) {
         Vector<FrontierElement> frontierElements = new Vector<FrontierElement>();
         for (String aLinksToBeRetrieved : linksToBeRetrieved) {
             frontierElements.add(new FrontierElement(aLinksToBeRetrieved, 1));

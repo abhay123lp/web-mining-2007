@@ -68,9 +68,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -141,7 +139,6 @@ public class BlogProcessingSystem {
         if (blogDetector.isMediaFile(pageURL)) return new String[0];
 
 
-        List urlList = new ArrayList();
         totatProcessedPageCount++;
         try {
 

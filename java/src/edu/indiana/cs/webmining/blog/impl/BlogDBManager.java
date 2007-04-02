@@ -76,8 +76,6 @@ public class BlogDBManager {
 
     private static long totalCount = 0;
 
-    private PreparedStatement blogDataInsertionStatement;
-
     private ConcurrentHashMap<String, Integer> blogIDList = new ConcurrentHashMap<String, Integer>();
 
     private static BlogDBManager blogDBManager;
@@ -90,9 +88,7 @@ public class BlogDBManager {
         props.load(new FileInputStream("etc/sql-local.prop"));
 
         try {
-            dbDriver = props.getProperty("driverClassName");
-            dbURL = props.getProperty("url");
-            connectionPool = new ConnectionPool(dbDriver, dbURL, props.getProperty("username"), props.getProperty("password"), 15, 5,
+            connectionPool = new ConnectionPool(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 15, 5,
                     true);
 
         } catch (SQLException e) {
@@ -140,7 +136,7 @@ public class BlogDBManager {
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
-
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Link addition failed:");
             System.err.println(e.getMessage());
@@ -156,18 +152,20 @@ public class BlogDBManager {
             preparedStatement.addBatch();
         }
         preparedStatement.executeBatch();
+        preparedStatement.close();
+
     }
 
     private int addSingleExternalBlog(String url, Connection connection) throws SQLException, MalformedURLException {
         PreparedStatement stmtAddExtBlog = connection.prepareStatement(SQL_INSERT_EXT_BLOG);
-        String sanitizedURL = BlogUtils.sanitizeURL(url);
-        int internalID = getBlogID(sanitizedURL, connection);
+        int internalID = getBlogID(BlogUtils.sanitizeURL(url), connection);
 
         stmtAddExtBlog.setString(1, url);
         stmtAddExtBlog.setInt(2, internalID);
 
         stmtAddExtBlog.execute();
 
+        stmtAddExtBlog.close();
         return internalID;
     }
 
@@ -189,6 +187,7 @@ public class BlogDBManager {
             res = addBlog(url, connection);
         }
         results.close();
+        stmtGetBlogID.close();
         blogIDList.put(url, res);
         return res;
     }
@@ -199,6 +198,7 @@ public class BlogDBManager {
         stmtAddBlog.setString(1, url);
 
         stmtAddBlog.executeUpdate();
+        stmtAddBlog.close();
 
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM blogs WHERE url=?;");
         preparedStatement.setString(1, url);

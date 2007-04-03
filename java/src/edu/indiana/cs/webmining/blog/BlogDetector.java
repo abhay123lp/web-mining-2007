@@ -53,6 +53,7 @@
 package edu.indiana.cs.webmining.blog;
 
 import edu.indiana.cs.webmining.Constants;
+import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.RegexFilter;
@@ -66,20 +67,15 @@ import org.htmlparser.tags.TitleTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 public class BlogDetector {
@@ -112,9 +108,9 @@ public class BlogDetector {
     private BlogDetector() {
         intialize();
 
-        initHistory();
+//        initHistory();
 
-        Runtime.getRuntime().addShutdownHook(new ShutDownHook(this));
+//        Runtime.getRuntime().addShutdownHook(new ShutDownHook(this));
     }
 
     public boolean isMediaFile(String pageURL) {
@@ -126,33 +122,31 @@ public class BlogDetector {
         }
     }
 
-    private void initHistory() {
-        Properties props = new Properties();
-        try {
-
-            history = new HashMap<String, Integer>();
-
-            props.load(new FileInputStream(new File(BlogProcessingSystem.BLOG_DETECTION_PROPERTIES)));
-            blogHistoryFileName = new File(props.getProperty("blog-history"));
-
-            if (blogHistoryFileName.isFile()) {
-                BufferedReader in = new BufferedReader(new FileReader(blogHistoryFileName));
-                String blogURL;
-                while ((blogURL = in.readLine()) != null) {
-                    history.put(blogURL, Constants.BLOG);
-                }
-                in.close();
-
-            } else {
-                blogHistoryFileName.createNewFile();
-            }
-
-
-        } catch (IOException e) {
-            logger.info("Can not load blog history.");
-            e.printStackTrace();
-        }
-    }
+//    private void initHistory() {
+//        Properties props = new Properties();
+//        try {
+//
+//            props.load(new FileInputStream(new File(BlogProcessingSystem.BLOG_DETECTION_PROPERTIES)));
+//            blogHistoryFileName = new File(props.getProperty("blog-history"));
+//
+//            if (blogHistoryFileName.isFile()) {
+//                BufferedReader in = new BufferedReader(new FileReader(blogHistoryFileName));
+//                String blogURL;
+//                while ((blogURL = in.readLine()) != null) {
+//                    history.put(blogURL, Constants.BLOG);
+//                }
+//                in.close();
+//
+//            } else {
+//                blogHistoryFileName.createNewFile();
+//            }
+//
+//
+//        } catch (IOException e) {
+//            logger.info("Can not load blog history.");
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Here we will be pre-populating hash tables with the known blogs and the checks related to them.
@@ -248,31 +242,35 @@ public class BlogDetector {
      * @param inputStream
      * @return
      */
-    public int identifyURL(String pageURL, InputStream inputStream) {
+    public int identifyURL(String pageURL, InputStream inputStream) throws IOException {
+        Integer urlType = Constants.NOT_A_BLOG;
         try {
             // first let's avoid traps. .
             if (pageURL == null || "".equals(pageURL) || isMediaFile(pageURL)) {
-                return Constants.NOT_A_BLOG;
+                urlType = Constants.NOT_A_BLOG;
+            } else {
+
+                // first let's check in the cache
+                urlType = BlogDBManager.getInstance().getURLType(pageURL);
+
+                if (urlType == null) {
+                    // cache miss
+                    urlType = identifyURL(new URL(pageURL), inputStream);
+                    BlogDBManager.getInstance().addURLType(pageURL, urlType);
+                }
             }
 
-            // first let's check in the cache
-            Integer urlType = history.get(pageURL);
 
-            if (urlType == null) {
-                // cache miss
-                urlType = identifyURL(new URL(pageURL), inputStream);
-                history.put(pageURL, urlType);
-            }
-
-            return urlType;
         } catch (MalformedURLException e) {
             logger.fine("Malformed URL " + pageURL + " passed for blog identification " + e.getMessage());
             return Constants.NOT_A_BLOG;
-        } catch (RuntimeException e) {
-            // TODO: figure out how to specifically catch Parsing Exception
-            System.err.println("Runtime exception (e.g. timeouts) for " + pageURL);
+        } catch (SQLException e) {
             return Constants.NOT_A_BLOG;
+        } finally {
+            if (inputStream != null) inputStream.close();
         }
+
+        return urlType;
     }
 
     /**
@@ -421,46 +419,43 @@ public class BlogDetector {
 
     }
 
+//    protected void finalize() throws Throwable {
+//        saveHistory();
+//
+//    }
 
-    @Override
-    protected void finalize() throws Throwable {
-        saveHistory();
+//    public void saveHistory() throws IOException {
+//        System.out.print("Saving the history ....");
+//
+//        BufferedWriter out = new BufferedWriter(new FileWriter(blogHistoryFileName));
+//
+//        for (String blogLink : history.keySet()) {
+//            if (history.get(blogLink) == Constants.BLOG) {
+//                out.write(blogLink + "\n");
+//            }
+//        }
+//
+//        out.close();
+//
+//        System.out.println("Done.");
+//    }
 
-    }
-
-    public void saveHistory() throws IOException {
-        System.out.print("Saving the history ....");
-
-        BufferedWriter out = new BufferedWriter(new FileWriter(blogHistoryFileName));
-
-        for (String blogLink : history.keySet()) {
-            if (history.get(blogLink) == Constants.BLOG) {
-                out.write(blogLink + "\n");
-            }
-        }
-
-        out.close();
-
-        System.out.println("Done.");
-    }
-
-
-    class ShutDownHook extends Thread {
-
-        private BlogDetector blogDetector;
-
-
-        public ShutDownHook(BlogDetector blogDetector) {
-            this.blogDetector = blogDetector;
-        }
-
-        public void run() {
-            try {
-                blogDetector.saveHistory();
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            }
-        }
-    }
+//    class ShutDownHook extends Thread {
+//
+//        private BlogDetector blogDetector;
+//
+//
+//        public ShutDownHook(BlogDetector blogDetector) {
+//            this.blogDetector = blogDetector;
+//        }
+//
+//        public void run() {
+//            try {
+//                blogDetector.saveHistory();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//
+//            }
+//        }
+//    }
 }

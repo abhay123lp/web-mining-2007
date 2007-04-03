@@ -114,6 +114,10 @@ public class FileBasedBlogDataStorage implements BlogDataStorage {
         }
     }
 
+    public Integer isBlog(String pageURL) {
+        return null;
+    }
+
     private void writeFileHeader(File file, String sourceBlog) {
 
     }

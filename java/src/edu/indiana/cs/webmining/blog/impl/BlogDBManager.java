@@ -218,4 +218,34 @@ public class BlogDBManager {
 
         }
     }
+
+    public Integer getURLType(String pageURL) throws SQLException {
+
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement statement = connection.prepareStatement("select type from URL_Cache " +
+                "where url=?");
+        statement.setString(1, pageURL);
+        ResultSet resultSet = statement.executeQuery();
+
+        Integer returnValue = null;
+        if (resultSet.next()) {
+            returnValue = resultSet.getInt("type");
+        }
+
+        statement.close();
+        connectionPool.free(connection);
+
+        return returnValue;
+    }
+
+    public void addURLType(String pageURL, int urlType) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO URL_Cache values(?, ?)");
+        statement.setString(1, pageURL);
+        statement.setInt(2, urlType);
+        statement.executeUpdate();
+        statement.close();
+        connectionPool.free(connection);
+
+    }
 }

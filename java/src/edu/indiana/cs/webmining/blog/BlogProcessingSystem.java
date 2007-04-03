@@ -162,6 +162,8 @@ public class BlogProcessingSystem {
 
         } catch (FileNotFoundException e) {
             throw new BlogCrawlingException(e);
+        } catch (IOException e) {
+            throw new BlogCrawlingException(e);
         }
 
         return new String[]{};
@@ -208,6 +210,8 @@ public class BlogProcessingSystem {
         } catch (ParserException e) {
             throw new BlogCrawlingException(e);
         } catch (UnsupportedEncodingException e) {
+            throw new BlogCrawlingException(e);
+        } catch (IOException e) {
             throw new BlogCrawlingException(e);
         }
     }

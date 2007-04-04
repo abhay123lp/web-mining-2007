@@ -83,11 +83,15 @@ public class DBManager {
     private PreparedStatement stmtGetAllLinks;
     private PreparedStatement stmtGetPredecessors;
     private PreparedStatement stmtGetSuccessors;
+    private PreparedStatement stmtGetOutDegree;
+    private PreparedStatement stmtGetInDegree;
     private PreparedStatement stmtAddBlog;
     private PreparedStatement stmtAddExtBlog;
     private PreparedStatement stmtGetBlogID;
     private PreparedStatement stmtAddLink;
+    private PreparedStatement stmtGetBlogCount;
     private static ResourceUser<PreparedStatement, Object, SQLException> voidUser;
+    private static ResourceUser<PreparedStatement, Integer, SQLException> intUser;
     private static ResourceUser<PreparedStatement, Collection<Blog>, SQLException> blogsUser;
     private static ResourceUser<PreparedStatement, Collection<LinkedBlog>, SQLException> linkedBlogsUser;
 
@@ -100,7 +104,7 @@ public class DBManager {
         try {
             // dataSource might have already been initialized
             if (dataSource == null) {
-                FileInputStream propstream = new FileInputStream("etc/sql-local.prop");
+                FileInputStream propstream = new FileInputStream("etc/sql-local-mike.prop");
 
                 Properties prop = new Properties();
                 prop.load(propstream);
@@ -130,6 +134,30 @@ public class DBManager {
         return voidUser;
     }
 
+    private static ResourceUser<PreparedStatement, Integer, SQLException>
+    getIntUser() {
+        if (intUser == null) {
+            intUser =
+                new ResourceUser<PreparedStatement, Integer, SQLException>() {
+
+                    public Integer run(PreparedStatement stmt) throws SQLException {
+                        // TODO Auto-generated method stub
+                        ResultSet rs = stmt.executeQuery();
+                        int answer;
+                        if (!rs.first()) {
+                            // something is really really wrong, but just return 0
+                            answer = 0;
+                        }
+                        answer = rs.getInt(1);
+                        rs.close();
+                        return answer;
+                    }
+            };
+        }
+        return intUser;
+
+    }
+    
     private static ResourceUser<PreparedStatement, Collection<Blog>, SQLException>
     getBlogsUser() {
         if (blogsUser == null) {
@@ -210,6 +238,37 @@ public class DBManager {
         return stmtGetSuccessors;
     }
     
+    private PreparedStatement getStmtGetOutDegree() throws SQLException {
+        if (stmtGetOutDegree == null || conn.isClosed()) {
+            stmtGetOutDegree =
+                getConnection().prepareStatement("SELECT COUNT(destid) FROM links "
+                        + "WHERE srcid = (SELECT id FROM blogs "
+                        + "WHERE url=?);");
+                        
+        }
+        return stmtGetOutDegree;
+    }
+    
+    private PreparedStatement getStmtGetInDegree() throws SQLException {
+        if (stmtGetInDegree == null || conn.isClosed()) {
+            stmtGetInDegree =
+                getConnection().prepareStatement("SELECT COUNT(srcid) FROM links "
+                        + "WHERE destid = (SELECT id FROM blogs "
+                        + "WHERE url=?);");
+                        
+        }
+        return stmtGetInDegree;
+    }
+    
+    private PreparedStatement getStmtGetBlogCount() throws SQLException {
+        if (stmtGetBlogCount == null || conn.isClosed()) {
+            stmtGetBlogCount =
+                getConnection().prepareStatement("SELECT COUNT(id) FROM blogs;");
+                        
+        }
+        return stmtGetBlogCount;
+    }
+    
     /**
      * Returns a Connection
      *
@@ -247,14 +306,16 @@ public class DBManager {
 
 
     public Collection<LinkedBlog> getSuccessors(final String url) throws SQLException {
-
-        return Using.using(getStmtGetSuccessors(), getLinkedBlogsUser(), false);
+        PreparedStatement stmt = getStmtGetSuccessors();
+        stmt.setString(1, url);
+        return Using.using(stmt, getLinkedBlogsUser(), false);
     }
 
 
     public Collection<LinkedBlog> getPredecessors(final String url) throws SQLException {
-        stmtGetPredecessors.setString(1, url);
-        return Using.using(getStmtGetPredecessors(), getLinkedBlogsUser(), false);
+        PreparedStatement stmt = getStmtGetPredecessors();
+        stmt.setString(1, url);
+        return Using.using(stmt, getLinkedBlogsUser(), false);
     }
 
     public Collection<LinkedBlog> getNeighbors(String url) throws SQLException {
@@ -262,6 +323,25 @@ public class DBManager {
         res.addAll(getPredecessors(url));
         return res;
     }
+    
+    public int getOutDegree(String url) throws SQLException {
+        PreparedStatement stmt = getStmtGetOutDegree();
+        stmt.setString(1, url);
+        return Using.using(stmt, getIntUser(), false);
+    }
+    
+    public int getInDegree(String url) throws SQLException {
+        PreparedStatement stmt = getStmtGetInDegree();
+        stmt.setString(1, url);
+        return Using.using(stmt, getIntUser(), false);
+    }
+    
+    public int getBlogCount() throws SQLException {
+        PreparedStatement stmt = getStmtGetBlogCount();  
+        return Using.using(stmt, getIntUser(), false);
+    }
+    
+    
 
     public Collection<Blog> getAllBlogs() throws SQLException {
         if (stmtGetAllBlogs == null || conn.isClosed()) {

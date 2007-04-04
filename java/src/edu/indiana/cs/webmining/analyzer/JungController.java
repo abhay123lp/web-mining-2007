@@ -7,10 +7,14 @@ import edu.indiana.cs.webmining.bean.Blog;
 import edu.indiana.cs.webmining.bean.Link;
 import edu.indiana.cs.webmining.bean.LinkedBlog;
 import edu.indiana.cs.webmining.db.DBManager;
+import edu.uci.ics.jung.graph.ArchetypeEdge;
+import edu.uci.ics.jung.graph.ArchetypeVertex;
 import edu.uci.ics.jung.graph.DirectedEdge;
 import edu.uci.ics.jung.graph.Edge;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.Vertex;
+import edu.uci.ics.jung.graph.decorators.NumberEdgeValue;
+import edu.uci.ics.jung.graph.decorators.VertexStringer;
 import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.impl.SimpleDirectedSparseVertex;
@@ -26,7 +30,7 @@ import java.util.HashSet;
  * @author Michel Salim <msalim@cs.indiana.edu>
  * @since Feb 15, 2007
  */
-public class JungController implements GraphController {
+public class JungController implements GraphController, VertexStringer, NumberEdgeValue {
     private DBManager dbman;
     private Graph graph;
 
@@ -55,7 +59,7 @@ public class JungController implements GraphController {
         this.graph = createGraph(blogs, links);
     }
 
-    private DBManager getDBcontroller() {
+    public DBManager getDBcontroller() {
         return dbman;
     }
     
@@ -110,7 +114,7 @@ public class JungController implements GraphController {
     }
 
 
-    public ArrayList<DirectedEdge> createEdges(Vertex v, ArrayList<Vertex> vs) {
+    public ArrayList<DirectedEdge> createEdges(Vertex v, Collection<Vertex> vs) {
         ArrayList<DirectedEdge> edges = new ArrayList<DirectedEdge>();
 
         for (Vertex vLoop : vs) {
@@ -122,55 +126,7 @@ public class JungController implements GraphController {
     }
 
 
-    /**
-     * getSubGraph -- return a HITS-esque subgraph of a given diameter
-     * Need to find better name, and also add other subgraph-generating methods
-     * (prob: if we add siblings for diameter >= 1, what is the distance of the sibling
-     * from the current node -- 0, 1, 2?)
-     *
-     * @param startNode
-     * @param diameter
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public Graph getSubGraph(Vertex startNode, int diameter) {
-        HashSet<Vertex> vertices = new HashSet<Vertex>();
-        HashSet<Edge> edges = new HashSet<Edge>();
-
-        ArrayList<Vertex> ancestorQueue = new ArrayList<Vertex>();
-        ArrayList<Vertex> descendantQueue = new ArrayList<Vertex>();
-        ArrayList<Edge> edgeQueue = new ArrayList<Edge>();
-
-        // D = 0: start node is always in the subgraph
-        vertices.add(startNode);
-        // Queue ancestors, descendants and edges
-        ancestorQueue.addAll(startNode.getPredecessors());
-        descendantQueue.addAll(startNode.getSuccessors());
-        edges.addAll(startNode.getIncidentEdges());
-
-        for (int i = 1; i < diameter; ++i) {
-            ArrayList<Vertex> prev = new ArrayList<Vertex>();
-            ArrayList<Vertex> next = new ArrayList<Vertex>();
-            ArrayList<Edge> more_edges = new ArrayList<Edge>();
-            for (Vertex v : ancestorQueue) {
-                prev.addAll(v.getPredecessors());
-                more_edges.addAll(v.getIncidentEdges());
-            }
-            for (Vertex v : descendantQueue) {
-                next.addAll(v.getSuccessors());
-                more_edges.addAll(v.getIncidentEdges());
-            }
-            vertices.addAll(ancestorQueue);
-            vertices.addAll(descendantQueue);
-            edges.addAll(edgeQueue);
-            ancestorQueue = prev;
-            descendantQueue = next;
-            edgeQueue = more_edges;
-        }
-        // Now create a subgraph with the collected vertices and edges
-
-        return createSubGraph(vertices, edges);
-    }
+   
    
     // Subgraph static constructors
     
@@ -183,6 +139,7 @@ public class JungController implements GraphController {
         JungController jc = new JungController();
         DBManager dbman = jc.getDBcontroller();
         Blog start = dbman.getBlog(url);
+        jc.graph = new DirectedSparseGraph();
                
         if (start == null) {
             // Throw exception instead?
@@ -194,17 +151,17 @@ public class JungController implements GraphController {
         
         for (LinkedBlog pb: dbman.getPredecessors(url)) {
             Vertex pv = jc.makeVertex(pb.getBlog());
+            jc.graph.addVertex(pv);
             DirectedEdge pe = new DirectedSparseEdge(pv, startVertex);
             pe.setUserDatum("linkType", pb.getLinkType(), UserData.SHARED);
-            jc.graph.addVertex(pv);
             jc.graph.addEdge(pe);
             
             // Now get siblings
             for (LinkedBlog sb: dbman.getSuccessors(pb.getBlog().getUrl())) {
                 Vertex sv = jc.makeVertex(sb.getBlog());
+                jc.graph.addVertex(sv);
                 DirectedEdge se = new DirectedSparseEdge(pv, sv);
                 se.setUserDatum("linkType", sb.getLinkType(), UserData.SHARED);
-                jc.graph.addVertex(sv);
                 jc.graph.addEdge(se);
             }
             
@@ -229,7 +186,29 @@ public class JungController implements GraphController {
         // Done with batch operations, return connection to pool
         dbman.closeConnection();
         return jc;
-
     }
 
+    
+    public Vertex getVertexByURL(String url)
+    {
+        return urlVertexMap.get(url);    
+    }
+    public String getLabel(ArchetypeVertex v) {
+        // TODO Auto-generated method stub
+        return vertexURLMap.get(v);
+    }
+
+    public Number getNumber(ArchetypeEdge arg0) {
+        // TODO Auto-generated method stub
+        return 1;
+    }
+
+    public void setNumber(ArchetypeEdge arg0, Number arg1) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public Graph getGraph() {
+        return graph;
+    }
 }

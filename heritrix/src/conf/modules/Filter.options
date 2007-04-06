@@ -12,3 +12,4 @@ org.archive.crawler.filter.SurtPrefixFilter
 org.archive.crawler.filter.ContentTypeRegExpFilter
 org.archive.crawler.filter.HTTPMidFetchUnchangedFilter
 org.archive.crawler.deciderules.DecidingFilter
+edu.indiana.cs.webmining.crawler.filter.BlogFilter

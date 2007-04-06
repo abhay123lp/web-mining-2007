@@ -1,21 +1,16 @@
 package edu.indiana.cs.webmining.crawler.filter;
 
-import java.util.logging.Level;
-
-import javax.management.AttributeNotFoundException;
-
-import org.archive.crawler.datamodel.CrawlURI;
-import org.archive.crawler.framework.Filter;
-import org.archive.crawler.settings.ComplexType;
-import org.archive.crawler.settings.MapType;
-
 import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.blog.BlogDetector;
+import org.archive.crawler.datamodel.CrawlURI;
+import org.archive.crawler.framework.Filter;
+
+import java.io.IOException;
 
 public class BlogFilter extends Filter {
 
     private BlogDetector detector;
-    
+
     public BlogFilter(String name, String description) {
         this(name);
         setDescription(description);
@@ -24,15 +19,24 @@ public class BlogFilter extends Filter {
     public BlogFilter(String name) {
         super(name,
                 "BlogFilter. A filter that accepts " +
-                "URIs deemed to contain a blog");
+                        "URIs deemed to contain a blog");
         // TODO Auto-generated constructor stub
         detector = BlogDetector.getInstance();
     }
-    
+
     protected boolean innerAccepts(Object o) {
-        CrawlURI curi = (o instanceof CrawlURI) ? (CrawlURI) o : null;
-        return (detector.identifyURL(curi.getBaseURI().toString(), null) == Constants.BLOG);
+        try {
+            if (o instanceof CrawlURI) {
+                CrawlURI crawlURI = (CrawlURI) o;
+                return (detector.identifyURL(crawlURI.getBaseURI().toString(), null) == Constants.BLOG);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+        return false;
     }
 
-    
+
 }

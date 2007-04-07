@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -362,26 +363,60 @@ public class MCSandbox {
         //String blog1 = "busymom.net";
         //String blog1 = "boingboing.net";
 
-        ArrayList<String> blogs = new ArrayList();
+        ArrayList<String> blogs = new ArrayList<String>();
         blogs.add("www.photojunkie.ca");
         
         JungController jc;
         try {
             jc = new JungController();
             DBManager dbm = new DBManager();
+                        
+            ArrayList< HashMap<String, Double> > arrScoreHashes = new ArrayList<HashMap<String,Double>>();
             
-            HashMap<String, Double> scores = new HashMap();
-            
-            //ArrayList
             
             for(String blog : blogs)
             {                            
                 DirectedSparseGraph descTree = getNeighborsGraph(blog, jc);
-                scores = getFOAF(descTree, jc, blog, 1);
-                toFileScore(scores, blog, "");
+                HashMap<String, Double> singleBlogScores = getFOAF(descTree, jc, blog, 1);                
+                arrScoreHashes.add(singleBlogScores);                
+                toFileScore(singleBlogScores, blog, "");
             }
-  
-
+            
+            HashSet<String> intersection = new HashSet<String>();
+            
+   
+            for(HashMap<String, Double> map : arrScoreHashes)
+            {
+                if(intersection.size() == 0)
+                {
+                    intersection.addAll(map.keySet());
+                }
+                else
+                {                    
+                    intersection.retainAll(map.keySet());
+                }                
+            }
+            
+           HashMap<String, Double> finalScore = new HashMap<String, Double>();
+                       
+           for(String url : intersection)
+           {
+               for(HashMap<String, Double> getScore : arrScoreHashes) 
+               {
+                   double val = getScore.get(url);
+                   
+                   if(finalScore.containsKey(url))
+                   {
+                       finalScore.put(url, (val * finalScore.get(url)) );  
+                   }
+                   else
+                   {
+                       finalScore.put(url,val);                       
+                   }                   
+               }
+           }
+           
+           
 //            edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
 //            hits.setUseAuthorityForRanking(true);
 //            //hits.setRemoveRankScoresOnFinalize(false);

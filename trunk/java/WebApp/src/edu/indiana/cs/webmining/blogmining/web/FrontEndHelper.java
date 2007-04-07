@@ -89,17 +89,19 @@ public class FrontEndHelper {
      */
     public List<BlogSearchResult> getRelevantBlogs(String firstURL, String secondURL) {
         try {
+            List<BlogSearchResult> results = new ArrayList<BlogSearchResult>();
             MCSandbox mcSandbox = new MCSandbox();
             JungController jc = new JungController();
             DBManager dbm = new DBManager();
             DirectedSparseGraph descTree = MCSandbox.getNeighborsGraph(firstURL, jc);
 
-            HashMap<String, Double> foaf = MCSandbox.getFOAF(descTree, jc, firstURL);
+            HashMap<String, Double> foaf = MCSandbox.getFOAF(descTree, jc, firstURL, 1);
 
             for (String s : foaf.keySet()) {
-
+                results.add(new BlogSearchResult(s, foaf.get(s) + ""));
             }
 
+            return results;
         } catch (SQLException e) {
             e.printStackTrace();
 

@@ -99,7 +99,7 @@ public class MCSandbox {
 
 
     @SuppressWarnings("unchecked")
-    public static HashMap<String, Double> getFOAF(DirectedSparseGraph descTree, JungController jc, String sourceUrl) {
+    public static HashMap<String, Double> getFOAF(DirectedSparseGraph descTree, JungController jc, String sourceUrl, int method) {
         try {
 
 
@@ -157,12 +157,24 @@ public class MCSandbox {
             int N = dbman.getBlogCount();
             //int N = descTree.numVertices();
             for (String url : InDegrees.keySet()) {
-                int Kb = InDegrees.get(url);
-                int Q = count.get(url);
-
+                double Kb = InDegrees.get(url);
+                double Q = count.get(url);
+                double score = 0;
                 // Secret Sauce
-                double score = (Math.pow(Ka, Q) * Math.pow(((N - 2.0 - Ka) / (N - 2.0)), (Kb - Q)) / Math.pow((N - 2.0), Q));
+                if (method == 1) {
+                    score = 1 / (Math.pow(Ka, Q) * Math.pow(((N - 2.0 - Ka) / (N - 2.0)), (Kb - Q)) * Math.pow(10, 200)) / (Math.pow((N - 2.0), Q)) * Math.pow(10, 200);
+                }
+                if (method == 2) {
+                    score = Q;
+                }
+                if (method == 3) {
+                    Vertex v = jc.getVertexByURL(url);
+                    int subGraphInDegree = v.inDegree();
+                    score = Math.pow(Q, 2) * (subGraphInDegree / Kb);
 
+                    System.out.println(url + ", " + score + ", " + Kb + ", " + subGraphInDegree
+                    );
+                }
                 scores.put(url, score);
 
 
@@ -281,7 +293,7 @@ public class MCSandbox {
     public static void main(String[] args) {
 
         //String blog1 = "theblacknewyorker.blogspot.com";
-        //String blog2 = "www.chronopolisnewyork.com";
+        //String blog1 = "www.chronopolisnewyork.com";
 
         //String blog1 = "muslims-r-us.blogspot.com";
         //String blog2 = "martijn.religionresearch.org";
@@ -289,14 +301,14 @@ public class MCSandbox {
         //String blog1 = "www.conservativelife.com";
         //String blog2 = "rightfaith.blogspot.com";
 
-        //String blog1 = "www.photojunkie.ca";
+        String blog1 = "www.photojunkie.ca";
         //String blog2 = "toronto.photobloggers.org";
 
         //String blog1 = "toronto.metblogs.com";
         //String blog2 = "mividaentoronto.blogspot.com";
 
-        String blog1 = "busymom.net";
-        //String blog2 = "www.talkleft.com";
+        //String blog1 = "busymom.net";
+        //String blog1 = "boingboing.net";
 
 
         JungController jc;
@@ -305,36 +317,39 @@ public class MCSandbox {
             DBManager dbm = new DBManager();
             DirectedSparseGraph descTree = getNeighborsGraph(blog1, jc);
 
-            HashMap<String, Double> foaf = getFOAF(descTree, jc, blog1);
-            toFileScore(foaf, blog1);
+            HashMap<String, Double> foaf = getFOAF(descTree, jc, blog1, 1);
 
 
-            edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
-            hits.setUseAuthorityForRanking(true);
-            hits.setRemoveRankScoresOnFinalize(false);
-            hits.evaluate();
+            String token = "";
+            toFileScore(foaf, blog1, token);
 
-//            HITS companion = new edu.uci.ics.jung.algorithms.importance.HITS(JungController.createCompanionGraph(blog1).getGraph());
-//            companion.setUseAuthorityForRanking(true);
-//            companion.setRemoveRankScoresOnFinalize(false);
-//            companion.evaluate();
+//            edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
+//            hits.setUseAuthorityForRanking(true);
+//            //hits.setRemoveRankScoresOnFinalize(false);
+//            //hits.evaluate();
+//
+////            HITS companion = new edu.uci.ics.jung.algorithms.importance.HITS(JungController.createCompanionGraph(blog1).getGraph());
+////            companion.setUseAuthorityForRanking(true);
+////            companion.setRemoveRankScoresOnFinalize(false);
+////            companion.evaluate();
+//
+//            edu.uci.ics.jung.algorithms.importance.PageRank pageRank = new edu.uci.ics.jung.algorithms.importance.PageRank(descTree, .15,null);
+//            //pageRank.setRemoveRankScoresOnFinalize(false);
+//            //pageRank.evaluate();
+//
+//            Set<Vertex> succSet = descTree.getVertices();
+//            Iterator<Vertex> succIter = succSet.iterator();
+//
+//            ArrayList<Vertex> vertices = new ArrayList();
+//            while(succIter.hasNext())
+//            {
+//                Vertex v = succIter.next();
+//                double score = hits.getRankScore(v);
+//                String url = jc.getLabel(v);
+//                int deg = dbm.getInDegree(url);
+//                System.out.println(url + "," + score + ", " + deg);
 
-            edu.uci.ics.jung.algorithms.importance.PageRank pageRank = new edu.uci.ics.jung.algorithms.importance.PageRank(descTree, .15, null);
-            pageRank.setRemoveRankScoresOnFinalize(false);
-            pageRank.evaluate();
-
-            Set<Vertex> succSet = descTree.getVertices();
-            Iterator<Vertex> succIter = succSet.iterator();
-
-            ArrayList<Vertex> vertices = new ArrayList();
-            while (succIter.hasNext()) {
-                Vertex v = succIter.next();
-                double score = hits.getRankScore(v);
-                String url = jc.getLabel(v);
-                int deg = dbm.getInDegree(url);
-                System.out.println(url + "," + score + ", " + deg);
-
-            }
+            //         }
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -342,12 +357,12 @@ public class MCSandbox {
 
     }
 
-    private static void toFileScore(HashMap<String, Double> score, String url) {
+    private static void toFileScore(HashMap<String, Double> score, String url, String token) {
 
         try {
             DBManager dbm = new DBManager();
 
-            BufferedWriter bw1 = new BufferedWriter(new FileWriter("/home/gonzo/results/" + url + ".csv"));
+            BufferedWriter bw1 = new BufferedWriter(new FileWriter("/home/gonzo/results/" + url + token + ".csv"));
             System.out.println(score.size());
             for (String s : score.keySet()) {
                 int deg = dbm.getInDegree(s);

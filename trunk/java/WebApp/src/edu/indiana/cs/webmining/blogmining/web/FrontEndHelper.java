@@ -96,6 +96,10 @@ public class FrontEndHelper {
 
             HashMap<String, Double> foaf = MCSandbox.getFOAF(descTree, jc, firstURL);
 
+            for (String s : foaf.keySet()) {
+
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
 

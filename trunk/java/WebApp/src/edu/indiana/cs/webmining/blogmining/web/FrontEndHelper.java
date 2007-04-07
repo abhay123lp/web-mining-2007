@@ -51,7 +51,6 @@ package edu.indiana.cs.webmining.blogmining.web;
 import edu.indiana.cs.webmining.analyzer.JungController;
 import edu.indiana.cs.webmining.analyzer.util.MCSandbox;
 import edu.indiana.cs.webmining.blogmining.web.dto.BlogSearchResult;
-import edu.indiana.cs.webmining.db.DBManager;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 
 import java.sql.SQLException;
@@ -90,9 +89,7 @@ public class FrontEndHelper {
     public List<BlogSearchResult> getRelevantBlogs(String firstURL, String secondURL) {
         try {
             List<BlogSearchResult> results = new ArrayList<BlogSearchResult>();
-            MCSandbox mcSandbox = new MCSandbox();
             JungController jc = new JungController();
-            DBManager dbm = new DBManager();
             DirectedSparseGraph descTree = MCSandbox.getNeighborsGraph(firstURL, jc);
 
             HashMap<String, Double> foaf = MCSandbox.getFOAF(descTree, jc, firstURL, 1);

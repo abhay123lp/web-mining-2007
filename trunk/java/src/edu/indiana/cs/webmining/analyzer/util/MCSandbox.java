@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -106,7 +107,7 @@ public class MCSandbox {
             final HashMap<String, Integer> count = new HashMap<String, Integer>();
             HashMap<String, Double> scores = new HashMap<String, Double>();
 
-            HashMap<String, Integer> InDegrees = new HashMap<String, Integer>();
+            Map<String, Integer> InDegrees = Collections.synchronizedMap(new HashMap<String, Integer>());
 
 
             int intcount = 0;

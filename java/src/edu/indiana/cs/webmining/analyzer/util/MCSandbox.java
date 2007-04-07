@@ -175,6 +175,10 @@ public class MCSandbox {
                     System.out.println(url + ", " + score + ", " + Kb + ", " + subGraphInDegree
                     );
                 }
+                if(method==4)
+                {
+                    score = Ka / Q;                                   
+                }
                 scores.put(url, score);
 
 
@@ -301,7 +305,7 @@ public class MCSandbox {
         //String blog1 = "www.conservativelife.com";
         //String blog2 = "rightfaith.blogspot.com";
 
-        String blog1 = "www.photojunkie.ca";
+        //String blog1 = "www.photojunkie.ca";
         //String blog2 = "toronto.photobloggers.org";
 
         //String blog1 = "toronto.metblogs.com";
@@ -310,18 +314,25 @@ public class MCSandbox {
         //String blog1 = "busymom.net";
         //String blog1 = "boingboing.net";
 
-
+        ArrayList<String> blogs = new ArrayList();
+        blogs.add("www.photojunkie.ca");
+        
         JungController jc;
         try {
             jc = new JungController();
             DBManager dbm = new DBManager();
-            DirectedSparseGraph descTree = getNeighborsGraph(blog1, jc);
-
-            HashMap<String, Double> foaf = getFOAF(descTree, jc, blog1, 1);
-
-
-            String token = "";
-            toFileScore(foaf, blog1, token);
+            
+            HashMap<String, Double> scores = new HashMap();
+            
+            //ArrayList
+            
+            for(String blog : blogs)
+            {                            
+                DirectedSparseGraph descTree = getNeighborsGraph(blog, jc);
+                scores = getFOAF(descTree, jc, blog, 1);
+                toFileScore(scores, blog, "");
+            }
+  
 
 //            edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
 //            hits.setUseAuthorityForRanking(true);

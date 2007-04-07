@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -102,15 +103,29 @@ public class MCSandbox {
     public static HashMap<String, Double> getFOAF(DirectedSparseGraph descTree, JungController jc, String sourceUrl, int method) {
         try {
 
-
-            HashMap<String, Integer> count = new HashMap<String, Integer>();
+            final HashMap<String, Integer> count = new HashMap<String, Integer>();
             HashMap<String, Double> scores = new HashMap<String, Double>();
 
             HashMap<String, Integer> InDegrees = new HashMap<String, Integer>();
 
 
             int intcount = 0;
-            int nodecount = 0;
+ 
+            // Need to box this
+            
+            class Counter {
+            	int count = 0;
+            	public Counter(int start) {
+            		count = start;
+            	}
+            	public synchronized int get() {
+            		return count;
+            	}
+            	public synchronized void inc() {
+            		count++;
+            	}
+            }
+            final Counter nodecount = new Counter(0);
 
             Vertex source = jc.getVertexByURL(sourceUrl);
 
@@ -119,7 +134,7 @@ public class MCSandbox {
 
             ArrayList<Vertex> D1_Vert = new ArrayList();
 
-            DBManager dbman = jc.getDBcontroller();
+            final DBManager dbman = jc.getDBcontroller();
             int Ka = dbman.getOutDegree(sourceUrl);
 
             while (succIter.hasNext()) {
@@ -127,33 +142,65 @@ public class MCSandbox {
             }
 
 
+            
+            final class ProcessD1 extends Thread {
+
+            	private JungController jc;
+            	private Vertex v;
+            	private Map<String, Integer> indegrees;
+            	
+            	public ProcessD1(JungController jc, Vertex v, Map indegrees) {
+            		this.jc = jc;
+            		this.v = v;
+            		this.indegrees = indegrees;
+            	}
+				public void run() {
+					for (Object o: v.getSuccessors()) {
+						Vertex node = (o instanceof Vertex) ? (Vertex) o : null;
+						String url = jc.getLabel(node);
+						
+						// Record degrees of the node
+						if (!(indegrees.containsKey(url))) {
+	                        int deg;
+							try {
+								deg = dbman.getInDegree(url);
+		                        indegrees.put(url, deg);
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+						}
+	                    // Count Total # of Nodes
+	                    if (count.containsKey(url)) {
+	                        count.put(url, count.get(url) + 1);
+	                    } else {
+	                        count.put(url, 1);
+	                        nodecount.inc();
+	                    }
+					}
+				}
+            	
+            }
+            
+            ArrayList<ProcessD1> unfinished = new ArrayList<ProcessD1>();
+            
             for (Vertex v : D1_Vert) {
-                succSet = v.getSuccessors();
-                succIter = succSet.iterator();
-
-                ArrayList<Vertex> D2_Vert = new ArrayList();
-                while (succIter.hasNext()) {
-                    Vertex node = succIter.next();
-                    String url = jc.getLabel(node);
-
-//                  Record degrees of Each Nodes
-                    if (!(InDegrees.containsKey(url))) {
-                        int deg = dbman.getInDegree(url);
-                        InDegrees.put(url, deg);
-                        //System.out.println(url + ": " + deg);
-                    }
-
-                    // Count Total # of Nodes
-                    if (count.containsKey(url)) {
-                        count.put(url, count.get(url) + 1);
-                    } else {
-                        count.put(url, 1);
-                        nodecount++;
-                    }
-                }
+            	ProcessD1 processor = new ProcessD1(jc, v, InDegrees);
+            	unfinished.add(processor);
+            	processor.start();
             }
 
 
+            for (ProcessD1 p : unfinished) {
+            	try {
+					p.join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+            
             int N = dbman.getBlogCount();
             //int N = descTree.numVertices();
             for (String url : InDegrees.keySet()) {

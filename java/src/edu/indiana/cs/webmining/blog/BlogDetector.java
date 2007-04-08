@@ -66,10 +66,15 @@ import org.htmlparser.tags.LinkTag;
 import org.htmlparser.tags.TitleTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
+import spider.crawl.Globals;
+import spider.util.Fetcher;
+import spider.util.Hashing;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -99,7 +104,7 @@ public class BlogDetector {
     private static Map<String, String> deceivingNonBlogs;
     private static final String APPLICATION_RSS_XML_TYPE = "application/rss+xml";
     private static final String APPLICATION_ATOM_XML_TYPE = "application/atom+xml";
-    private File blogHistoryFileName;
+    private File tempFolder = new File("tmp-crawled-pages");
 
     public static BlogDetector getInstance() {
         return ourInstance;
@@ -226,6 +231,10 @@ public class BlogDetector {
         knowsMediaFiles.put("png", Boolean.TRUE);
         knowsMediaFiles.put("fla", Boolean.TRUE);
 
+        if (!tempFolder.isDirectory()) {
+            tempFolder.mkdir();
+        }
+
         logger.fine("Blog Detection System initialized ......");
 
     }
@@ -239,10 +248,10 @@ public class BlogDetector {
      * We might improve this algorithm as and when we find interesting points.
      *
      * @param pageURL
-     * @param inputStream
+     * @param htmlFile
      * @return
      */
-    public int identifyURL(String pageURL, InputStream inputStream) throws IOException {
+    public int identifyURL(String pageURL, File htmlFile) throws IOException {
         Integer urlType = Constants.NOT_A_BLOG;
         try {
             // first let's avoid traps. .
@@ -255,7 +264,7 @@ public class BlogDetector {
 
                 if (urlType == null) {
                     // cache miss
-                    urlType = identifyURL(new URL(pageURL), inputStream);
+                    urlType = identifyURL(new URL(pageURL), htmlFile);
                     BlogDBManager.getInstance().addURLType(pageURL, urlType);
                 }
             }
@@ -266,10 +275,7 @@ public class BlogDetector {
             return Constants.NOT_A_BLOG;
         } catch (SQLException e) {
             return Constants.NOT_A_BLOG;
-        } finally {
-            if (inputStream != null) inputStream.close();
         }
-
         return urlType;
     }
 
@@ -281,12 +287,12 @@ public class BlogDetector {
      * <p/>
      * We might improve this algorithm as and when we find interesting points.
      *
-     * @param pageURL     - url of the page
-     * @param inputStream - input stream to the web page under consideration. If you pass null to this, this method will
-     *                    open a connection to the page if required.
+     * @param pageURL  - url of the page
+     * @param htmlFile - pointer to the web page under consideration. If you pass null to this, this method will
+     *                 open a connection to the page if required.
      * @return
      */
-    public int identifyURL(URL pageURL, InputStream inputStream) {
+    public synchronized int identifyURL(URL pageURL, File htmlFile) {
         int status = -1;
 
         // sorry, we do not handle anything other than http. Can there be smtp or tcp blogs?
@@ -313,11 +319,15 @@ public class BlogDetector {
         try {
 // first let's see whether title has XX's blog in it
             Page page;
-            if (inputStream == null) {
-                page = new Page(pageURL.openConnection());
-            } else {
-                page = new Page(new InputStreamSource(inputStream));
+            if (htmlFile == null) {
+                htmlFile = fetchAndSaveFile(pageURL);
             }
+
+            if (htmlFile == null) {
+                return Constants.NOT_A_BLOG;
+            }
+
+            page = new Page(new InputStreamSource(new FileInputStream(htmlFile)));
             Parser parser = new Parser(new Lexer(page));
             TagNameFilter titleFilter = new TagNameFilter("title");
             NodeList titles = parser.parse(titleFilter);
@@ -331,7 +341,7 @@ public class BlogDetector {
 
             page.close();
             // now let's see there is a link for major blog publishing frameworks or has an RSS feed, within the page
-            return hasLinkToBlogFramework(pageURL);
+            return hasLinkToBlogFramework(htmlFile, pageURL.toString());
 
         } catch (ParserException e) {
             System.out.println("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
@@ -343,6 +353,22 @@ public class BlogDetector {
 
         }
 
+    }
+
+    private File fetchAndSaveFile(URL pageURL) throws IOException {
+        File htmlFile = null;
+        String urlString = pageURL.toString();
+        spider.util.Page htmlPage = new Fetcher().fetch(urlString, Globals.eMail);
+
+        if (htmlPage.content != null) {
+            htmlFile = new File(tempFolder, Hashing.getHashValue(urlString));
+            if (!htmlFile.isFile()) htmlFile.createNewFile();
+
+            BufferedWriter out = new BufferedWriter(new FileWriter(htmlFile));
+            out.write(htmlPage.content);
+            out.close();
+        }
+        return htmlFile;
     }
 
     private int getBlogId(URL pageURL) {
@@ -365,11 +391,11 @@ public class BlogDetector {
      * @param pageURL
      * @return The blog id or -1 if it is not a blog.
      */
-    private int hasLinkToBlogFramework(URL pageURL) {
+    private int hasLinkToBlogFramework(File htmlFile, String pageURL) {
         Parser parser;
         try {
-            parser = new Parser(pageURL.openConnection());
-
+            Page page = new Page(new InputStreamSource(new FileInputStream(htmlFile)));
+            parser = new Parser(new Lexer(page));
 
             TagNameFilter linkTag = new TagNameFilter("link");
 
@@ -386,7 +412,8 @@ public class BlogDetector {
                 }
             }
 
-            parser = new Parser(pageURL.openConnection());
+            page = new Page(new InputStreamSource(new FileInputStream(htmlFile)));
+            parser = new Parser(new Lexer(page));
             TagNameFilter aTag = new TagNameFilter("a");
             NodeList nl = parser.parse(aTag);
 

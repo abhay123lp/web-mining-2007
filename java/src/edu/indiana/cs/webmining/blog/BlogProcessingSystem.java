@@ -144,16 +144,18 @@ public class BlogProcessingSystem {
 
             // first let's get the blog id. If this URL is not a blog, this should return
             // Constants.NOT_A_BLOG
-            int blogId = blogDetector.identifyURL(pageURL, new FileInputStream(webPage));
+            int blogId = blogDetector.identifyURL(pageURL, webPage);
 
             if (blogId > 0) {             // if this is a processable blog
 
                 // process it and get the grouped set of urls. The map returned will contain urls as the key
                 // and url type as the value.
-                String[] result = processBlog(pageURL, new FileInputStream(webPage));
+                FileInputStream fileInputStream = new FileInputStream(webPage);
+                String[] result = processBlog(pageURL, fileInputStream);
 
                 // save the link connection information.
                 blogDataStorage.store(result, pageURL);
+                fileInputStream.close();
 
                 // return the the set of urls to be fetched for further processing
                 return result;

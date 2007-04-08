@@ -58,9 +58,12 @@
         <copy todir="${build.dir}/mem/WEB-INF/lib">
             <fileset dir="${lib.dir}">
                 <include name="*.jar"/>
+                <exclude name="servlet-tomcat-4.1.30.jar"/>
+                <exclude name="ant-1.6.2.jar"/>
             </fileset>
             <fileset dir="../build/lib">
                 <include name="*.jar"/>
+
             </fileset>
         </copy>
         <jar jarfile="${build.dir}/mem.war" basedir="${build.dir}/mem">

@@ -21,12 +21,12 @@
     FrontEndHelper frontEndHelper = new FrontEndHelper();
     // check whether they are actually referring to blogs
     if (firstURL == null || "".equals(firstURL) ||
-            frontEndHelper.isBlog(URLDecoder.decode(firstURL))) {
+            !frontEndHelper.isBlog(URLDecoder.decode(firstURL))) {
         // very bad, user has not provided us with a proper link, I'm gonna complain
 %>
 <h3>First URL you provided (<%=firstURL%>) is not linking to a blog.</h3>
 <%
-} else if (secondURL != null && !"".equals(secondURL) && frontEndHelper.isBlog(URLDecoder.decode(secondURL))) {
+} else if (secondURL != null && !"".equals(secondURL) && !frontEndHelper.isBlog(URLDecoder.decode(secondURL))) {
 %>
 <h3>Second URL you provided (<%=secondURL%>) is not linking to a blog.</h3>
 <%

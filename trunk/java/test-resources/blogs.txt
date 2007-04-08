@@ -12,7 +12,6 @@ http://slashdot.org/
 http://www.tbray.org/ongoing/
 http://salimma.livejournal.com/
 http://hircus.wordpress.com/
-http://twitter.com/CaliLewis
 http://blog.wired.com/sterling/
 http://insanecats.com/
 # Planet aggregators (good for hubs)

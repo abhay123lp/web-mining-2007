@@ -4,7 +4,7 @@
 
      Eran Chinthaka
      ====================================================================== -->
-<project name="project" default="war">
+<project name="project" default="war" basedir=".">
     <description>
         description
     </description>
@@ -61,8 +61,8 @@
                 <exclude name="servlet-tomcat-4.1.30.jar"/>
                 <exclude name="ant-1.6.2.jar"/>
             </fileset>
-            <fileset dir="../build/lib">
-                <include name="*.jar"/>
+            <fileset dir="../build">
+                <include name="crawler.jar"/>
 
             </fileset>
         </copy>

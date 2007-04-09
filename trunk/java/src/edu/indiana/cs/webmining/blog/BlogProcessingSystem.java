@@ -64,6 +64,14 @@ public class BlogProcessingSystem {
 
     public void start() {
 
+        // set http client logging off
+        System.setProperty("org.apache.commons.logging.Log",
+                "org.apache.commons.logging.impl.SimpleLog");
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime",
+                "true");
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient",
+                "error");
+
         try {
 // load the blog processing context
             BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
@@ -90,15 +98,11 @@ public class BlogProcessingSystem {
     }
 
     private void startBlogProcessingThreads(BlogCrawlingContext context) throws BlogCrawlingException {
-        try {
-            int maxBlogProcessorThreadCount = context.getMaxBlogProcessorThreadCount();
-            for (int i = 0; i < maxBlogProcessorThreadCount; i++) {
-                Thread crawlThread = new Thread(new BlogProcessor(context));
-                crawlThread.start();
-                crawlThread.join();
-            }
-        } catch (InterruptedException e) {
-            throw new BlogCrawlingException(e);
+        int maxBlogProcessorThreadCount = context.getMaxBlogProcessorThreadCount();
+        for (int i = 0; i < maxBlogProcessorThreadCount; i++) {
+            Thread crawlThread = new Thread(new BlogProcessor(context));
+            crawlThread.start();
+//                crawlThread.join();
         }
     }
 

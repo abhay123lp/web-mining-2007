@@ -87,11 +87,11 @@ public class BlogDBManager {
 
     private BlogDBManager() throws IOException {
         Properties props = new Properties();
-//        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
-        props.load(new FileInputStream("etc/sql-local.prop"));
+        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
+//        props.load(new FileInputStream("etc/sql-local.prop"));
 
         try {
-            connectionPool = new ConnectionPool(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 15, 5,
+            connectionPool = new ConnectionPool(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 20, 50,
                     true);
 
         } catch (SQLException e) {

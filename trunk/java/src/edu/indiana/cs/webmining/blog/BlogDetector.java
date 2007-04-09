@@ -278,6 +278,7 @@ public class BlogDetector {
                     // cache miss
                     urlType = identifyURL(new URL(pageURL), htmlFile);
                     BlogDBManager.getInstance().addURLType(pageURL, urlType);
+                    System.out.println("Type " + urlType + " : [" + pageURL + "]");
                 }
             }
 

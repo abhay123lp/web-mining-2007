@@ -70,4 +70,13 @@ public abstract class Constants {
     public static final int BLOGGER = 11;
     public static final int BLOGSPOT = 12;
     public static final int BLOGLINES = 13;
+
+    // Frontier table status codes
+    public static final String STATUS_TO_BE_FETCHED = "ToBeFetched";
+    public static final String STATUS_FETCHING = "Fetching";
+    public static final String STATUS_FETCHED = "Fetched";
+    public static final String STATUS_BLOG_PROCESSING = "BlogProcessing";
+    public static final String STATUS_COMPLETED_PROCESSING = "CompletedProcessing";
+    public static final String STATUS_FAILED = "Failed";
+
 }

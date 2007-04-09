@@ -48,15 +48,39 @@
 
 package edu.indiana.cs.webmining.crawler;
 
+import edu.indiana.cs.webmining.BlogCrawlingContext;
+import edu.indiana.cs.webmining.blog.BlogCrawlingException;
+
+import java.io.IOException;
+
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
  * @Date : Apr 8, 2007
  */
 public class CrawlerManager {
 
-    public void run() {
-        // put the seed urls in to the database
+    private BlogCrawlingContext context;
 
-        // start the given number of crawler threads
+
+    public CrawlerManager(BlogCrawlingContext context) {
+        this.context = context;
+    }
+
+    public void run() throws BlogCrawlingException {
+        try {
+// put the seed urls in to the database
+
+            // start the given number of crawler threads
+            int crawlThreadCount = context.getMaxCrawlThreadCount();
+            for (int i = 0; i < crawlThreadCount; i++) {
+                Thread crawlThread = new Thread(new Crawler(context));
+                crawlThread.start();
+                crawlThread.join();
+            }
+        } catch (IOException e) {
+            throw new BlogCrawlingException(e);
+        } catch (InterruptedException e) {
+            throw new BlogCrawlingException(e);
+        }
     }
 }

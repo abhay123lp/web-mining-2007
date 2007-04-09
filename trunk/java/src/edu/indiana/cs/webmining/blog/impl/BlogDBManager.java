@@ -315,4 +315,24 @@ public class BlogDBManager {
             e.printStackTrace();
         }
     }
+
+    public void insertSeedUrls(String[] seedUrls) {
+        try {
+            Connection connection = connectionPool.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Frontier (Url, StatusCode)" +
+                    " VALUES (?, ?)");
+
+            for (String seedURL : seedUrls) {
+                preparedStatement.setString(1, seedURL);
+                preparedStatement.setString(2, Constants.STATUS_TO_BE_FETCHED);
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+            preparedStatement.close();
+            connectionPool.free(connection);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

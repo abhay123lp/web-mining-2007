@@ -50,6 +50,7 @@ package edu.indiana.cs.webmining.crawler;
 
 import edu.indiana.cs.webmining.BlogCrawlingContext;
 import edu.indiana.cs.webmining.blog.BlogCrawlingException;
+import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
 
 import java.io.IOException;
 
@@ -68,7 +69,9 @@ public class CrawlerManager {
 
     public void run() throws BlogCrawlingException {
         try {
-// put the seed urls in to the database
+            // put the seed urls in to the database
+            String[] seedUrls = context.getSeedUrls();
+            BlogDBManager.getInstance().insertSeedUrls(seedUrls);
 
             // start the given number of crawler threads
             int crawlThreadCount = context.getMaxCrawlThreadCount();

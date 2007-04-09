@@ -49,7 +49,8 @@
 package edu.indiana.cs.webmining.blog.impl;
 
 import edu.indiana.cs.webmining.Constants;
-import edu.indiana.cs.webmining.blog.BlogProcessingSystem;
+import edu.indiana.cs.webmining.bean.BlogInfo;
+import edu.indiana.cs.webmining.blog.BlogProcessor;
 import edu.indiana.cs.webmining.blog.BlogUtils;
 import edu.indiana.cs.webmining.db.ConnectionPool;
 
@@ -118,11 +119,15 @@ public class BlogDBManager {
 
         // finally let's add the links between them
         addLink(source, destinationURLs, connection);
+
         connectionPool.free(connection);
+
+        insertLinksToBeFetchedByTheCrawler(destinationURLs);
+
 
         totalCount += destinationURLs.length;
 
-        System.out.println("Total processed pages " + BlogProcessingSystem.totatProcessedPageCount);
+        System.out.println("Total processed pages " + BlogProcessor.totatProcessedPageCount);
         System.out.println("Total blogs saved = " + totalCount);
 
     }
@@ -301,7 +306,7 @@ public class BlogDBManager {
     }
 
 
-    public void setFetchingCancelled(String urlToBeFetched1) {
+    public void setBlogProcessingFailed(String urlToBeFetched1) {
         try {
             Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET " +
@@ -316,7 +321,7 @@ public class BlogDBManager {
         }
     }
 
-    public void insertSeedUrls(String[] seedUrls) {
+    public void insertLinksToBeFetchedByTheCrawler(String[] seedUrls) {
         try {
             Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Frontier (Url, StatusCode)" +
@@ -334,5 +339,34 @@ public class BlogDBManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    // TODO
+    public synchronized BlogInfo getNextBlogToProcess() {
+        BlogInfo blogInfo = null;
+        try {
+            Connection connection = connectionPool.getConnection();
+            PreparedStatement selectStatement = connection.prepareStatement("SELECT Url, FileName FROM Frontier where StatusCode='" + Constants.STATUS_FETCHED + "' limit 1");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET StatusCode='" + Constants.STATUS_BLOG_PROCESSING + "' WHERE Url='?'");
+
+            ResultSet resultSet = selectStatement.executeQuery();
+            if (resultSet.next()) {
+                String url = resultSet.getString("Url");
+                blogInfo.setUrl(url);
+                blogInfo.setFileName(resultSet.getString("FileName"));
+                preparedStatement.setString(1, url);
+                preparedStatement.execute();
+            }
+
+            resultSet.close();
+            selectStatement.close();
+            preparedStatement.close();
+            connectionPool.free(connection);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return blogInfo;
+
     }
 }

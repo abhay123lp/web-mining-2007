@@ -50,6 +50,7 @@ package edu.indiana.cs.webmining.blog;
 
 import edu.indiana.cs.webmining.BlogCrawlingContext;
 import edu.indiana.cs.webmining.Constants;
+import edu.indiana.cs.webmining.bean.BlogInfo;
 import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
@@ -69,7 +70,6 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Logger;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -77,40 +77,54 @@ import java.util.logging.Logger;
  * <p/>
  * This will be responsible for all the blog url handling activities
  */
-public class BlogProcessingSystem {
+public class BlogProcessor implements Runnable {
 
     private BlogDBManager dbManager;
-    public static final String SYSTEM_NAME = "BlogProcessingSystem";
-    Logger logger = Logger.getLogger(SYSTEM_NAME);
     public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
 
+    private File blogFileStore;
 
     public static long totatProcessedPageCount = 0;
     private BlogDetector blogDetector = BlogDetector.getInstance();
 
     private BlogCrawlingContext context;
 
-    /**
-     * @throws BlogCrawlingException
-     * @deprecated
-     */
-    public BlogProcessingSystem() throws BlogCrawlingException {
-        try {
-            dbManager = BlogDBManager.getInstance();
-        } catch (IOException e) {
-            throw new BlogCrawlingException(e);
-        }
-    }
-
-
-    public BlogProcessingSystem(BlogCrawlingContext context) throws BlogCrawlingException {
+    public BlogProcessor(BlogCrawlingContext context) throws BlogCrawlingException {
         this.context = context;
+        this.blogFileStore = context.getFileStore();
         try {
             dbManager = BlogDBManager.getInstance();
         } catch (IOException e) {
             throw new BlogCrawlingException(e);
         }
     }
+
+    public void run() {
+
+        while (true) {
+            // fetch blog url to process
+            BlogInfo blogInfo = dbManager.getNextBlogToProcess();
+
+            // find the file and process it
+            if (blogInfo != null) {
+
+                File blogPage = new File(blogFileStore, blogInfo.getFileName());
+                try {
+                    processPage(blogPage, blogInfo.getUrl());
+                } catch (BlogCrawlingException e) {
+                    dbManager.setBlogProcessingFailed(blogInfo.getUrl());
+                }
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
 
     /**
      * This will process/save a given web page. First this needs to identify whether the given url
@@ -229,7 +243,7 @@ public class BlogProcessingSystem {
     public static void main(String[] args) {
         try {
             BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
-            BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem(context);
+            BlogProcessor blogProcessor = new BlogProcessor(context);
 
 
         } catch (BlogCrawlingException e) {
@@ -238,55 +252,5 @@ public class BlogProcessingSystem {
         }
 
     }
-
-//    public static void main(String[] args) {
-//
-//        Properties props = new Properties();
-//        try {
-//            props.load(new FileInputStream(new File(BLOG_DETECTION_PROPERTIES)));
-//
-//            String seedUrls = props.getProperty("seed-urls");
-//            //a list of seeds
-//            String[] urls = seedUrls.split(",");
-//
-//            //number of pages to crawl
-//            int maxPages = Integer.parseInt(props.getProperty("max-pages"));
-//
-//            //Folder to create to store the cache files (downloaded pages)
-//            String data = props.getProperty("data-folder");
-//
-//            long startTime = System.currentTimeMillis();
-//
-//            BasicCrawler bf = new BasicCrawler(urls, maxPages, data);
-//
-//            //simultaneous threads of crawlers
-//            bf.setMaxThreads(Integer.parseInt(props.getProperty("max-threads")));
-//
-//            //set maximum frontier size (-1 for no limit)
-//            bf.setMaxFrontier(Integer.parseInt(props.getProperty("frontier-size")));
-//
-//            //history of pages crawled
-//            bf.setStorageFile(props.getProperty("crawl-history"));
-//
-//            //log of a few statistics - file updated every minute
-//            bf.setStatFile(props.getProperty("statitics-file"));
-//
-//            //set the e-mail address to go with the http request
-//            String email;
-//            Globals.setMail(props.getProperty("email"));
-//
-//            bf.startCrawl();
-//
-//            long endTime = System.currentTimeMillis();
-//            long total = endTime - startTime;
-//            System.out.println("Total Time: " + total);
-//
-//            //info on redirected pages
-//            Redirections.toFile(props.getProperty("redirection-log"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//
-//        }
-//    }
 
 }

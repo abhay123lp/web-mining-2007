@@ -87,7 +87,7 @@ public class BlogDetector {
 
     private static BlogDetector ourInstance = new BlogDetector();
 
-    private Logger logger = Logger.getLogger(BlogProcessingSystem.SYSTEM_NAME);
+    private Logger logger = Logger.getLogger(BlogProcessor.SYSTEM_NAME);
 
     private static Map<String, Integer> knownBlogURLList;
     private static Map<String, Integer> history;
@@ -131,7 +131,7 @@ public class BlogDetector {
 //        Properties props = new Properties();
 //        try {
 //
-//            props.load(new FileInputStream(new File(BlogProcessingSystem.BLOG_DETECTION_PROPERTIES)));
+//            props.load(new FileInputStream(new File(BlogProcessor.BLOG_DETECTION_PROPERTIES)));
 //            blogHistoryFileName = new File(props.getProperty("blog-history"));
 //
 //            if (blogHistoryFileName.isFile()) {

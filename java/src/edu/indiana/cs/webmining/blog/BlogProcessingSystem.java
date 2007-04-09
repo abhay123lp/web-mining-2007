@@ -48,8 +48,9 @@
 
 package edu.indiana.cs.webmining.blog;
 
+import edu.indiana.cs.webmining.BlogCrawlingContext;
 import edu.indiana.cs.webmining.Constants;
-import edu.indiana.cs.webmining.blog.impl.DBBasedBlogDataStorage;
+import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.TagNameFilter;
@@ -58,9 +59,6 @@ import org.htmlparser.lexer.Page;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
-import spider.crawl.BasicCrawler;
-import spider.crawl.Globals;
-import spider.util.Redirections;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,15 +66,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
-import java.util.Properties;
+import java.sql.SQLException;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -86,8 +79,7 @@ import java.util.logging.SimpleFormatter;
  */
 public class BlogProcessingSystem {
 
-    private BlogDataStorage blogDataStorage;
-
+    private BlogDBManager dbManager;
     public static final String SYSTEM_NAME = "BlogProcessingSystem";
     Logger logger = Logger.getLogger(SYSTEM_NAME);
     public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
@@ -96,27 +88,27 @@ public class BlogProcessingSystem {
     public static long totatProcessedPageCount = 0;
     private BlogDetector blogDetector = BlogDetector.getInstance();
 
-    public BlogProcessingSystem() {
+    private BlogCrawlingContext context;
 
+    /**
+     * @throws BlogCrawlingException
+     * @deprecated
+     */
+    public BlogProcessingSystem() throws BlogCrawlingException {
         try {
-
-            Properties props = new Properties();
-            props.load(new FileInputStream(BLOG_DETECTION_PROPERTIES));
-
-            blogDataStorage = new DBBasedBlogDataStorage();
-//            blogDataStorage = new FileBasedBlogDataStorage(props.getProperty("blog-data-folder"));
-
-            FileHandler fileHandler = new FileHandler(props.getProperty("log-file"), true);
-            fileHandler.setFormatter(new SimpleFormatter());
-            logger.addHandler(fileHandler);
-            ConsoleHandler consoleHandler = new ConsoleHandler();
-            consoleHandler.setLevel(Level.INFO);
-            consoleHandler.setFormatter(new SimpleFormatter());
-            logger.addHandler(consoleHandler);
-
-            logger.setUseParentHandlers(false);
+            dbManager = BlogDBManager.getInstance();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new BlogCrawlingException(e);
+        }
+    }
+
+
+    public BlogProcessingSystem(BlogCrawlingContext context) throws BlogCrawlingException {
+        this.context = context;
+        try {
+            dbManager = BlogDBManager.getInstance();
+        } catch (IOException e) {
+            throw new BlogCrawlingException(e);
         }
     }
 
@@ -133,7 +125,7 @@ public class BlogProcessingSystem {
      * @return list of urls to be fetched.
      * @throws BlogCrawlingException
      */
-    public String[] processPage(File webPage, String pageURL) throws BlogCrawlingException {
+    private String[] processPage(File webPage, String pageURL) throws BlogCrawlingException {
 
         // let's not fetch media files
         if (blogDetector.isMediaFile(pageURL)) return new String[0];
@@ -151,10 +143,10 @@ public class BlogProcessingSystem {
                 // process it and get the grouped set of urls. The map returned will contain urls as the key
                 // and url type as the value.
                 FileInputStream fileInputStream = new FileInputStream(webPage);
-                String[] result = processBlog(pageURL, fileInputStream);
+                String[] result = processBlog(fileInputStream);
 
                 // save the link connection information.
-                blogDataStorage.store(result, pageURL);
+                dbManager.insertBlogLinks(pageURL, result);
                 fileInputStream.close();
 
                 // return the the set of urls to be fetched for further processing
@@ -166,12 +158,14 @@ public class BlogProcessingSystem {
             throw new BlogCrawlingException(e);
         } catch (IOException e) {
             throw new BlogCrawlingException(e);
+        } catch (SQLException e) {
+            throw new BlogCrawlingException(e);
         }
 
         return new String[]{};
     }
 
-    public String[] processBlog(String blogURL, InputStream in) throws BlogCrawlingException {
+    private String[] processBlog(InputStream in) throws BlogCrawlingException {
 
         // using a set here to avoid duplicates
         Set<String> linksToBlogs = new TreeSet<String>();
@@ -202,7 +196,6 @@ public class BlogProcessingSystem {
 
             String[] links = new String[linksToBlogs.size()];
             int count = 0;
-            Iterator<String> iterator = linksToBlogs.iterator();
             for (String linksToBlog : linksToBlogs) {
                 links[count++] = linksToBlog;
             }
@@ -234,53 +227,66 @@ public class BlogProcessingSystem {
     }
 
     public static void main(String[] args) {
-
-        Properties props = new Properties();
         try {
-            props.load(new FileInputStream(new File(BLOG_DETECTION_PROPERTIES)));
+            BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
+            BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem(context);
 
-            String seedUrls = props.getProperty("seed-urls");
-            //a list of seeds
-            String[] urls = seedUrls.split(",");
 
-            //number of pages to crawl
-            int maxPages = Integer.parseInt(props.getProperty("max-pages"));
-
-            //Folder to create to store the cache files (downloaded pages)
-            String data = props.getProperty("data-folder");
-
-            long startTime = System.currentTimeMillis();
-
-            BasicCrawler bf = new BasicCrawler(urls, maxPages, data);
-
-            //simultaneous threads of crawlers
-            bf.setMaxThreads(Integer.parseInt(props.getProperty("max-threads")));
-
-            //set maximum frontier size (-1 for no limit)
-            bf.setMaxFrontier(Integer.parseInt(props.getProperty("frontier-size")));
-
-            //history of pages crawled
-            bf.setStorageFile(props.getProperty("crawl-history"));
-
-            //log of a few statistics - file updated every minute
-            bf.setStatFile(props.getProperty("statitics-file"));
-
-            //set the e-mail address to go with the http request
-            String email;
-            Globals.setMail(props.getProperty("email"));
-
-            bf.startCrawl();
-
-            long endTime = System.currentTimeMillis();
-            long total = endTime - startTime;
-            System.out.println("Total Time: " + total);
-
-            //info on redirected pages
-            Redirections.toFile(props.getProperty("redirection-log"));
-        } catch (IOException e) {
+        } catch (BlogCrawlingException e) {
             e.printStackTrace();
 
         }
+
     }
+
+//    public static void main(String[] args) {
+//
+//        Properties props = new Properties();
+//        try {
+//            props.load(new FileInputStream(new File(BLOG_DETECTION_PROPERTIES)));
+//
+//            String seedUrls = props.getProperty("seed-urls");
+//            //a list of seeds
+//            String[] urls = seedUrls.split(",");
+//
+//            //number of pages to crawl
+//            int maxPages = Integer.parseInt(props.getProperty("max-pages"));
+//
+//            //Folder to create to store the cache files (downloaded pages)
+//            String data = props.getProperty("data-folder");
+//
+//            long startTime = System.currentTimeMillis();
+//
+//            BasicCrawler bf = new BasicCrawler(urls, maxPages, data);
+//
+//            //simultaneous threads of crawlers
+//            bf.setMaxThreads(Integer.parseInt(props.getProperty("max-threads")));
+//
+//            //set maximum frontier size (-1 for no limit)
+//            bf.setMaxFrontier(Integer.parseInt(props.getProperty("frontier-size")));
+//
+//            //history of pages crawled
+//            bf.setStorageFile(props.getProperty("crawl-history"));
+//
+//            //log of a few statistics - file updated every minute
+//            bf.setStatFile(props.getProperty("statitics-file"));
+//
+//            //set the e-mail address to go with the http request
+//            String email;
+//            Globals.setMail(props.getProperty("email"));
+//
+//            bf.startCrawl();
+//
+//            long endTime = System.currentTimeMillis();
+//            long total = endTime - startTime;
+//            System.out.println("Total Time: " + total);
+//
+//            //info on redirected pages
+//            Redirections.toFile(props.getProperty("redirection-log"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//
+//        }
+//    }
 
 }

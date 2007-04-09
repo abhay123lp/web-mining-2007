@@ -67,7 +67,7 @@ public class BlogCrawlingContext {
     private String propertiesFileLocation;
     private Properties props;
 
-    private BlogCrawlingContext(String propertiesFileLocation) throws BlogCrawlingException {
+    public BlogCrawlingContext(String propertiesFileLocation) throws BlogCrawlingException {
         this.propertiesFileLocation = propertiesFileLocation;
         initialize();
     }

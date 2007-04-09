@@ -1,5 +1,5 @@
 /* Copyright (C) 2004 The Trustees of Indiana University. All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 
@@ -46,94 +46,46 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.crawler;
+package edu.indiana.cs.webmining;
 
-import edu.indiana.cs.webmining.BlogCrawlingContext;
-import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.blog.BlogCrawlingException;
-import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import spider.util.Hashing;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
  * @Date : Apr 8, 2007
  */
-public class Crawler implements Runnable {
+public class BlogCrawlingContext {
 
-    BlogDBManager dbManager;
+    private static final String FILE_STORE = "data-folder";
+    private static final String MAX_CRAWLER_THREADS = "max-threads";
 
-    private HttpClient client;
-    private BlogCrawlingContext context;
-    private File dataFolder;
+    private String propertiesFileLocation;
+    private Properties props;
 
-
-    public Crawler(BlogCrawlingContext context) throws IOException {
-        dbManager = BlogDBManager.getInstance();
-        this.context = context;
-        this.dataFolder = context.getFileStore();
+    private BlogCrawlingContext(String propertiesFileLocation) throws BlogCrawlingException {
+        this.propertiesFileLocation = propertiesFileLocation;
+        initialize();
     }
 
-    public void run() {
-        while (true) {
-            String urlToBeFetched = "";
-            try {
-// get a new url to be fetched from the database
-                urlToBeFetched = dbManager.getNextURLToBeFetched();
-
-                // fetch it and save in a file
-                String fileName = fetchAndSaveResource(urlToBeFetched);
-
-                // inform database that you are done
-                dbManager.setURLFetched(urlToBeFetched, fileName);
-            } catch (BlogCrawlingException e) {
-                dbManager.setFetchingCancelled(urlToBeFetched);
-            }
-        }
-    }
-
-    private String fetchAndSaveResource(String urlToBeFetched) throws BlogCrawlingException {
-        GetMethod method = new GetMethod(urlToBeFetched);
-        File htmlFile;
+    private void initialize() throws BlogCrawlingException {
+        props = new Properties();
         try {
-            method.setRequestHeader(new Header(Constants.HEADER_USER_AGENT, Constants.USER_AGENT_VAL));
-            // Provide custom retry handler is necessary
-            method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-                    new DefaultHttpMethodRetryHandler(3, false));
-
-            // Execute the method.
-            int statusCode = client.executeMethod(method);
-
-            if (statusCode != HttpStatus.SC_OK) {
-                System.err.println("Method failed: " + method.getStatusLine());
-            }
-
-            // Read the response body and save it
-
-            htmlFile = new File(dataFolder, Hashing.getHashValue(urlToBeFetched));
-            if (!htmlFile.isFile()) htmlFile.createNewFile();
-
-            BufferedWriter out = new BufferedWriter(new FileWriter(htmlFile));
-            out.write(method.getResponseBodyAsString());
-            out.close();
-
-        } catch (Exception e) {
+            props.load(new FileInputStream(propertiesFileLocation));
+        } catch (IOException e) {
             throw new BlogCrawlingException(e);
-        } finally {
-            method.releaseConnection();
-
         }
+    }
 
-        return htmlFile.getName();
+    public File getFileStore() {
+        return new File(props.getProperty(FILE_STORE, "Data"));
+    }
+
+    public int getMaxCrawlThreadCount() {
+        return Integer.parseInt(props.getProperty(MAX_CRAWLER_THREADS, "100"));
     }
 }

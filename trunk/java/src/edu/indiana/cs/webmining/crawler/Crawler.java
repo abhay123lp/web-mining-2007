@@ -97,7 +97,7 @@ public class Crawler implements Runnable {
                 // inform database that you are done
                 dbManager.setURLFetched(urlToBeFetched, fileName);
             } catch (BlogCrawlingException e) {
-                dbManager.setFetchingCancelled(urlToBeFetched);
+                dbManager.setBlogProcessingFailed(urlToBeFetched);
             }
         }
     }

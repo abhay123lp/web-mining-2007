@@ -46,44 +46,36 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.crawler;
-
-import edu.indiana.cs.webmining.BlogCrawlingContext;
-import edu.indiana.cs.webmining.blog.BlogCrawlingException;
-import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
-
-import java.io.IOException;
+package edu.indiana.cs.webmining.bean;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
- * @Date : Apr 8, 2007
+ * @Date : Apr 9, 2007
  */
-public class CrawlerManager {
+public class BlogInfo {
+    private String fileName;
+    private String url;
 
-    private BlogCrawlingContext context;
 
-
-    public CrawlerManager(BlogCrawlingContext context) {
-        this.context = context;
+    public BlogInfo(String fileName, String url) {
+        this.fileName = fileName;
+        this.url = url;
     }
 
-    public void run() throws BlogCrawlingException {
-        try {
-            // put the seed urls in to the database
-            String[] seedUrls = context.getSeedUrls();
-            BlogDBManager.getInstance().insertLinksToBeFetchedByTheCrawler(seedUrls);
 
-            // start the given number of crawler threads
-            int crawlThreadCount = context.getMaxCrawlThreadCount();
-            for (int i = 0; i < crawlThreadCount; i++) {
-                Thread crawlThread = new Thread(new Crawler(context));
-                crawlThread.start();
-                crawlThread.join();
-            }
-        } catch (IOException e) {
-            throw new BlogCrawlingException(e);
-        } catch (InterruptedException e) {
-            throw new BlogCrawlingException(e);
-        }
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

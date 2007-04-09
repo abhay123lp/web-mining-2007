@@ -1,0 +1,23 @@
+http://www.bloglines.com/blog/chinthaka
+http://www.adambosworth.net/
+http://blogs.cocoondev.org/dims/
+http://www.pacificspirit.com/blog/
+http://auburnmarshes.spaces.live.com/
+http://ajith-ranabahu.blogspot.com/index.html
+http://jroller.com/page/akarasulu
+http://www.1060.org/blogxter/publish/5
+http://www.jayallen.org/journey
+http://www.mobilitysite.com/
+http://slashdot.org/
+http://www.tbray.org/ongoing/
+http://salimma.livejournal.com/
+http://hircus.wordpress.com/
+http://blog.wired.com/sterling/
+http://insanecats.com/
+# Planet aggregators (good for hubs)
+http://www.go-mono.com/monologue/
+http://planet.maemo.org/
+http://planet.gnome.org/
+###
+http://www.kk.org/cooltools/
+http://www.schneier.com/blog/

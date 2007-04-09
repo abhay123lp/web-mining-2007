@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!-- ======================================================================
+     Feb 01, 2007
+
+     Eran Chinthaka
+     ====================================================================== -->
+<project name="project" default="war" basedir=".">
+    <description>
+        description
+    </description>
+    <property name="lib.dir" value="../lib"/>
+    <property name="build.dir" value="./build"/>
+    <property name="src.dir" value="./src"/>
+    <property name="build.dest" value="${build.dir}/classes"/>
+    <property name="build.lib" value="./build/lib"/>
+
+    <path id="classpath">
+
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="../build">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+    <target name="setenv">
+        <mkdir dir="${build.lib}"/>
+        <mkdir dir="${build.dest}"/>
+    </target>
+
+    <target name="compile" depends="setenv">
+        <javac srcdir="${src.dir}" destdir="${build.dest}" debug="${debug}" deprecation="${deprecation}"
+               classpathref="classpath">
+
+        </javac>
+    </target>
+    <target name="war" depends="compile">
+        <mkdir dir="${build.dir}/mem"/>
+        <mkdir dir="${build.dir}/mem/WEB-INF"/>
+        <mkdir dir="${build.dir}/mem/WEB-INF/classes"/>
+        <mkdir dir="${build.dir}/mem/WEB-INF/lib"/>
+        <mkdir dir="${build.dir}/mem/etc"/>
+        <mkdir dir="${build.dir}/mem/logs"/>
+
+        <copy todir="${build.dir}/mem">
+            <fileset dir="web-resources"/>
+        </copy>
+        <copy todir="${build.dir}/mem/etc">
+            <fileset dir="../etc"/>
+        </copy>
+        <copy todir="${build.dir}/mem/WEB-INF/classes">
+            <fileset dir="${build.dest}"/>
+        </copy>
+        <copy todir="${build.dir}/mem/WEB-INF/lib">
+            <fileset dir="${lib.dir}">
+                <include name="*.jar"/>
+                <exclude name="servlet-tomcat-4.1.30.jar"/>
+                <exclude name="ant-1.6.2.jar"/>
+            </fileset>
+            <fileset dir="../build">
+                <include name="crawler.jar"/>
+
+            </fileset>
+        </copy>
+        <jar jarfile="${build.dir}/mem.war" basedir="${build.dir}/mem">
+            <include name="**"/>
+        </jar>
+    </target>
+
+    <!-- =================================
+    target: default
+   ================================= -->
+    <target name="default" depends="depends" description="--> description">
+
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - -
+target: depends
+- - - - - - - - - - - - - - - - - -->
+    <target name="depends">
+    </target>
+
+</project>

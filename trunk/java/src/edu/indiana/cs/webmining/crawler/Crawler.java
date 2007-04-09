@@ -60,10 +60,11 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import spider.util.Hashing;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -72,6 +73,10 @@ import java.io.IOException;
 public class Crawler implements Runnable {
 
     BlogDBManager dbManager;
+
+    private static int crawlerCount = 0;
+
+    private int myNumber;
 
     private HttpClient client;
     private BlogCrawlingContext context;
@@ -82,22 +87,36 @@ public class Crawler implements Runnable {
         dbManager = BlogDBManager.getInstance();
         this.context = context;
         this.dataFolder = context.getFileStore();
+        myNumber = ++crawlerCount;
+        client = new HttpClient();
     }
 
     public void run() {
+        System.out.println("Starting Crawler " + myNumber + " ....");
         while (true) {
             String urlToBeFetched = "";
             try {
 // get a new url to be fetched from the database
                 urlToBeFetched = dbManager.getNextURLToBeFetched();
 
-                // fetch it and save in a file
-                String fileName = fetchAndSaveResource(urlToBeFetched);
+                if (urlToBeFetched != null && !"".equals(urlToBeFetched)) {
+                    System.out.println("[" + myNumber + "] Fetcing URL ==> " + urlToBeFetched);
 
-                // inform database that you are done
-                dbManager.setURLFetched(urlToBeFetched, fileName);
+                    // fetch it and save in a file
+                    String fileName = fetchAndSaveResource(urlToBeFetched);
+
+                    // inform database that you are done
+                    dbManager.setURLFetched(urlToBeFetched, fileName);
+                    System.out.println("[" + myNumber + "] Url Fetched ==> " + urlToBeFetched);
+                } else {
+                    Thread.sleep(1000);
+                }
             } catch (BlogCrawlingException e) {
+                e.printStackTrace();
                 dbManager.setBlogProcessingFailed(urlToBeFetched);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+
             }
         }
     }
@@ -123,8 +142,16 @@ public class Crawler implements Runnable {
             htmlFile = new File(dataFolder, Hashing.getHashValue(urlToBeFetched));
             if (!htmlFile.isFile()) htmlFile.createNewFile();
 
-            BufferedWriter out = new BufferedWriter(new FileWriter(htmlFile));
-            out.write(method.getResponseBodyAsString());
+            OutputStream out = new FileOutputStream(htmlFile);
+
+            InputStream in = method.getResponseBodyAsStream();
+            // Transfer bytes from in to out
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
             out.close();
 
         } catch (Exception e) {

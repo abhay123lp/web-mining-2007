@@ -62,7 +62,8 @@ import java.util.Properties;
 public class BlogCrawlingContext {
 
     private static final String FILE_STORE = "data-folder";
-    private static final String MAX_CRAWLER_THREADS = "max-threads";
+    private static final String MAX_CRAWLER_THREADS = "max-crawler-threads";
+    private static final String MAX_BLOG_PROCESSING_THREADS = "max-blog-processing-threads";
 
     private String propertiesFileLocation;
     private Properties props;
@@ -87,6 +88,10 @@ public class BlogCrawlingContext {
 
     public int getMaxCrawlThreadCount() {
         return Integer.parseInt(props.getProperty(MAX_CRAWLER_THREADS, "100"));
+    }
+
+    public int getMaxBlogProcessorThreadCount() {
+        return Integer.parseInt(props.getProperty(MAX_BLOG_PROCESSING_THREADS, "10"));
     }
 
     public String[] getSeedUrls() {

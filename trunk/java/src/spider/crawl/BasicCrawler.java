@@ -1,6 +1,5 @@
 package spider.crawl;
 
-import edu.indiana.cs.webmining.blog.BlogProcessor;
 import spider.util.Hashing;
 import spider.util.Helper;
 import spider.util.RobotExclusion;
@@ -75,7 +74,7 @@ public class BasicCrawler {
                     activeThreads.add();
                     //while the required number of pages have not been crawled
                     //and frontier is non-empty
-                    BlogProcessor blogProcessor = new BlogProcessor();
+//                    BlogProcessor blogProcessor = new BlogProcessor();
 
 //                    while (history.size() < maxPages || maxPages == -1) {
                     while (maxPages == -1) {
@@ -144,8 +143,8 @@ public class BasicCrawler {
                                 //score and add the URLs to frontier (if frontierAdd flag is true)
                                 if (frontierAdd) {
                                     // Now I am taking control of the crawler - Eran Chinthaka
-                                    String[] linksToBeRetrieved = blogProcessor.processPage(f, url);
-                                    addLinksToFrontier(linksToBeRetrieved);
+//                                    String[] linksToBeRetrieved = blogProcessor.processPage(f, url);
+//                                    addLinksToFrontier(linksToBeRetrieved);
                                 } else {
                                     history.add(url, fileName, -1);
                                 }

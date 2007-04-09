@@ -88,4 +88,9 @@ public class BlogCrawlingContext {
     public int getMaxCrawlThreadCount() {
         return Integer.parseInt(props.getProperty(MAX_CRAWLER_THREADS, "100"));
     }
+
+    public String[] getSeedUrls() {
+        String seeds = props.getProperty("seed-urls");
+        return seeds.split(",");
+    }
 }

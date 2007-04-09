@@ -1,8 +1,0 @@
-.project
-.classpath
-.settings
-bin
-*.class
-*.iml
-*.iws
-*.ipr

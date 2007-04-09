@@ -1,9 +1,0 @@
-#Login info
-#Wed Feb 07 17:10:52 EST 2007
-driverClassName=com.mysql.jdbc.Driver
-url=jdbc:mysql://localhost/web-mining
-maxActive=10
-maxWait=500
-defaultCatalog=web-mining
-username=root
-password=dihini

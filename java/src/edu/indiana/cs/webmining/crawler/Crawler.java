@@ -109,7 +109,7 @@ public class Crawler implements Runnable {
                     dbManager.setURLFetched(urlToBeFetched, fileName);
                     System.out.println("[" + myNumber + "] Url Fetched ==> " + urlToBeFetched);
                 } else {
-                    Thread.sleep(1000);
+                    Thread.sleep(1000 * 60 * 10);
                 }
             } catch (BlogCrawlingException e) {
                 e.printStackTrace();

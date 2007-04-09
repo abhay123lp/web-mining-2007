@@ -391,28 +391,26 @@ public class BlogDetector {
 
             if (statusCode != HttpStatus.SC_OK) {
                 System.err.println("Method failed: " + method.getStatusLine());
-            }
+            } else {
 
-            // Read the response body and save it
+                // Read the response body and save it
+                InputStream in = method.getResponseBodyAsStream();
 
+                if (in != null) {
+                    htmlFile = new File(tempFolder, Hashing.getHashValue(urlToBeFetched));
+                    if (!htmlFile.isFile()) htmlFile.createNewFile();
 
-            InputStream in = method.getResponseBodyAsStream();
-
-            if (in != null) {
-                htmlFile = new File(tempFolder, Hashing.getHashValue(urlToBeFetched));
-                if (!htmlFile.isFile()) htmlFile.createNewFile();
-
-                OutputStream out = new FileOutputStream(htmlFile);
-                // Transfer bytes from in to out
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
+                    OutputStream out = new FileOutputStream(htmlFile);
+                    // Transfer bytes from in to out
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                    in.close();
+                    out.close();
                 }
-                in.close();
-                out.close();
             }
-
 
         } catch (Exception e) {
             throw new BlogCrawlingException(e);

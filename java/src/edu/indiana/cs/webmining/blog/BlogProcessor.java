@@ -80,7 +80,6 @@ import java.util.TreeSet;
 public class BlogProcessor implements Runnable {
 
     private BlogDBManager dbManager;
-    public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
 
     private File blogFileStore;
 
@@ -101,25 +100,35 @@ public class BlogProcessor implements Runnable {
 
     public void run() {
 
+        System.out.println("Starting Blog Processor ...");
         while (true) {
-            // fetch blog url to process
-            BlogInfo blogInfo = dbManager.getNextBlogToProcess();
+            try {
+// fetch blog url to process
+                BlogInfo blogInfo = dbManager.getNextBlogToProcess();
 
-            // find the file and process it
-            if (blogInfo != null) {
+                // find the file and process it
+                if (blogInfo != null) {
 
-                File blogPage = new File(blogFileStore, blogInfo.getFileName());
-                try {
-                    processPage(blogPage, blogInfo.getUrl());
-                } catch (BlogCrawlingException e) {
-                    dbManager.setBlogProcessingFailed(blogInfo.getUrl());
+                    System.out.println("Starting to process blog [" + blogInfo.getUrl() + " ]");
+                    File blogPage = new File(blogFileStore, blogInfo.getFileName());
+                    try {
+                        processPage(blogPage, blogInfo.getUrl());
+                        System.out.println("Finished processing Blog [" + blogInfo.getUrl() + " ]");
+                    } catch (BlogCrawlingException e) {
+                        dbManager.setBlogProcessingFailed(blogInfo.getUrl());
+                        System.out.println("Blog processing failed [" + blogInfo.getUrl() + " ]");
+
+                    }
+                } else {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
+
             }
 
         }
@@ -144,39 +153,39 @@ public class BlogProcessor implements Runnable {
         // let's not fetch media files
         if (blogDetector.isMediaFile(pageURL)) return new String[0];
 
-
-        totatProcessedPageCount++;
         try {
 
             // first let's get the blog id. If this URL is not a blog, this should return
             // Constants.NOT_A_BLOG
-            int blogId = blogDetector.identifyURL(pageURL, webPage);
+//            int blogId = blogDetector.identifyURL(pageURL, webPage);
 
-            if (blogId > 0) {             // if this is a processable blog
+//            if (blogId > 0) {             // if this is a processable blog
 
-                // process it and get the grouped set of urls. The map returned will contain urls as the key
-                // and url type as the value.
-                FileInputStream fileInputStream = new FileInputStream(webPage);
-                String[] result = processBlog(fileInputStream);
+            // process it and get the grouped set of urls. The map returned will contain urls as the key
+            // and url type as the value.
+            FileInputStream fileInputStream = new FileInputStream(webPage);
+            String[] result = processBlog(fileInputStream);
 
-                // save the link connection information.
-                dbManager.insertBlogLinks(pageURL, result);
-                fileInputStream.close();
+            // save the link connection information.
+            dbManager.insertBlogLinks(pageURL, result);
+            fileInputStream.close();
 
-                // return the the set of urls to be fetched for further processing
-                return result;
+            // return the the set of urls to be fetched for further processing
+            return result;
 
-            }
+//            }
 
         } catch (FileNotFoundException e) {
+            dbManager.setBlogProcessingFailed(pageURL);
             throw new BlogCrawlingException(e);
         } catch (IOException e) {
+            dbManager.setBlogProcessingFailed(pageURL);
             throw new BlogCrawlingException(e);
         } catch (SQLException e) {
+            dbManager.setBlogProcessingFailed(pageURL);
             throw new BlogCrawlingException(e);
         }
 
-        return new String[]{};
     }
 
     private String[] processBlog(InputStream in) throws BlogCrawlingException {
@@ -224,33 +233,4 @@ public class BlogProcessor implements Runnable {
             throw new BlogCrawlingException(e);
         }
     }
-
-
-    /**
-     * This will save blog links information in to the database.
-     *
-     * @param result
-     * @param sourceURL
-     */
-    private void saveLinkInformation(String[] result, String sourceURL) {
-        for (int i = 0; i < result.length; i++) {
-            String link = result[i];
-            System.out.println("link = " + link);
-
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
-            BlogProcessor blogProcessor = new BlogProcessor(context);
-
-
-        } catch (BlogCrawlingException e) {
-            e.printStackTrace();
-
-        }
-
-    }
-
 }

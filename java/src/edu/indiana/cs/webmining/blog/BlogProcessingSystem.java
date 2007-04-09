@@ -46,28 +46,63 @@
  * GENERATED USING SOFTWARE.
  */
 
-package edu.indiana.cs.webmining.crawler;
+package edu.indiana.cs.webmining.blog;
 
 import edu.indiana.cs.webmining.BlogCrawlingContext;
-import edu.indiana.cs.webmining.blog.BlogCrawlingException;
 import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
+import edu.indiana.cs.webmining.crawler.Crawler;
 
 import java.io.IOException;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
- * @Date : Apr 8, 2007
+ * @Date : Apr 9, 2007
  */
-public class CrawlerManager {
+public class BlogProcessingSystem {
+    public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
 
-    private BlogCrawlingContext context;
 
+    public void start() {
 
-    public CrawlerManager(BlogCrawlingContext context) {
-        this.context = context;
+        try {
+// load the blog processing context
+            BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
+
+            // create proper number of crawler threads and start them
+            startCrawlers(context);
+
+            // create blog processing threads and start them
+            startBlogProcessingThreads(context);
+
+            while (true) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+
+                }
+            }
+
+        } catch (BlogCrawlingException e) {
+            e.printStackTrace();
+
+        }
     }
 
-    public void run() throws BlogCrawlingException {
+    private void startBlogProcessingThreads(BlogCrawlingContext context) throws BlogCrawlingException {
+        try {
+            int maxBlogProcessorThreadCount = context.getMaxBlogProcessorThreadCount();
+            for (int i = 0; i < maxBlogProcessorThreadCount; i++) {
+                Thread crawlThread = new Thread(new BlogProcessor(context));
+                crawlThread.start();
+                crawlThread.join();
+            }
+        } catch (InterruptedException e) {
+            throw new BlogCrawlingException(e);
+        }
+    }
+
+    private void startCrawlers(BlogCrawlingContext context) throws BlogCrawlingException {
         try {
             // put the seed urls in to the database
             String[] seedUrls = context.getSeedUrls();
@@ -78,12 +113,17 @@ public class CrawlerManager {
             for (int i = 0; i < crawlThreadCount; i++) {
                 Thread crawlThread = new Thread(new Crawler(context));
                 crawlThread.start();
-                crawlThread.join();
+//                crawlThread.join();
             }
         } catch (IOException e) {
             throw new BlogCrawlingException(e);
-        } catch (InterruptedException e) {
-            throw new BlogCrawlingException(e);
         }
     }
+
+    public static void main(String[] args) {
+        BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem();
+        blogProcessingSystem.start();
+    }
+
+
 }

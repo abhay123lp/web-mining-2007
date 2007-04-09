@@ -54,6 +54,13 @@ package edu.indiana.cs.webmining.blog;
 
 import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.RegexFilter;
@@ -66,28 +73,24 @@ import org.htmlparser.tags.LinkTag;
 import org.htmlparser.tags.TitleTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
-import spider.crawl.Globals;
-import spider.util.Fetcher;
 import spider.util.Hashing;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class BlogDetector {
 
     private static BlogDetector ourInstance = new BlogDetector();
-
-    private Logger logger = Logger.getLogger(BlogProcessor.SYSTEM_NAME);
 
     private static Map<String, Integer> knownBlogURLList;
     private static Map<String, Integer> history;
@@ -105,6 +108,9 @@ public class BlogDetector {
     private static final String APPLICATION_RSS_XML_TYPE = "application/rss+xml";
     private static final String APPLICATION_ATOM_XML_TYPE = "application/atom+xml";
     private File tempFolder = new File("tmp-crawled-pages");
+    private HttpClient client;
+
+    BlogDBManager dbManager;
 
     public static BlogDetector getInstance() {
         return ourInstance;
@@ -113,6 +119,12 @@ public class BlogDetector {
     private BlogDetector() {
         intialize();
 
+        try {
+            dbManager = BlogDBManager.getInstance();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
 //        initHistory();
 
 //        Runtime.getRuntime().addShutdownHook(new ShutDownHook(this));
@@ -235,7 +247,7 @@ public class BlogDetector {
             tempFolder.mkdir();
         }
 
-        logger.fine("Blog Detection System initialized ......");
+        System.out.println("Blog Detection System initialized ......");
 
     }
 
@@ -271,7 +283,6 @@ public class BlogDetector {
 
 
         } catch (MalformedURLException e) {
-            logger.fine("Malformed URL " + pageURL + " passed for blog identification " + e.getMessage());
             return Constants.NOT_A_BLOG;
         } catch (SQLException e) {
             return Constants.NOT_A_BLOG;
@@ -320,7 +331,7 @@ public class BlogDetector {
 // first let's see whether title has XX's blog in it
             Page page;
             if (htmlFile == null) {
-                htmlFile = fetchAndSaveFile(pageURL);
+                htmlFile = fetchAndSaveFile(pageURL.toString());
             }
 
             if (htmlFile == null) {
@@ -344,31 +355,74 @@ public class BlogDetector {
             return hasLinkToBlogFramework(htmlFile, pageURL.toString());
 
         } catch (ParserException e) {
+            dbManager.setBlogProcessingFailed(pageURL.toString());
             System.out.println("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         } catch (IOException e) {
-            logger.fine("IO Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
+            dbManager.setBlogProcessingFailed(pageURL.toString());
+
+            return Constants.NOT_A_BLOG;
+
+        } catch (BlogCrawlingException e) {
+            dbManager.setBlogProcessingFailed(pageURL.toString());
+            e.printStackTrace();
             return Constants.NOT_A_BLOG;
 
         }
 
     }
 
-    private File fetchAndSaveFile(URL pageURL) throws IOException {
+    private File fetchAndSaveFile(String urlToBeFetched) throws BlogCrawlingException {
+        GetMethod method = new GetMethod(urlToBeFetched);
         File htmlFile = null;
-        String urlString = pageURL.toString();
-        spider.util.Page htmlPage = new Fetcher().fetch(urlString, Globals.eMail);
+        try {
+            method.setRequestHeader(new Header(Constants.HEADER_USER_AGENT, Constants.USER_AGENT_VAL));
+            // Provide custom retry handler is necessary
+            method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+                    new DefaultHttpMethodRetryHandler(3, false));
 
-        if (htmlPage.content != null) {
-            htmlFile = new File(tempFolder, Hashing.getHashValue(urlString));
-            if (!htmlFile.isFile()) htmlFile.createNewFile();
+            // Execute the method.
 
-            BufferedWriter out = new BufferedWriter(new FileWriter(htmlFile));
-            out.write(htmlPage.content);
-            out.close();
+            client = new HttpClient();
+
+            HttpClientParams clientParams = new HttpClientParams();
+            int statusCode = client.executeMethod(method);
+
+            if (statusCode != HttpStatus.SC_OK) {
+                System.err.println("Method failed: " + method.getStatusLine());
+            }
+
+            // Read the response body and save it
+
+
+            InputStream in = method.getResponseBodyAsStream();
+
+            if (in != null) {
+                htmlFile = new File(tempFolder, Hashing.getHashValue(urlToBeFetched));
+                if (!htmlFile.isFile()) htmlFile.createNewFile();
+
+                OutputStream out = new FileOutputStream(htmlFile);
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                in.close();
+                out.close();
+            }
+
+
+        } catch (Exception e) {
+            throw new BlogCrawlingException(e);
+        } finally {
+            method.releaseConnection();
+
         }
+
         return htmlFile;
+
     }
 
     private int getBlogId(URL pageURL) {
@@ -426,11 +480,11 @@ public class BlogDetector {
                 }
             }
         } catch (ParserException e) {
-            logger.fine("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
+//            logger.fine("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         } catch (IOException e) {
-            logger.fine("IO Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
+//            logger.fine("IO Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;
 
         } finally {

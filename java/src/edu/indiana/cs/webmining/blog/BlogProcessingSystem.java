@@ -115,7 +115,7 @@ public class BlogProcessingSystem {
                 }
 
             }
-
+            System.out.println("Finished ..");
         } catch (BlogCrawlingException e) {
             e.printStackTrace();
 
@@ -144,6 +144,7 @@ public class BlogProcessingSystem {
         for (int i = 0; i < maxBlogProcessorThreadCount; i++) {
             Thread blogProcessingThread = new Thread(new BlogProcessor(context));
             threadBucket.add(blogProcessingThread);
+            blogProcessingThread.setDaemon(false);
             blogProcessingThread.start();
 
         }
@@ -159,6 +160,7 @@ public class BlogProcessingSystem {
             int crawlThreadCount = context.getMaxCrawlThreadCount();
             for (int i = 0; i < crawlThreadCount; i++) {
                 Thread crawlThread = new Thread(new Crawler(context));
+                crawlThread.setDaemon(false);
                 threadBucket.add(crawlThread);
                 crawlThread.start();
             }

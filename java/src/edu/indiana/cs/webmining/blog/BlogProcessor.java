@@ -120,15 +120,17 @@ public class BlogProcessor implements Runnable {
 
                     }
                 } else {
-//                    try {
-//                        Thread.sleep(1000 * 60 * 3);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
+                    try {
+                        Thread.sleep(1000 * 60 * 3);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
 
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
 
         }

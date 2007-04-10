@@ -79,7 +79,6 @@ public class BlogDBManager {
 
     private ConcurrentHashMap<String, Integer> blogIDList = new ConcurrentHashMap<String, Integer>();
 
-    private static BlogDBManager blogDBManager;
     private static final String SQL_INSERT_EXT_BLOG = "INSERT IGNORE INTO extblogs (url, internal_id) VALUES (?, ?);";
     private static final String SQL_INSERT_BLOG_LINK = "INSERT IGNORE INTO links (srcid, destid) VALUES (?, ?);";
 

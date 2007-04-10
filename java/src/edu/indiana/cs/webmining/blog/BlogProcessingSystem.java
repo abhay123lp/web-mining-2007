@@ -144,7 +144,7 @@ public class BlogProcessingSystem {
                 crawlThread.start();
 //                crawlThread.join();
             }
-        } catch (IOException e) {
+        } catch (BlogCrawlingException e) {
             e.printStackTrace();
             throw new BlogCrawlingException(e);
         }

@@ -62,7 +62,6 @@ import spider.util.Hashing;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -83,7 +82,7 @@ public class Crawler implements Runnable {
     private File dataFolder;
 
 
-    public Crawler(BlogCrawlingContext context) throws IOException {
+    public Crawler(BlogCrawlingContext context) throws BlogCrawlingException {
         dbManager = new BlogDBManager();
         this.context = context;
         this.dataFolder = context.getFileStore();
@@ -109,7 +108,7 @@ public class Crawler implements Runnable {
                     dbManager.setURLFetched(urlToBeFetched, fileName);
                     System.out.println("[" + myNumber + "] Url Fetched ==> " + urlToBeFetched);
                 } else {
-                    Thread.sleep(1000 * 60 * 10);
+                    Thread.sleep(1000 * 60 * 5);
                 }
             } catch (BlogCrawlingException e) {
                 e.printStackTrace();

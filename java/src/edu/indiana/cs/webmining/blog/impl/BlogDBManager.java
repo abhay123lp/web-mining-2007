@@ -50,18 +50,16 @@ package edu.indiana.cs.webmining.blog.impl;
 
 import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.bean.BlogInfo;
+import edu.indiana.cs.webmining.blog.BlogCrawlingException;
 import edu.indiana.cs.webmining.blog.BlogProcessor;
 import edu.indiana.cs.webmining.blog.BlogUtils;
 import edu.indiana.cs.webmining.db.ConnectionPool;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -72,7 +70,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BlogDBManager {
 
-    private ConnectionPool connectionPool;
+    //    private ConnectionPool connectionPools;
+    Connection connection;
     private String dbDriver = "com.mysql.jdbc.Driver";
     private String dbURL = "jdbc:mysql://localhost/";
 
@@ -85,12 +84,18 @@ public class BlogDBManager {
     private static final String SQL_INSERT_BLOG_LINK = "INSERT IGNORE INTO links (srcid, destid) VALUES (?, ?);";
 
 
-    public BlogDBManager() throws IOException {
-        connectionPool = ConnectionPool.getInstance();
+    public BlogDBManager() throws BlogCrawlingException {
+        try {
+//            connectionPool = ConnectionPool.getInstance();
+            connection = ConnectionPool.getInstance().getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BlogCrawlingException(e);
+        }
     }
 
     public synchronized void insertBlogLinks(String source, String[] destinationURLs) throws SQLException, MalformedURLException {
-        Connection connection = connectionPool.getConnection();
+//        Connection connection = connectionPool.getConnection();
 
         // first let's add the source blog url
         addSingleExternalBlog(source, connection);
@@ -101,7 +106,7 @@ public class BlogDBManager {
         // finally let's add the links between them
         addLink(source, destinationURLs, connection);
 
-        connectionPool.free(connection);
+//        connectionPool.free(connection);
 
         insertLinksToBeFetchedByTheCrawler(destinationURLs);
         setBlogProcessed(source);
@@ -197,30 +202,10 @@ public class BlogDBManager {
         return resultSet.next() ? resultSet.getInt(1) : -1;
     }
 
-    public static void main(String[] args) {
-        try {
-
-            Properties props = new Properties();
-//        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
-            props.load(new FileInputStream("etc/sql-local.prop"));
-            ConnectionPool connectionPool = ConnectionPool.getInstance();
-            connectionPool.init(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 20, 50,
-                    true);
-
-            BlogDBManager blogDBManager = new BlogDBManager();
-            blogDBManager.insertBlogLinks("http://bloglines.com/blogs/chinthaka", new String[]{"http://dummy.org", "http://test.org"});
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-        }
-    }
 
     public synchronized Integer getURLType(String pageURL) throws SQLException {
 
-        Connection connection = connectionPool.getConnection();
+//        Connection connection = connectionPool.getConnection();
         PreparedStatement statement = connection.prepareStatement("select type from URL_Cache " +
                 "where url=?");
         statement.setString(1, pageURL);
@@ -232,19 +217,19 @@ public class BlogDBManager {
         }
 
         statement.close();
-        connectionPool.free(connection);
+//        connectionPool.free(connection);
 
         return returnValue;
     }
 
     public synchronized void addURLType(String pageURL, int urlType) throws SQLException {
-        Connection connection = connectionPool.getConnection();
+//        Connection connection = connectionPool.getConnection();
         PreparedStatement statement = connection.prepareStatement("INSERT INTO URL_Cache values(?, ?)");
         statement.setString(1, pageURL);
         statement.setInt(2, urlType);
         statement.executeUpdate();
         statement.close();
-        connectionPool.free(connection);
+//        connectionPool.free(connection);
 
     }
 
@@ -256,7 +241,7 @@ public class BlogDBManager {
     public synchronized String getNextURLToBeFetched() {
         String nextUrlToBeFetched = null;
         try {
-            Connection connection = connectionPool.getConnection();
+//            Connection connection = connectionPool.getConnection();
             PreparedStatement selectStatement = connection.prepareStatement("SELECT Url FROM Frontier where StatusCode='" + Constants.STATUS_TO_BE_FETCHED + "' limit 1");
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET StatusCode='" + Constants.STATUS_FETCHING + "' WHERE Url=?");
 
@@ -270,7 +255,7 @@ public class BlogDBManager {
             resultSet.close();
             selectStatement.close();
             preparedStatement.close();
-            connectionPool.free(connection);
+//            connectionPool.free(connection);
 
             return nextUrlToBeFetched;
         } catch (SQLException e) {
@@ -282,7 +267,7 @@ public class BlogDBManager {
 
     public synchronized void setURLFetched(String urlToBeFetched, String fileName) {
         try {
-            Connection connection = connectionPool.getConnection();
+//            Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET " +
                     "StatusCode='" + Constants.STATUS_FETCHED + "', " +
                     "FileName='" + fileName + "' " +
@@ -290,7 +275,7 @@ public class BlogDBManager {
             preparedStatement.execute();
 
             preparedStatement.close();
-            connectionPool.free(connection);
+//            connectionPool.free(connection);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -305,13 +290,13 @@ public class BlogDBManager {
 
     private void setFrontierStatus(String url, String status) {
         try {
-            Connection connection = connectionPool.getConnection();
+//            Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET " +
                     "StatusCode='" + status + "' " +
                     "WHERE Url='" + url + "'");
             preparedStatement.execute();
             preparedStatement.close();
-            connectionPool.free(connection);
+//            connectionPool.free(connection);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -321,8 +306,7 @@ public class BlogDBManager {
     public synchronized void insertLinksToBeFetchedByTheCrawler(String[] urls) {
         try {
 
-
-            Connection connection = connectionPool.getConnection();
+//            Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Frontier (Url, StatusCode)" +
                     " VALUES (?, ?)");
 
@@ -336,7 +320,7 @@ public class BlogDBManager {
             }
             preparedStatement.executeBatch();
             preparedStatement.close();
-            connectionPool.free(connection);
+//            connectionPool.free(connection);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -346,12 +330,12 @@ public class BlogDBManager {
     private boolean isURLFetchedBefore(String url) {
         boolean isFetched = false;
         try {
-            Connection connection = connectionPool.getConnection();
+//            Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("Select * FROM Frontier" +
                     " WHERE Url='" + url + "'");
             ResultSet resultSet = preparedStatement.executeQuery();
             isFetched = resultSet.next();
-            connectionPool.free(connection);
+//            connectionPool.free(connection);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -364,7 +348,7 @@ public class BlogDBManager {
     public synchronized BlogInfo getNextBlogToProcess() {
         BlogInfo blogInfo = null;
         try {
-            Connection connection = connectionPool.getConnection();
+//            Connection connection = connectionPool.getConnection();
             PreparedStatement selectStatement = connection.prepareStatement("SELECT Url, FileName FROM Frontier where StatusCode='" + Constants.STATUS_FETCHED + "' limit 1");
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET StatusCode='" + Constants.STATUS_BLOG_PROCESSING + "' WHERE Url=?");
 
@@ -379,12 +363,17 @@ public class BlogDBManager {
             resultSet.close();
             selectStatement.close();
             preparedStatement.close();
-            connectionPool.free(connection);
+//            connectionPool.free(connection);
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return blogInfo;
 
+    }
+
+
+    protected void finalize() throws Throwable {
+        ConnectionPool.getInstance().free(connection);
     }
 }

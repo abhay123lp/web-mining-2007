@@ -125,7 +125,7 @@ public class BlogDetector {
 
         try {
             dbManager = new BlogDBManager();
-        } catch (IOException e) {
+        } catch (BlogCrawlingException e) {
             e.printStackTrace();
 
         }

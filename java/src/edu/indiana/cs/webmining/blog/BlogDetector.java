@@ -63,7 +63,6 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
-import org.htmlparser.filters.RegexFilter;
 import org.htmlparser.filters.TagNameFilter;
 import org.htmlparser.lexer.InputStreamSource;
 import org.htmlparser.lexer.Lexer;
@@ -336,7 +335,6 @@ public class BlogDetector {
         // hmm, now surface scans are over. Let's look at the page now.
 
         try {
-// first let's see whether title has XX's blog in it
             Page page;
             if (htmlFile == null) {
                 htmlFile = fetchAndSaveFile(pageURL);
@@ -346,6 +344,7 @@ public class BlogDetector {
                 return Constants.NOT_A_BLOG;
             }
 
+            // first let's see whether title has XX's blog in it
             page = new Page(new InputStreamSource(new FileInputStream(htmlFile)));
             Parser parser = new Parser(new Lexer(page));
             TagNameFilter titleFilter = new TagNameFilter("title");
@@ -483,12 +482,11 @@ public class BlogDetector {
     private int hasLinkToBlogFramework(File htmlFile, String pageURL) {
         Parser parser;
         try {
-            Page page = new Page(new InputStreamSource(new FileInputStream(htmlFile)));
+            FileInputStream inputStream = new FileInputStream(htmlFile);
+            Page page = new Page(new InputStreamSource(inputStream));
             parser = new Parser(new Lexer(page));
 
             TagNameFilter linkTag = new TagNameFilter("link");
-
-            RegexFilter regexFilter = new RegexFilter();
 
             NodeList nodeList = parser.parse(linkTag);
 
@@ -497,11 +495,17 @@ public class BlogDetector {
                 tag = (TagNode) nodeList.elementAt(i);
                 String typeAttribute = tag.getAttribute("type");
                 if (APPLICATION_RSS_XML_TYPE.equalsIgnoreCase(typeAttribute) || APPLICATION_ATOM_XML_TYPE.equalsIgnoreCase(typeAttribute)) {
+                    inputStream.close();
+                    page.close();
                     return Constants.BLOG;
                 }
             }
 
-            page = new Page(new InputStreamSource(new FileInputStream(htmlFile)));
+            inputStream.close();
+            page.close();
+
+            inputStream = new FileInputStream(htmlFile);
+            page = new Page(new InputStreamSource(inputStream));
             parser = new Parser(new Lexer(page));
             TagNameFilter aTag = new TagNameFilter("a");
             NodeList nl = parser.parse(aTag);
@@ -511,9 +515,15 @@ public class BlogDetector {
                 LinkTag linkTagNode = (LinkTag) node;
                 String url = linkTagNode.getLink();
                 if (url != null && (url.contains("feed:") || blogPublishingFrameworks.get(url) != null)) {
+                    inputStream.close();
+                    page.close();
                     return Constants.BLOG;
                 }
             }
+
+            inputStream.close();
+            page.close();
+
         } catch (ParserException e) {
 //            logger.fine("Parsing Exception occurred for URL " + pageURL + "error --> " + e.getMessage());
             return Constants.NOT_A_BLOG;

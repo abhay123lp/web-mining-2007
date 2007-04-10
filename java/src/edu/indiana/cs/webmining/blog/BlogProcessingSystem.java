@@ -56,6 +56,8 @@ import edu.indiana.cs.webmining.db.ConnectionPool;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -64,7 +66,7 @@ import java.util.Properties;
  */
 public class BlogProcessingSystem {
     public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
-
+    List<Thread> threadBucket = new ArrayList<Thread>();
 
     public void start() {
 
@@ -89,13 +91,29 @@ public class BlogProcessingSystem {
             // create blog processing threads and start them
             startBlogProcessingThreads(context);
 
-            while (true) {
+//            try {
+//                Thread.sleep(1000 * 60 * 3);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//
+//            }
+
+            while (threadBucket.size() > 0) {
+                for (int i = 0; i < threadBucket.size(); i++) {
+                    if (!threadBucket.get(i).isAlive()) {
+                        System.out.println("Removing thread " + i);
+                        threadBucket.remove(i);
+                    } else {
+                        System.out.println("Living Thread => " + i);
+                    }
+                }
                 try {
-                    Thread.sleep(10000);
+                    Thread.currentThread().sleep(1000 * 60 * 3);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
 
                 }
+
             }
 
         } catch (BlogCrawlingException e) {
@@ -115,7 +133,6 @@ public class BlogProcessingSystem {
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
-
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -125,9 +142,10 @@ public class BlogProcessingSystem {
     private void startBlogProcessingThreads(BlogCrawlingContext context) throws BlogCrawlingException {
         int maxBlogProcessorThreadCount = context.getMaxBlogProcessorThreadCount();
         for (int i = 0; i < maxBlogProcessorThreadCount; i++) {
-            Thread crawlThread = new Thread(new BlogProcessor(context));
-            crawlThread.start();
-//                crawlThread.join();
+            Thread blogProcessingThread = new Thread(new BlogProcessor(context));
+            threadBucket.add(blogProcessingThread);
+            blogProcessingThread.start();
+
         }
     }
 
@@ -141,8 +159,8 @@ public class BlogProcessingSystem {
             int crawlThreadCount = context.getMaxCrawlThreadCount();
             for (int i = 0; i < crawlThreadCount; i++) {
                 Thread crawlThread = new Thread(new Crawler(context));
+                threadBucket.add(crawlThread);
                 crawlThread.start();
-//                crawlThread.join();
             }
         } catch (BlogCrawlingException e) {
             e.printStackTrace();

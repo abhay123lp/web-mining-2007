@@ -95,12 +95,7 @@ public class BlogProcessor implements Runnable {
         this.context = context;
         this.blogFileStore = context.getFileStore();
         this.myNumber = ++objectCount;
-        try {
-            dbManager = new BlogDBManager();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new BlogCrawlingException(e);
-        }
+        dbManager = new BlogDBManager();
     }
 
     public void run() {
@@ -126,7 +121,7 @@ public class BlogProcessor implements Runnable {
                     }
                 } else {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1000 * 60 * 3);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

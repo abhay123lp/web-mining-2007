@@ -51,8 +51,12 @@ package edu.indiana.cs.webmining.blog;
 import edu.indiana.cs.webmining.BlogCrawlingContext;
 import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
 import edu.indiana.cs.webmining.crawler.Crawler;
+import edu.indiana.cs.webmining.db.ConnectionPool;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -76,6 +80,9 @@ public class BlogProcessingSystem {
 // load the blog processing context
             BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
 
+            // init connection pool
+            initDBConnectionPool();
+
             // create proper number of crawler threads and start them
             startCrawlers(context);
 
@@ -97,6 +104,24 @@ public class BlogProcessingSystem {
         }
     }
 
+    private void initDBConnectionPool() {
+        try {
+            Properties props = new Properties();
+//        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
+            props.load(new FileInputStream("etc/sql-local.prop"));
+            ConnectionPool connectionPool = ConnectionPool.getInstance();
+            connectionPool.init(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 20, 50,
+                    true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
     private void startBlogProcessingThreads(BlogCrawlingContext context) throws BlogCrawlingException {
         int maxBlogProcessorThreadCount = context.getMaxBlogProcessorThreadCount();
         for (int i = 0; i < maxBlogProcessorThreadCount; i++) {
@@ -110,7 +135,7 @@ public class BlogProcessingSystem {
         try {
             // put the seed urls in to the database
             String[] seedUrls = context.getSeedUrls();
-            BlogDBManager.getInstance().insertLinksToBeFetchedByTheCrawler(seedUrls);
+            new BlogDBManager().insertLinksToBeFetchedByTheCrawler(seedUrls);
 
             // start the given number of crawler threads
             int crawlThreadCount = context.getMaxCrawlThreadCount();
@@ -120,6 +145,7 @@ public class BlogProcessingSystem {
 //                crawlThread.join();
             }
         } catch (IOException e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         }
     }

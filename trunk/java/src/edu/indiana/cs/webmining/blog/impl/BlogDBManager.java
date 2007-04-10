@@ -85,31 +85,11 @@ public class BlogDBManager {
     private static final String SQL_INSERT_BLOG_LINK = "INSERT IGNORE INTO links (srcid, destid) VALUES (?, ?);";
 
 
-    private BlogDBManager() throws IOException {
-        Properties props = new Properties();
-        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
-//        props.load(new FileInputStream("etc/sql-local.prop"));
-
-        try {
-            connectionPool = new ConnectionPool(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 20, 50,
-                    true);
-
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            throw new RuntimeException(e);
-
-        }
-
+    public BlogDBManager() throws IOException {
+        connectionPool = ConnectionPool.getInstance();
     }
 
-    public static BlogDBManager getInstance() throws IOException {
-        if (blogDBManager == null) {
-            blogDBManager = new BlogDBManager();
-        }
-        return blogDBManager;
-    }
-
-    public void insertBlogLinks(String source, String[] destinationURLs) throws SQLException, MalformedURLException {
+    public synchronized void insertBlogLinks(String source, String[] destinationURLs) throws SQLException, MalformedURLException {
         Connection connection = connectionPool.getConnection();
 
         // first let's add the source blog url
@@ -219,7 +199,15 @@ public class BlogDBManager {
 
     public static void main(String[] args) {
         try {
-            BlogDBManager blogDBManager = BlogDBManager.getInstance();
+
+            Properties props = new Properties();
+//        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
+            props.load(new FileInputStream("etc/sql-local.prop"));
+            ConnectionPool connectionPool = ConnectionPool.getInstance();
+            connectionPool.init(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 20, 50,
+                    true);
+
+            BlogDBManager blogDBManager = new BlogDBManager();
             blogDBManager.insertBlogLinks("http://bloglines.com/blogs/chinthaka", new String[]{"http://dummy.org", "http://test.org"});
         } catch (IOException e) {
             e.printStackTrace();
@@ -230,7 +218,7 @@ public class BlogDBManager {
         }
     }
 
-    public Integer getURLType(String pageURL) throws SQLException {
+    public synchronized Integer getURLType(String pageURL) throws SQLException {
 
         Connection connection = connectionPool.getConnection();
         PreparedStatement statement = connection.prepareStatement("select type from URL_Cache " +
@@ -249,7 +237,7 @@ public class BlogDBManager {
         return returnValue;
     }
 
-    public void addURLType(String pageURL, int urlType) throws SQLException {
+    public synchronized void addURLType(String pageURL, int urlType) throws SQLException {
         Connection connection = connectionPool.getConnection();
         PreparedStatement statement = connection.prepareStatement("INSERT INTO URL_Cache values(?, ?)");
         statement.setString(1, pageURL);
@@ -292,7 +280,7 @@ public class BlogDBManager {
         return nextUrlToBeFetched;
     }
 
-    public void setURLFetched(String urlToBeFetched, String fileName) {
+    public synchronized void setURLFetched(String urlToBeFetched, String fileName) {
         try {
             Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET " +
@@ -311,7 +299,7 @@ public class BlogDBManager {
     }
 
 
-    public void setBlogProcessingFailed(String urlToBeFetched1) {
+    public synchronized void setBlogProcessingFailed(String urlToBeFetched1) {
         setFrontierStatus(urlToBeFetched1, Constants.STATUS_FAILED);
     }
 
@@ -330,7 +318,7 @@ public class BlogDBManager {
         }
     }
 
-    public void insertLinksToBeFetchedByTheCrawler(String[] urls) {
+    public synchronized void insertLinksToBeFetchedByTheCrawler(String[] urls) {
         try {
 
 

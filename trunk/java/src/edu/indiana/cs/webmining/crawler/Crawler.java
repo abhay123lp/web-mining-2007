@@ -84,7 +84,7 @@ public class Crawler implements Runnable {
 
 
     public Crawler(BlogCrawlingContext context) throws IOException {
-        dbManager = BlogDBManager.getInstance();
+        dbManager = new BlogDBManager();
         this.context = context;
         this.dataFolder = context.getFileStore();
         myNumber = ++crawlerCount;
@@ -155,6 +155,7 @@ public class Crawler implements Runnable {
             out.close();
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         } finally {
             method.releaseConnection();

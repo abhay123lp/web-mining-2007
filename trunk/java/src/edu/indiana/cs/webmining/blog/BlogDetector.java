@@ -75,11 +75,15 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import spider.util.Hashing;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -120,7 +124,7 @@ public class BlogDetector {
         intialize();
 
         try {
-            dbManager = BlogDBManager.getInstance();
+            dbManager = new BlogDBManager();
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -239,7 +243,9 @@ public class BlogDetector {
         knowsMediaFiles.put("mov", Boolean.TRUE);
         knowsMediaFiles.put("avi", Boolean.TRUE);
         knowsMediaFiles.put("jpg", Boolean.TRUE);
+        knowsMediaFiles.put("JPG", Boolean.TRUE);
         knowsMediaFiles.put("gif", Boolean.TRUE);
+        knowsMediaFiles.put("GIF", Boolean.TRUE);
         knowsMediaFiles.put("png", Boolean.TRUE);
         knowsMediaFiles.put("fla", Boolean.TRUE);
 
@@ -267,25 +273,26 @@ public class BlogDetector {
         Integer urlType = Constants.NOT_A_BLOG;
         try {
             // first let's avoid traps. .
-            if (pageURL == null || "".equals(pageURL) || isMediaFile(pageURL)) {
+            if (pageURL == null || "".equals(pageURL) || isMediaFile(pageURL) || !pageURL.startsWith("http://")) {
                 urlType = Constants.NOT_A_BLOG;
             } else {
 
                 // first let's check in the cache
-                urlType = BlogDBManager.getInstance().getURLType(pageURL);
+                urlType = dbManager.getURLType(pageURL);
 
                 if (urlType == null) {
                     // cache miss
                     urlType = identifyURL(new URL(pageURL), htmlFile);
-                    BlogDBManager.getInstance().addURLType(pageURL, urlType);
-                    System.out.println("Type " + urlType + " : [" + pageURL + "]");
+                    dbManager.addURLType(pageURL, urlType);
                 }
             }
 
 
         } catch (MalformedURLException e) {
+            e.printStackTrace();
             return Constants.NOT_A_BLOG;
         } catch (SQLException e) {
+            e.printStackTrace();
             return Constants.NOT_A_BLOG;
         }
         return urlType;
@@ -332,7 +339,7 @@ public class BlogDetector {
 // first let's see whether title has XX's blog in it
             Page page;
             if (htmlFile == null) {
-                htmlFile = fetchAndSaveFile(pageURL.toString());
+                htmlFile = fetchAndSaveFile(pageURL);
             }
 
             if (htmlFile == null) {
@@ -362,7 +369,7 @@ public class BlogDetector {
 
         } catch (IOException e) {
             dbManager.setBlogProcessingFailed(pageURL.toString());
-
+            e.printStackTrace();
             return Constants.NOT_A_BLOG;
 
         } catch (BlogCrawlingException e) {
@@ -372,6 +379,34 @@ public class BlogDetector {
 
         }
 
+    }
+
+    private File fetchAndSaveFile(URL pageURL) throws BlogCrawlingException {
+        File htmlFile = null;
+        try {
+
+            // Read all the text returned by the server
+
+            htmlFile = new File(tempFolder, Hashing.getHashValue(pageURL.toString()));
+
+            if (!htmlFile.isFile()) htmlFile.createNewFile();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(pageURL.openStream()));
+            BufferedWriter out = new BufferedWriter(new FileWriter(htmlFile));
+            String str;
+            while ((str = in.readLine()) != null) {
+                out.write(str);
+            }
+            in.close();
+            out.close();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            new BlogCrawlingException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
+            new BlogCrawlingException(e);
+        }
+        return htmlFile;
     }
 
     private File fetchAndSaveFile(String urlToBeFetched) throws BlogCrawlingException {
@@ -414,6 +449,7 @@ public class BlogDetector {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         } finally {
             method.releaseConnection();
@@ -491,12 +527,6 @@ public class BlogDetector {
         }
 
         return Constants.NOT_A_BLOG;
-    }
-
-    public static void main(String[] args) {
-
-        String pageURL = "http://www.chinthaka.org/kfndkfndnkn?.ifnis.knik/ijasd/test.mp3";
-
     }
 
 //    protected void finalize() throws Throwable {

@@ -78,6 +78,7 @@ public class BlogCrawlingContext {
         try {
             props.load(new FileInputStream(propertiesFileLocation));
         } catch (IOException e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         }
     }

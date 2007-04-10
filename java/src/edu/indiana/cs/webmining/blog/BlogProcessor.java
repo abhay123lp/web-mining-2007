@@ -86,21 +86,26 @@ public class BlogProcessor implements Runnable {
     public static long totatProcessedPageCount = 0;
     private BlogDetector blogDetector = BlogDetector.getInstance();
 
+    private static int objectCount = 0;
+    private int myNumber;
+
     private BlogCrawlingContext context;
 
     public BlogProcessor(BlogCrawlingContext context) throws BlogCrawlingException {
         this.context = context;
         this.blogFileStore = context.getFileStore();
+        this.myNumber = ++objectCount;
         try {
-            dbManager = BlogDBManager.getInstance();
+            dbManager = new BlogDBManager();
         } catch (IOException e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         }
     }
 
     public void run() {
 
-        System.out.println("Starting Blog Processor ...");
+        System.out.println("[" + myNumber + "] Starting Blog Processor ...");
         while (true) {
             try {
 // fetch blog url to process
@@ -109,11 +114,11 @@ public class BlogProcessor implements Runnable {
                 // find the file and process it
                 if (blogInfo != null) {
 
-                    System.out.println("Starting to process blog [" + blogInfo.getUrl() + " ]");
+                    System.out.println("[" + myNumber + "] Starting to process blog [" + blogInfo.getUrl() + " ]");
                     File blogPage = new File(blogFileStore, blogInfo.getFileName());
                     try {
                         processPage(blogPage, blogInfo.getUrl());
-                        System.out.println("Finished processing Blog [" + blogInfo.getUrl() + " ]");
+                        System.out.println("[" + myNumber + "] Finished processing Blog [" + blogInfo.getUrl() + " ]");
                     } catch (BlogCrawlingException e) {
                         dbManager.setBlogProcessingFailed(blogInfo.getUrl());
                         System.out.println("Blog processing failed [" + blogInfo.getUrl() + " ]");
@@ -167,21 +172,27 @@ public class BlogProcessor implements Runnable {
             String[] result = processBlog(fileInputStream);
 
             // save the link connection information.
-            dbManager.insertBlogLinks(pageURL, result);
-            fileInputStream.close();
+            if (result.length > 0) {
+                System.out.println("[" + myNumber + "] Inserting " + result.length + " links to database ");
+                dbManager.insertBlogLinks(pageURL, result);
+            }
 
+            fileInputStream.close();
             // return the the set of urls to be fetched for further processing
             return result;
 
 //            }
 
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
             dbManager.setBlogProcessingFailed(pageURL);
             throw new BlogCrawlingException(e);
         } catch (IOException e) {
+            e.printStackTrace();
             dbManager.setBlogProcessingFailed(pageURL);
             throw new BlogCrawlingException(e);
         } catch (SQLException e) {
+            e.printStackTrace();
             dbManager.setBlogProcessingFailed(pageURL);
             throw new BlogCrawlingException(e);
         }
@@ -210,10 +221,12 @@ public class BlogProcessor implements Runnable {
                 LinkTag tag = (LinkTag) node;
                 String linkURL = tag.getLink();
 
-                if (!blogDetector.isMediaFile(linkURL) && blogDetector.identifyURL(linkURL, null) != Constants.NOT_A_BLOG) {
+                if (blogDetector.identifyURL(linkURL, null) != Constants.NOT_A_BLOG) {
                     // logger.info(" *BLOG Detected* ==> " + linkURL);
-//                    System.out.println("*BLOG Detected* ==> " + linkURL);
+                    System.out.println("[" + myNumber + "] *BLOG Detected* ==> " + linkURL);
                     linksToBlogs.add(linkURL);
+                } else {
+                    System.out.println("[" + myNumber + "] *Non-BLOG Detected* ==> " + linkURL);
                 }
             }
 
@@ -226,10 +239,13 @@ public class BlogProcessor implements Runnable {
             return links;
 
         } catch (ParserException e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new BlogCrawlingException(e);
         }
     }

@@ -78,9 +78,19 @@ public class ConnectionPool implements Runnable {
 
     private boolean connectionPending = false;
 
-    public ConnectionPool(String driver, String url, String username,
-                          String password, int initialConnections, int maxConnections,
-                          boolean waitIfBusy) throws SQLException {
+    private static ConnectionPool myInstance = new ConnectionPool();
+
+    private ConnectionPool() {
+
+    }
+
+    public synchronized static ConnectionPool getInstance() {
+        return myInstance;
+    }
+
+    public void init(String driver, String url, String username,
+                     String password, int initialConnections, int maxConnections,
+                     boolean waitIfBusy) throws SQLException {
         this.driver = driver;
         this.url = url;
         this.username = username;
@@ -95,44 +105,9 @@ public class ConnectionPool implements Runnable {
         for (int i = 0; i < initialConnections; i++) {
             availableConnections.addElement(makeNewConnection());
         }
+
     }
 
-    public ConnectionPool(String driver, String jdbcUrl,
-                          int initialConnections, int maxConnections, boolean waitIfBusy)
-            throws SQLException {
-        this.driver = driver;
-        // this.url = url;
-        // this.username = username;
-        // this.password = password;
-        this.maxConnections = maxConnections;
-        this.waitIfBusy = waitIfBusy;
-        if (initialConnections > maxConnections) {
-            initialConnections = maxConnections;
-        }
-        availableConnections = new Vector(initialConnections);
-        busyConnections = new Vector();
-        for (int i = 0; i < initialConnections; i++) {
-            availableConnections.addElement(makeNewConnection(jdbcUrl));
-        }
-    }
-
-    public ConnectionPool(DataSource datasource, int initialConnections,
-                          int maxConnections, boolean waitIfBusy) throws SQLException {
-        // this.driver = driver;
-        // this.url = url;
-        // this.username = username;
-        // this.password = password;
-        this.maxConnections = maxConnections;
-        this.waitIfBusy = waitIfBusy;
-        if (initialConnections > maxConnections) {
-            initialConnections = maxConnections;
-        }
-        availableConnections = new Vector(initialConnections);
-        busyConnections = new Vector();
-        for (int i = 0; i < initialConnections; i++) {
-            availableConnections.addElement(makeNewConnection(datasource));
-        }
-    }
 
     public synchronized Connection getConnection() throws SQLException {
         if (!availableConnections.isEmpty()) {
@@ -175,6 +150,7 @@ public class ConnectionPool implements Runnable {
             try {
                 wait();
             } catch (InterruptedException ie) {
+                ie.printStackTrace();
             }
             // Someone freed up a connection, so try again.
             return (getConnection());
@@ -207,6 +183,7 @@ public class ConnectionPool implements Runnable {
                 notifyAll();
             }
         } catch (Exception e) { // SQLException or OutOfMemory
+            e.printStackTrace();
             // Give up on new connection and wait for existing one
             // to free up.
         }
@@ -226,7 +203,7 @@ public class ConnectionPool implements Runnable {
         } catch (ClassNotFoundException cnfe) {
             // Simplify try/catch blocks of people using this by
             // throwing only one exception type.
-            throw new SQLException("Can�t find class for driver: " + driver);
+            throw new SQLException("Can't find class for driver: " + driver);
         }
     }
 
@@ -286,6 +263,7 @@ public class ConnectionPool implements Runnable {
                 }
             }
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
             // Ignore errors; garbage collect anyhow
         }
     }

@@ -59,7 +59,6 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
@@ -121,6 +120,8 @@ public class BlogDetector {
 
     private BlogDetector() {
         intialize();
+
+        client = new HttpClient();
 
         try {
             dbManager = new BlogDBManager();
@@ -310,7 +311,7 @@ public class BlogDetector {
      *                 open a connection to the page if required.
      * @return
      */
-    public synchronized int identifyURL(URL pageURL, File htmlFile) {
+    public int identifyURL(URL pageURL, File htmlFile) {
         int status = -1;
 
         // sorry, we do not handle anything other than http. Can there be smtp or tcp blogs?
@@ -337,7 +338,7 @@ public class BlogDetector {
         try {
             Page page;
             if (htmlFile == null) {
-                htmlFile = fetchAndSaveFile(pageURL);
+                htmlFile = fetchAndSaveFile(pageURL.toString());
             }
 
             if (htmlFile == null) {
@@ -418,10 +419,7 @@ public class BlogDetector {
                     new DefaultHttpMethodRetryHandler(3, false));
 
             // Execute the method.
-
-            client = new HttpClient();
-
-            HttpClientParams clientParams = new HttpClientParams();
+            method.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, 1000 * 60);
             int statusCode = client.executeMethod(method);
 
             if (statusCode != HttpStatus.SC_OK) {

@@ -9,4 +9,4 @@ BLOG_CLASSPATH="$JAVA_HOME/lib/tools.jar":"$BLOG_CLASSPATH":build/crawler.jar:"$
 
 echo $BLOG_CLASSPATH
 
-$JAVA_HOME/bin/java -Xmx2048m -cp "$BLOG_CLASSPATH" edu.indiana.cs.webmining.blog.BlogProcessingSystem Blog
+$JAVA_HOME/bin/java -Xmx1024m -cp "$BLOG_CLASSPATH" edu.indiana.cs.webmining.blog.BlogProcessingSystem Blog

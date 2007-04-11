@@ -48,18 +48,23 @@
 
 package edu.indiana.cs.webmining.blog.impl;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+import edu.indiana.cs.webmining.BlogCrawlingContext;
 import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.bean.BlogInfo;
 import edu.indiana.cs.webmining.blog.BlogCrawlingException;
+import edu.indiana.cs.webmining.blog.BlogProcessingSystem;
 import edu.indiana.cs.webmining.blog.BlogProcessor;
 import edu.indiana.cs.webmining.blog.BlogUtils;
-import edu.indiana.cs.webmining.db.ConnectionPool;
 
+import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -72,6 +77,7 @@ public class BlogDBManager {
 
     //    private ConnectionPool connectionPools;
     Connection connection;
+
     private String dbDriver = "com.mysql.jdbc.Driver";
     private String dbURL = "jdbc:mysql://localhost/";
 
@@ -83,10 +89,33 @@ public class BlogDBManager {
     private static final String SQL_INSERT_BLOG_LINK = "INSERT IGNORE INTO links (srcid, destid) VALUES (?, ?);";
 
 
-    public BlogDBManager() throws BlogCrawlingException {
+    public BlogDBManager(BlogCrawlingContext context) throws BlogCrawlingException {
         try {
 //            connectionPool = ConnectionPool.getInstance();
-            connection = ConnectionPool.getInstance().getConnection();
+            MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
+            dataSource.setUser(context.getDbUserName());
+            dataSource.setPassword(context.getDbPassword());
+            dataSource.setURL(context.getDbURL());
+
+            connection = dataSource.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BlogCrawlingException(e);
+        }
+    }
+
+    public BlogDBManager() throws BlogCrawlingException {
+        try {
+
+            Properties props = new Properties();
+//        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
+            props.load(new FileInputStream(BlogProcessingSystem.SQL_PROP_FILE_PATH));
+            MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
+            dataSource.setUser(props.getProperty("username"));
+            dataSource.setPassword(props.getProperty("password"));
+            dataSource.setURL(props.getProperty("url"));
+
+            connection = dataSource.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
             throw new BlogCrawlingException(e);
@@ -241,8 +270,11 @@ public class BlogDBManager {
         String nextUrlToBeFetched = null;
         try {
 //            Connection connection = connectionPool.getConnection();
+            connection.setAutoCommit(false);
             PreparedStatement selectStatement = connection.prepareStatement("SELECT Url FROM Frontier where StatusCode='" + Constants.STATUS_TO_BE_FETCHED + "' limit 1");
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Frontier SET StatusCode='" + Constants.STATUS_FETCHING + "' WHERE Url=?");
+
+            connection.commit();
 
             ResultSet resultSet = selectStatement.executeQuery();
             if (resultSet.next()) {
@@ -255,7 +287,8 @@ public class BlogDBManager {
             selectStatement.close();
             preparedStatement.close();
 //            connectionPool.free(connection);
-
+            connection.setAutoCommit(true
+            );
             return nextUrlToBeFetched;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -371,8 +404,23 @@ public class BlogDBManager {
 
     }
 
+    private Connection makeNewConnection(String driver, String url, String username, String password) throws SQLException {
+        try {
+            // Load database driver if not already loaded
+            Class.forName(driver);
+            // Establish network connection to database
+            Connection connection = DriverManager.getConnection(url, username,
+                    password);
+            return (connection);
+        } catch (ClassNotFoundException cnfe) {
+            // Simplify try/catch blocks of people using this by
+            // throwing only one exception type.
+            throw new SQLException("Can't find class for driver: " + driver);
+        }
+    }
+
 
     protected void finalize() throws Throwable {
-        ConnectionPool.getInstance().free(connection);
+        connection.close();
     }
 }

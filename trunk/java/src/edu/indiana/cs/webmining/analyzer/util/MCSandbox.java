@@ -20,10 +20,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class MCSandbox {
 
+	private final static int MAX_THREADS = 20;
+	
+	private static ExecutorService threadPool;
+
+	public static ExecutorService getThreadPool() {
+		if (threadPool == null) {
+			threadPool = Executors.newFixedThreadPool(MAX_THREADS);
+		}
+		return threadPool;
+	}
     private static ArrayList<Vertex> makeVerticesFromLinkedBlogs(Collection<LinkedBlog> linkedblogs, JungController jc) {
         ArrayList<Vertex> vertices = new ArrayList<Vertex>();
 
@@ -144,18 +158,19 @@ public class MCSandbox {
             }
 
 
-            
-            final class ProcessD1 extends Thread {
+            final class ProcessD1 implements Runnable {
 
             	private JungController jc;
             	private Vertex v;
             	private Map<String, Integer> indegrees;
             	
+
             	public ProcessD1(JungController jc, Vertex v, Map indegrees) {
             		this.jc = jc;
             		this.v = v;
             		this.indegrees = indegrees;
             	}
+            	
 				public void run() {
 					for (Object o: v.getSuccessors()) {
 						Vertex node = (o instanceof Vertex) ? (Vertex) o : null;
@@ -185,20 +200,19 @@ public class MCSandbox {
             	
             }
             
-            ArrayList<ProcessD1> unfinished = new ArrayList<ProcessD1>();
+            ArrayList<Future<?>> unfinished = new ArrayList<Future<?>>();
             
             for (Vertex v : D1_Vert) {
             	ProcessD1 processor = new ProcessD1(jc, v, InDegrees);
-            	unfinished.add(processor);
-            	processor.start();
+            	unfinished.add(getThreadPool().submit(processor));
             }
 
-
-            for (ProcessD1 p : unfinished) {
+            for (Future<?> f : unfinished) {
             	try {
-					p.join();
+					f.get();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
 					e.printStackTrace();
 				}
             }

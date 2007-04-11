@@ -51,11 +51,9 @@ package edu.indiana.cs.webmining.blog;
 import edu.indiana.cs.webmining.BlogCrawlingContext;
 import edu.indiana.cs.webmining.blog.impl.BlogDBManager;
 import edu.indiana.cs.webmining.crawler.Crawler;
-import edu.indiana.cs.webmining.db.ConnectionPool;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -67,6 +65,7 @@ import java.util.Properties;
 public class BlogProcessingSystem {
     public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
     List<Thread> threadBucket = new ArrayList<Thread>();
+    public static final String SQL_PROP_FILE_PATH = "etc/sql-local.prop";
 
     public void start() {
 
@@ -83,7 +82,7 @@ public class BlogProcessingSystem {
             BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
 
             // init connection pool
-            initDBConnectionPool();
+            initDBConnectionPool(context);
 
             // create proper number of crawler threads and start them
             startCrawlers(context);
@@ -122,18 +121,25 @@ public class BlogProcessingSystem {
         }
     }
 
-    private void initDBConnectionPool() {
+    private void initDBConnectionPool(BlogCrawlingContext context) {
         try {
             Properties props = new Properties();
 //        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
-            props.load(new FileInputStream("etc/sql-local.prop"));
-            ConnectionPool connectionPool = ConnectionPool.getInstance();
-            connectionPool.init(props.getProperty("driverClassName"), props.getProperty("url"), props.getProperty("username"), props.getProperty("password"), 20, 50,
-                    true);
+            props.load(new FileInputStream(SQL_PROP_FILE_PATH));
+//            ConnectionPool connectionPool = ConnectionPool.getInstance();
+            String driver = props.getProperty("driverClassName");
+            String dbURL = props.getProperty("url");
+            String dbUserrName = props.getProperty("username");
+            String dbPwd = props.getProperty("password");
+
+            context.setDbDriver(driver);
+            context.setDbUserName(dbUserrName);
+            context.setDbURL(dbURL);
+            context.setDbPassword(dbPwd);
+
+            //connectionPool.init(driver, dbURL, dbUserrName, dbPwd, 20, 50,
+//                    true);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (SQLException e) {
             e.printStackTrace();
             System.exit(-1);
         }
@@ -154,7 +160,7 @@ public class BlogProcessingSystem {
         try {
             // put the seed urls in to the database
             String[] seedUrls = context.getSeedUrls();
-            new BlogDBManager().insertLinksToBeFetchedByTheCrawler(seedUrls);
+            new BlogDBManager(context).insertLinksToBeFetchedByTheCrawler(seedUrls);
 
             // start the given number of crawler threads
             int crawlThreadCount = context.getMaxCrawlThreadCount();

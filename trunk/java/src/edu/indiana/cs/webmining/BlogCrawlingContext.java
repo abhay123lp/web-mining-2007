@@ -68,6 +68,11 @@ public class BlogCrawlingContext {
     private String propertiesFileLocation;
     private Properties props;
 
+    String dbDriver;
+    String dbURL;
+    String dbUserName;
+    String dbPassword;
+
     public BlogCrawlingContext(String propertiesFileLocation) throws BlogCrawlingException {
         this.propertiesFileLocation = propertiesFileLocation;
         initialize();
@@ -98,5 +103,38 @@ public class BlogCrawlingContext {
     public String[] getSeedUrls() {
         String seeds = props.getProperty("seed-urls");
         return seeds.split(",");
+    }
+
+
+    public String getDbDriver() {
+        return dbDriver;
+    }
+
+    public void setDbDriver(String dbDriver) {
+        this.dbDriver = dbDriver;
+    }
+
+    public String getDbURL() {
+        return dbURL;
+    }
+
+    public void setDbURL(String dbURL) {
+        this.dbURL = dbURL;
+    }
+
+    public String getDbUserName() {
+        return dbUserName;
+    }
+
+    public void setDbUserName(String dbUserName) {
+        this.dbUserName = dbUserName;
+    }
+
+    public String getDbPassword() {
+        return dbPassword;
+    }
+
+    public void setDbPassword(String dbPassword) {
+        this.dbPassword = dbPassword;
     }
 }

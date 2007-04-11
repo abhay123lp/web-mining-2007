@@ -83,7 +83,7 @@ public class Crawler implements Runnable {
 
 
     public Crawler(BlogCrawlingContext context) throws BlogCrawlingException {
-        dbManager = new BlogDBManager();
+        dbManager = new BlogDBManager(context);
         this.context = context;
         this.dataFolder = context.getFileStore();
         myNumber = ++crawlerCount;
@@ -109,7 +109,7 @@ public class Crawler implements Runnable {
                     dbManager.setURLFetched(urlToBeFetched, fileName);
                     System.out.println("[" + myNumber + "] Url Fetched ==> " + urlToBeFetched);
                 } else {
-                    Thread.sleep(1000 * 60 * 5);
+                    Thread.sleep(1000 * 60 * 2);
                 }
             } catch (BlogCrawlingException e) {
                 e.printStackTrace();

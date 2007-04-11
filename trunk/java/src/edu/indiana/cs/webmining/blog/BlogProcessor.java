@@ -84,7 +84,7 @@ public class BlogProcessor implements Runnable {
     private File blogFileStore;
 
     public static long totatProcessedPageCount = 0;
-    private BlogDetector blogDetector = BlogDetector.getInstance();
+    private BlogDetector blogDetector;
 
     private static int objectCount = 0;
     private int myNumber;
@@ -96,6 +96,7 @@ public class BlogProcessor implements Runnable {
         this.blogFileStore = context.getFileStore();
         this.myNumber = ++objectCount;
         dbManager = new BlogDBManager(context);
+        blogDetector = new BlogDetector(dbManager);
     }
 
     public void run() {

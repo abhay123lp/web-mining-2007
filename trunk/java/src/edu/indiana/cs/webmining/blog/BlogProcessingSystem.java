@@ -65,7 +65,7 @@ import java.util.Properties;
 public class BlogProcessingSystem {
     public static final String BLOG_DETECTION_PROPERTIES = "etc/blog-detection.properties";
     List<Thread> threadBucket = new ArrayList<Thread>();
-    public static final String SQL_PROP_FILE_PATH = "etc/sql-local.prop";
+    public static final String SQL_PROP_FILE_PATH = "etc/sql-silo-echintha.prop";
 
     public static final String CRAWLER_MODE = "Crawler";
     public static final String BLOG_PROCESSOR_MODE = "Blog";

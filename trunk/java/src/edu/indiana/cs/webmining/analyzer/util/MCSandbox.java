@@ -364,20 +364,23 @@ public class MCSandbox {
         //String blog1 = "boingboing.net";
 
         ArrayList<String> blogs = new ArrayList<String>();
+        //blogs.add("busymom.net");
         blogs.add("www.photojunkie.ca");
         
         JungController jc;
         try {
             jc = new JungController();
-            DBManager dbm = new DBManager();
+            //DBManager dbm = new DBManager();
                         
             ArrayList< HashMap<String, Double> > arrScoreHashes = new ArrayList<HashMap<String,Double>>();
             
             
             for(String blog : blogs)
-            {                            
+            {                           
+
+                DBManager dbm = new DBManager();
                 DirectedSparseGraph descTree = getNeighborsGraph(blog, jc);
-                HashMap<String, Double> singleBlogScores = getFOAF(descTree, jc, blog, 1);                
+                HashMap<String, Double> singleBlogScores = getFOAF(descTree, jc, blog, 2);                
                 arrScoreHashes.add(singleBlogScores);                
                 toFileScore(singleBlogScores, blog, "");
             }
@@ -416,6 +419,7 @@ public class MCSandbox {
                }
            }
            
+           toFileScore(finalScore, "final", "");
            
 //            edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
 //            hits.setUseAuthorityForRanking(true);

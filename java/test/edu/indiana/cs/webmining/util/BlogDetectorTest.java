@@ -78,7 +78,7 @@ public class BlogDetectorTest extends TestCase {
     private String nonBlogs = "test-resources/non-blogs.txt";
 
     public void testBlogDetection() {
-        BlogDetector blogDetector = BlogDetector.getInstance();
+        BlogDetector blogDetector = new BlogDetector(null);
 
         try {
             System.out.println("---- Checking Blog Sites ----");
@@ -127,8 +127,7 @@ public class BlogDetectorTest extends TestCase {
             Page page = new Page(blogRollingTop500Page.openConnection());
             Parser parser = new Parser(new Lexer(page));
 
-            BlogDetector detector = BlogDetector.getInstance();
-
+            BlogDetector detector = new BlogDetector(null);
             TagNameFilter linkTag = new TagNameFilter("a");
 
             NodeList nl = parser.parse(linkTag);

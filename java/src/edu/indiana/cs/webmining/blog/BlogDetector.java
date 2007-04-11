@@ -92,8 +92,6 @@ import java.util.Map;
 
 public class BlogDetector {
 
-    private static BlogDetector ourInstance = new BlogDetector();
-
     private static Map<String, Integer> knownBlogURLList;
     private static Map<String, Integer> history;
     private static Map<String, Boolean> blogPublishingFrameworks;
@@ -109,22 +107,26 @@ public class BlogDetector {
     private static Map<String, String> deceivingNonBlogs;
     private static final String APPLICATION_RSS_XML_TYPE = "application/rss+xml";
     private static final String APPLICATION_ATOM_XML_TYPE = "application/atom+xml";
-    private File tempFolder = new File("tmp-crawled-pages");
+    private static File tempFolder = new File("tmp-crawled-pages");
     private HttpClient client;
 
     BlogDBManager dbManager;
 
-    public static BlogDetector getInstance() {
-        return ourInstance;
-    }
+//    public static BlogDetector getInstance() {
+//        return ourInstance;
+//    }
 
-    private BlogDetector() {
-        intialize();
+    public BlogDetector(BlogDBManager dbManager) {
+//        intialize();
 
         client = new HttpClient();
 
         try {
-            dbManager = new BlogDBManager();
+            if (dbManager != null) {
+                this.dbManager = new BlogDBManager();
+            } else {
+                this.dbManager = dbManager;
+            }
         } catch (BlogCrawlingException e) {
             e.printStackTrace();
 
@@ -174,7 +176,8 @@ public class BlogDetector {
      * We made this singleton to avoid the costs of re-initializing these parameters, but if this seems
      * a bottleneck whilst crawlign, let's think about making this a generic class.
      */
-    private void intialize() {
+    //    private void intialize() {
+    static {
         knownBlogURLList = new HashMap<String, Integer>();
         knownBlogURLList.put("blogspot.com", Constants.BLOG);
         knownBlogURLList.put("blog.myspace.com", Constants.BLOG);
@@ -577,4 +580,14 @@ public class BlogDetector {
 //            }
 //        }
 //    }
+
+    public static void main(String[] args) {
+        try {
+            BlogDetector blogDetector = new BlogDetector(null);
+            blogDetector.fetchAndSaveFile("http://www.phdcomics.com");
+        } catch (BlogCrawlingException e) {
+            e.printStackTrace();
+
+        }
+    }
 }

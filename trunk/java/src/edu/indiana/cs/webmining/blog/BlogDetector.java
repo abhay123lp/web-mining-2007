@@ -213,6 +213,7 @@ public class BlogDetector {
         knownBlogURLList.put("monblogue.com", Constants.BLOG);
         knownBlogURLList.put("joueb.com", Constants.BLOG);
         knownBlogURLList.put("blogstudio.com", Constants.BLOG);
+        knownBlogURLList.put("dailykos.com", Constants.BLOG);
         knownBlogURLList.put("blog-city.com", Constants.BLOG);
         knownBlogURLList.put("blogsky.com", Constants.BLOG);
         knownBlogURLList.put("u-blog.net", Constants.BLOG);
@@ -311,7 +312,7 @@ public class BlogDetector {
      *                 open a connection to the page if required.
      * @return
      */
-    public int identifyURL(URL pageURL, File htmlFile) {
+    private int identifyURL(URL pageURL, File htmlFile) {
         int status = -1;
 
         // sorry, we do not handle anything other than http. Can there be smtp or tcp blogs?
@@ -419,7 +420,7 @@ public class BlogDetector {
                     new DefaultHttpMethodRetryHandler(3, false));
 
             // Execute the method.
-            method.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, 1000 * 60);
+            method.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, 1000 * 60 * 2);
             int statusCode = client.executeMethod(method);
 
             if (statusCode != HttpStatus.SC_OK) {

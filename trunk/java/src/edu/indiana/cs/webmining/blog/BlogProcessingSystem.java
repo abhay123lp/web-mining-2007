@@ -67,7 +67,11 @@ public class BlogProcessingSystem {
     List<Thread> threadBucket = new ArrayList<Thread>();
     public static final String SQL_PROP_FILE_PATH = "etc/sql-local.prop";
 
-    public void start() {
+    public static final String CRAWLER_MODE = "Crawler";
+    public static final String BLOG_PROCESSOR_MODE = "Blog";
+
+
+    public void start(String mode) {
 
         // set http client logging off
         System.setProperty("org.apache.commons.logging.Log",
@@ -82,13 +86,14 @@ public class BlogProcessingSystem {
             BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
 
             // init connection pool
-            initDBConnectionPool(context);
-
-            // create proper number of crawler threads and start them
-            startCrawlers(context);
-
-            // create blog processing threads and start them
-            startBlogProcessingThreads(context);
+            loadDBParams(context);
+            if (mode.equals(CRAWLER_MODE)) {
+                // create proper number of crawler threads and start them
+                startCrawlers(context);
+            } else {
+                // create blog processing threads and start them
+                startBlogProcessingThreads(context);
+            }
 
 //            try {
 //                Thread.sleep(1000 * 60 * 3);
@@ -121,7 +126,7 @@ public class BlogProcessingSystem {
         }
     }
 
-    private void initDBConnectionPool(BlogCrawlingContext context) {
+    private void loadDBParams(BlogCrawlingContext context) {
         try {
             Properties props = new Properties();
 //        props.load(new FileInputStream("etc/sql-silo-echintha.prop"));
@@ -177,8 +182,11 @@ public class BlogProcessingSystem {
     }
 
     public static void main(String[] args) {
-        BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem();
-        blogProcessingSystem.start();
+        if (args.length == 1) {
+            BlogProcessingSystem blogProcessingSystem = new BlogProcessingSystem();
+            blogProcessingSystem.start(args[0]);
+        }
+
     }
 
 

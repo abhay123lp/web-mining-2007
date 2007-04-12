@@ -53,6 +53,10 @@ import edu.indiana.cs.webmining.blog.BlogCrawlingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -67,6 +71,8 @@ public class BlogCrawlingContext {
 
     private String propertiesFileLocation;
     private Properties props;
+
+    private List<Connection> dbConnections = new ArrayList<Connection>();
 
     String dbDriver;
     String dbURL;
@@ -137,4 +143,15 @@ public class BlogCrawlingContext {
     public void setDbPassword(String dbPassword) {
         this.dbPassword = dbPassword;
     }
+
+    public void addConnection(Connection connection) {
+        dbConnections.add(connection);
+    }
+
+    public void freeDBConnections() throws SQLException {
+        for(Connection connection : dbConnections){
+            connection.close();
+        }
+    }
+
 }

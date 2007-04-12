@@ -54,6 +54,7 @@ import edu.indiana.cs.webmining.crawler.Crawler;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -84,6 +85,8 @@ public class BlogProcessingSystem {
         try {
 // load the blog processing context
             BlogCrawlingContext context = new BlogCrawlingContext(BLOG_DETECTION_PROPERTIES);
+
+            Runtime.getRuntime().addShutdownHook(new ShutDownHook(context));
 
             // init connection pool
             loadDBParams(context);
@@ -187,6 +190,26 @@ public class BlogProcessingSystem {
             blogProcessingSystem.start(args[0]);
         }
 
+    }
+
+    class ShutDownHook extends Thread {
+        BlogCrawlingContext context;
+
+
+        public ShutDownHook(BlogCrawlingContext context) {
+            this.context = context;
+        }
+
+        public void run() {
+            try {
+                System.out.print("Shutting down database connections ....");
+                context.freeDBConnections();
+                System.out.println(" [Done]");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 

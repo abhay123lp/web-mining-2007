@@ -98,6 +98,9 @@ public class BlogDBManager {
             dataSource.setURL(context.getDbURL());
 
             connection = dataSource.getConnection();
+
+            context.addConnection(connection);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new BlogCrawlingException(e);

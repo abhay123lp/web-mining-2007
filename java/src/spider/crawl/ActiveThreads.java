@@ -11,16 +11,20 @@ public class ActiveThreads {
     /**
      * add to active thread count
      */
-    public synchronized int add() {
-        activeThreads++;
+    public int add() {
+    	synchronized (this) {
+            activeThreads++;
+		}
         return activeThreads;
     }
 
     /**
      * subtract from the current active threads count
      */
-    public synchronized int subtract() {
-        activeThreads--;
+    public int subtract() {
+    	synchronized (this) {
+    		activeThreads--;
+    	}
         return activeThreads;
     }
 

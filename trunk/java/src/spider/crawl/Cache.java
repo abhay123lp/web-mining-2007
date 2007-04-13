@@ -23,23 +23,25 @@ public class Cache {
     /**
      * To add the content of a url to cache
      */
-    public synchronized boolean addToCache(String url, String filename, String content, long lastModified) {
+    public boolean addToCache(String url, String filename, String content, long lastModified) {
         url = url.trim();
-        try {
-            // if file does not exists in cache
-            File f = new File(getPath(filename) + filename);
-            if (!f.exists()) {
-                File dir = new File(getPath(filename));
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                FileWriter fw = new FileWriter(f);
-                fw.write(content);
-                fw.flush();
-                fw.close();
-            }
-        } catch (Exception e) {
-            return false;
+        synchronized (this) {
+        	try {
+        		// if file does not exists in cache
+        		File f = new File(getPath(filename) + filename);
+        		if (!f.exists()) {
+        			File dir = new File(getPath(filename));
+        			if (!dir.exists()) {
+        				dir.mkdirs();
+        			}
+        			FileWriter fw = new FileWriter(f);
+        			fw.write(content);
+        			fw.flush();
+        			fw.close();
+        		}
+        	} catch (Exception e) {
+        		return false;
+        	}
         }
         return true;
     }
@@ -48,25 +50,27 @@ public class Cache {
      * deletes all the files in the current cache
      * assumes a maximum of two level deep directory structure
      */
-    public synchronized void clearCache() {
+    public void clearCache() {
         if (path.equals("")) {
             return;
         }
-        File dir = new File(path);
-        if (dir.exists()) {
-            System.out.print("Clearing the cache...");
-            File[] files = dir.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    File[] subFiles = files[i].listFiles();
-                    for (int j = 0; j < subFiles.length; j++) {
-                        subFiles[i].delete();
-                    }
-                } else {
-                    files[i].delete();
-                }
-            }
-            System.out.println("done");
+        synchronized (this) {
+        	File dir = new File(path);
+        	if (dir.exists()) {
+        		System.out.print("Clearing the cache...");
+        		File[] files = dir.listFiles();
+        		for (int i = 0; i < files.length; i++) {
+        			if (files[i].isDirectory()) {
+        				File[] subFiles = files[i].listFiles();
+        				for (int j = 0; j < subFiles.length; j++) {
+        					subFiles[i].delete();
+        				}
+        			} else {
+        				files[i].delete();
+        			}
+        		}
+        		System.out.println("done");
+        	}
         }
     }
 

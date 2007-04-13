@@ -52,7 +52,7 @@ package edu.indiana.cs.webmining.blogmining.web.dto;
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
  * @Date : Mar 23, 2007
  */
-public class BlogSearchResult {
+public class BlogSearchResult implements Comparable {
     private String url;
     private String score;
 
@@ -76,5 +76,13 @@ public class BlogSearchResult {
 
     public void setScore(String score) {
         this.score = score;
+    }
+
+    public int compareTo(Object o) {
+        if (o instanceof BlogSearchResult) {
+            BlogSearchResult blogSearchResult = (BlogSearchResult) o;
+            return (Double.parseDouble(this.score) - Double.parseDouble(blogSearchResult.getScore())) > 0 ? 1 : -1;
+        }
+        return -1;
     }
 }

@@ -1,7 +1,6 @@
 <%@ page import="edu.indiana.cs.webmining.blogmining.web.FrontEndHelper" %>
 <%@ page import="edu.indiana.cs.webmining.blogmining.web.dto.BlogSearchResult" %>
 <%@ page import="java.net.URLDecoder" %>
-<%@ page import="java.util.List" %>
 <%--
   User: Eran Chinthaka (echintha@cs.indiana.edu)
   Date: Mar 23, 2007
@@ -33,10 +32,10 @@
 } else {
     // if yes, get the relevant results
 
-    List<BlogSearchResult> results = frontEndHelper.getRelevantBlogs(URLDecoder.decode(firstURL), URLDecoder.decode(secondURL));
+    BlogSearchResult[] results = frontEndHelper.getRelevantBlogs(URLDecoder.decode(firstURL), URLDecoder.decode(secondURL));
 
     // display it to the user
-    if (results.size() == 0) {
+    if (results.length == 0) {
 %>
 <h3>No similar blogs for the given urls. Please try again with different urls</h3>
 <%

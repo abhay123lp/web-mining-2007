@@ -56,7 +56,6 @@ import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Random;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -109,21 +108,5 @@ public class FrontEndHelper {
         }
 
         return new BlogSearchResult[0];
-    }
-
-    public static void main(String[] args) {
-
-        BlogSearchResult[] resultsArray = new BlogSearchResult[10];
-
-        int index = 0;
-        for (int i = 0; i < 10; i++) {
-            resultsArray[index++] = new BlogSearchResult("http://funny.org/" + i + "/", new Random().nextDouble() + "");
-        }
-
-        Arrays.sort(resultsArray);
-
-        for (int i = 0; i < 10; i++) {
-            System.out.println(resultsArray[i].getUrl() + " -- " + resultsArray[i].getScore());
-        }
     }
 }

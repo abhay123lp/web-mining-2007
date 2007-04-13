@@ -120,15 +120,19 @@ public class Statistics extends Thread {
     /**
      * add to noTimeouts
      */
-    public synchronized void addTimeouts(int k) {
-        noTimeouts = noTimeouts + k;
+    public void addTimeouts(int k) {
+    	synchronized (this) {
+    		noTimeouts = noTimeouts + k;
+    	}
     }
 
     /**
      * add to noOkay
      */
-    public synchronized void addOkay(int k) {
-        noOkay = noOkay + k;
+    public void addOkay(int k) {
+    	synchronized (this) {
+    		noOkay = noOkay + k;
+    	}
     }
 
     /**

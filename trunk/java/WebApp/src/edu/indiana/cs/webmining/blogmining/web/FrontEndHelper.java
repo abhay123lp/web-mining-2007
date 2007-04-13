@@ -54,9 +54,9 @@ import edu.indiana.cs.webmining.blogmining.web.dto.BlogSearchResult;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Random;
 
 /**
  * @author : Eran Chinthaka (echintha@cs.indiana.edu)
@@ -86,24 +86,44 @@ public class FrontEndHelper {
      * @param secondURL - optional second blog.
      * @return set of relevant blogs, encapsulated in a list of BlogSearchResult objects
      */
-    public List<BlogSearchResult> getRelevantBlogs(String firstURL, String secondURL) {
+    public BlogSearchResult[] getRelevantBlogs(String firstURL, String secondURL) {
         try {
-            List<BlogSearchResult> results = new ArrayList<BlogSearchResult>();
+
             JungController jc = new JungController();
             DirectedSparseGraph descTree = MCSandbox.getNeighborsGraph(firstURL, jc);
 
             HashMap<String, Double> foaf = MCSandbox.getFOAF(descTree, jc, firstURL, 1);
+            BlogSearchResult[] resultsArray = new BlogSearchResult[foaf.size()];
 
+            int index = 0;
             for (String s : foaf.keySet()) {
-                results.add(new BlogSearchResult(s, foaf.get(s) + ""));
+                resultsArray[index++] = new BlogSearchResult(s, foaf.get(s) + "");
             }
 
-            return results;
+            Arrays.sort(resultsArray);
+
+            return resultsArray;
         } catch (SQLException e) {
             e.printStackTrace();
 
         }
 
-        return new ArrayList<BlogSearchResult>(0);
+        return new BlogSearchResult[0];
+    }
+
+    public static void main(String[] args) {
+
+        BlogSearchResult[] resultsArray = new BlogSearchResult[10];
+
+        int index = 0;
+        for (int i = 0; i < 10; i++) {
+            resultsArray[index++] = new BlogSearchResult("http://funny.org/" + i + "/", new Random().nextDouble() + "");
+        }
+
+        Arrays.sort(resultsArray);
+
+        for (int i = 0; i < 10; i++) {
+            System.out.println(resultsArray[i].getUrl() + " -- " + resultsArray[i].getScore());
+        }
     }
 }

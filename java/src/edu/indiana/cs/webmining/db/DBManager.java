@@ -104,7 +104,7 @@ public class DBManager {
         try {
             // dataSource might have already been initialized
             if (dataSource == null) {
-                FileInputStream propstream = new FileInputStream("etc/sql-local-mike.prop");
+                FileInputStream propstream = new FileInputStream("etc/sql-silo.prop");
 
                 Properties prop = new Properties();
                 prop.load(propstream);

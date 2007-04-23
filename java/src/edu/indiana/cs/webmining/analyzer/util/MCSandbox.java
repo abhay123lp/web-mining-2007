@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 
 public class MCSandbox {
 
-	private final static int MAX_THREADS = 20;
+	private final static int MAX_THREADS = 1;
 	
 	private static ExecutorService threadPool;
 
@@ -374,13 +374,16 @@ public class MCSandbox {
         //String blog1 = "toronto.metblogs.com";
         //String blog2 = "mividaentoronto.blogspot.com";
 
-        //String blog1 = "busymom.net";
-        //String blog1 = "boingboing.net";
+        String blog1 = "busymom.net";
+        String blog2 = "boingboing.net";
 
         ArrayList<String> blogs = new ArrayList<String>();
-        //blogs.add("busymom.net");
-        blogs.add("www.photojunkie.ca");
-        
+//        blogs.add("busymom.net");
+//        blogs.add("www.photojunkie.ca");
+
+        blogs.add(blog1);
+//        blogs.add(blog2);
+
         JungController jc;
         try {
             jc = new JungController();
@@ -474,7 +477,7 @@ public class MCSandbox {
         try {
             DBManager dbm = new DBManager();
 
-            BufferedWriter bw1 = new BufferedWriter(new FileWriter("/home/gonzo/results/" + url + token + ".csv"));
+            BufferedWriter bw1 = new BufferedWriter(new FileWriter(url + token + ".csv"));
             System.out.println(score.size());
             for (String s : score.keySet()) {
                 int deg = dbm.getInDegree(s);

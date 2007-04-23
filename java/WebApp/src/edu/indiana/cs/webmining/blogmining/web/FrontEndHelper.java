@@ -81,11 +81,10 @@ public class FrontEndHelper {
      * This will search for the similar blogs and will return a set of blogs that are relevant for the
      * given url(s)
      *
-     * @param firstURL  - the first blog to match. This should always be not NULL
-     * @param secondURL - optional second blog.
+     * @param firstURL - the first blog to match. This should always be not NULL
      * @return set of relevant blogs, encapsulated in a list of BlogSearchResult objects
      */
-    public BlogSearchResult[] getRelevantBlogs(String firstURL, String secondURL) {
+    public BlogSearchResult[] getRelevantBlogs(String firstURL) {
         try {
 
             JungController jc = new JungController();

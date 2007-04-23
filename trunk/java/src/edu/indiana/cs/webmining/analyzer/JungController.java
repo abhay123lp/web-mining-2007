@@ -51,7 +51,7 @@ public class JungController implements GraphController, VertexStringer, NumberEd
     }
 
     public JungController() throws SQLException {
-        dbman = new DBManager();
+        dbman = new DBManager("../webapps/mem/etc/sql-silo-echintha.prop");
         initialize();
     }
 

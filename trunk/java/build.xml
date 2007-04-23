@@ -58,6 +58,11 @@
     </target>
 
     <target name="jar" depends="compile">
+        <mkdir dir="${build.dest}/etc"/>
+        <copy todir="${build.dest}/etc">
+            <fileset dir="etc"/>
+        </copy>
+
         <jar destfile="${build.dir}/crawler.jar" basedir="${build.dest}">
             <manifest>
                 <attribute name="Main-Class"

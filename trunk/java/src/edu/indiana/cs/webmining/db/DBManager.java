@@ -65,6 +65,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
+import java.io.File;
 
 import javax.sql.DataSource;
 
@@ -94,17 +95,25 @@ public class DBManager {
     private static ResourceUser<PreparedStatement, Integer, SQLException> intUser;
     private static ResourceUser<PreparedStatement, Collection<Blog>, SQLException> blogsUser;
     private static ResourceUser<PreparedStatement, Collection<LinkedBlog>, SQLException> linkedBlogsUser;
+    private static String dbPropFileName = "etc/sql-silo-echintha.prop";
 
 
     public DBManager() throws SQLException {
         initialize();
     }
-    
+
+
+    public DBManager(String dbFileName) throws SQLException {
+        dbPropFileName = dbFileName;
+        initialize();
+    }
+
     private static void initialize() throws SQLException {
         try {
             // dataSource might have already been initialized
             if (dataSource == null) {
-                FileInputStream propstream = new FileInputStream("etc/sql-silo.prop");
+
+                FileInputStream propstream = new FileInputStream(dbPropFileName);
 
                 Properties prop = new Properties();
                 prop.load(propstream);
@@ -113,6 +122,7 @@ public class DBManager {
                 dataSource = BasicDataSourceFactory.createDataSource(prop);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new SQLException("Connection unavailable");
         }
     }
@@ -140,16 +150,20 @@ public class DBManager {
             intUser =
                 new ResourceUser<PreparedStatement, Integer, SQLException>() {
 
-                    public Integer run(PreparedStatement stmt) throws SQLException {
-                        // TODO Auto-generated method stub
-                        ResultSet rs = stmt.executeQuery();
-                        int answer;
-                        if (!rs.first()) {
-                            // something is really really wrong, but just return 0
-                            answer = 0;
+                    public Integer run(PreparedStatement stmt) {
+                        int answer = 0;
+                        try {
+// TODO Auto-generated method stub
+                            ResultSet rs = stmt.executeQuery();
+                            if (!rs.first()) {
+                                // something is really really wrong, but just return 0
+                                answer = 0;
+                            }
+                            answer = rs.getInt(1);
+                            rs.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
                         }
-                        answer = rs.getInt(1);
-                        rs.close();
                         return answer;
                     }
             };

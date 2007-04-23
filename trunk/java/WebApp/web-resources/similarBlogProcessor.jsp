@@ -14,7 +14,7 @@
 <%
     // first get the two urls from the request
     String firstURL = request.getParameter("firstURL");
-    String secondURL = request.getParameter("secondURL");
+//    String secondURL = request.getParameter("secondURL");
 
 
     FrontEndHelper frontEndHelper = new FrontEndHelper();
@@ -24,15 +24,15 @@
         // very bad, user has not provided us with a proper link, I'm gonna complain
 %>
 <h3>First URL you provided (<%=firstURL%>) is not linking to a blog.</h3>
-<%
-} else if (secondURL != null && !"".equals(secondURL) && !frontEndHelper.isBlog(URLDecoder.decode(secondURL))) {
-%>
-<h3>Second URL you provided (<%=secondURL%>) is not linking to a blog.</h3>
+<%--<%--%>
+<%--} else if (secondURL != null && !"".equals(secondURL) && !frontEndHelper.isBlog(URLDecoder.decode(secondURL))) {--%>
+<%--%>--%>
+<%--<h3>Second URL you provided (<%=secondURL%>) is not linking to a blog.</h3>--%>
 <%
 } else {
     // if yes, get the relevant results
 
-    BlogSearchResult[] results = frontEndHelper.getRelevantBlogs(URLDecoder.decode(firstURL), URLDecoder.decode(secondURL));
+    BlogSearchResult[] results = frontEndHelper.getRelevantBlogs(URLDecoder.decode(firstURL));
 
     // display it to the user
     if (results.length == 0) {

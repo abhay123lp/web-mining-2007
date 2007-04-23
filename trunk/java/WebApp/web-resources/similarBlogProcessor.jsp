@@ -48,15 +48,18 @@
     </tr>
     <%
         for (BlogSearchResult result : results) {
+            String url = result.getUrl();
+            if (!firstURL.equals(url)) {
     %>
     <tr bgcolor="#dbeaf5" align="left">
-        <td width="50%"><font color="#ffffff"><a href="<%=result.getUrl()%>"><%=result.getUrl()%>
+        <td width="50%"><font color="#ffffff"><a href="<%=url%>"><%=url%>
         </a> </font></td>
         <td width="10%"><font color="#ffffff"><a
                 href="<%=result.getScore()%>"><%=result.getScore()%>
         </a> </font></td>
     </tr>
     <%
+            }
         }
     %>
 </table>

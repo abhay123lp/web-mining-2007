@@ -50,10 +50,21 @@ Michael D. Conover \\
 \maketitle
 \begin{abstract}
 
-We hypothesize that blogs form a web of communities; i.e. that the
-link structure exposes semantic similarity. We have developed a
-framework that rank blogs based on their similarity to a query.
-
+%We hypothesize that blogs form a web of communities; i.e. that the
+%link structure exposes semantic similarity. We have developed a
+%framework that rank blogs based on their similarity to a query.
+%
+% From Mike
+Every day 175,000 new blogs are created, added at a rate of two per
+second to the sixty million-plus online journals already chronicling
+everything from politics, knitting, and finance to the latest advances
+in the sciences and technology~\cite{Disc07}. With this explosive growth come
+many unique challenges, and chief among them is the identification of
+information most relevant to each unique information consumer.  To
+address this problem we have created a system which harnesses the
+social network-like topology of the blogosphere to recommend relevant
+blogs to users based on sites they already know and enjoy.
+%%%
 
 \end{abstract}
 
@@ -62,22 +73,36 @@ framework that rank blogs based on their similarity to a query.
 %A category including the fourth, optional field follows...
 \category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
 
-\terms{Delphi theory}
+\terms{blogosphere, blogroll, FOAF}
 
 \keywords{ACM proceedings, \LaTeX, text tagging}
 
 \section{Introduction}
 
-Past studies have shown that the World Wide Web is organized into web
-communities, and that semantically similar sites can be identified
-based on their link structures.
+%Past studies have shown that the World Wide Web is organized into web
+%communities, and that semantically similar sites can be identified
+%based on their link structures.
 
-\textbf{[TODO: Mike, have a look at this]} -- We hypothesize that a
-similar organizational structure is present in the blogosphere: that
-blogs are more likely to link to blogs of a similar topic. As such,
-algorithms that have been shown to work on the web in general should
-also work, but we also develop a novel algorithm that is more suited
-to the link patterns observed in blogs.
+%\textbf{[TODO: Mike, have a look at this]} -- We hypothesize that a
+%similar organizational structure is present in the blogosphere: that
+%blogs are more likely to link to blogs of a similar topic. As such,
+%algorithms that have been shown to work on the web in general should
+%also work, but we also develop a novel algorithm that is more suited
+%to the link patterns observed in blogs.
+%
+%From Mike
+The blogosphere is a highly social place; an analysis of its
+hyperlink structure demonstrates the emergence of tightly-clustered
+topical communities of bloggers with many participants engaged in
+interactive discussions of current events. It is this social property
+of the blogosphere that motivates the
+``friend-of-a-friend''-style recommendation system we
+have proposed. Intuitively, the more friends two strangers have in
+common, the more likely it is that they share common tastes and
+interests.  Likewise, because the blogosphere exhibits many properties
+of a social network, it is reasonable to posit that the more neighbors
+two blogs have in common, the more they share some common appeal.
+%%%
 
 \section{Related Work}
 
@@ -89,36 +114,119 @@ Dean and Henzinger~\cite{dean1999frp} described two algorithms (one
 derived from HITS) that use link information to identify related web
 pages.
 
-\section{Algorithms}
-\subsection{Secret Sauce}
-This algorithm is based on Friend-of-a-Friend (FOAF). The rationale is
-that a blog is likely to cite other blogs (that we call the \emph{D1}
-set, for distance=1) that share at least a single topic of common
-interest. The blogs that these blogs cite (\emph{D2}) should thus also
-include those on that shared topic, and the more paths there are to a
-\emph{D2} blog (through any blog in \emph{D1}), the more likely this
-blog is to be relevant, since more of the source blog's friend agrees
-on it.
+\section{Graph of the Blogosphere}
+In addition to the regular hyperlinks present in posts, a common
+feature of many blogs is the ``blogroll'', a set of
+links to other sites that the author has identified as interesting and
+enjoyable.  It is because of this characteristic of blogroll links
+that led us to choose them as the primary source for network data in
+the development of our recommendation system.
 
+To populate our dataset we utilized information provided by the site
+\texttt{blogrolling.com}, which monitors the inbound blogroll
+connections to thousands of sites.  We seeded our data collection
+efforts with the URLs of the 500 most popular blogs, as identified by
+the blog-monitoring site technorati.com.  The inbound links to each of
+these sites according to blogrolling.com were recorded, and the source
+URLs were added to the collection queue.  This process was allowed to
+continue until we had identified 467,477 links between 50,448 blogs.
+%{CHANGE THIS WHEN DATA IS CLEANED}.
 
-\subsection{HITS}
+\section{Recommendation}
+Our FOAF technique allows a user to find blogs that are similar to one
+with which he is already familiar.  To accomplish this the algorithm
+must first identify a set of candidate blogs and then rank the
+members of that set according to a scoring measure.
 
-\subsection{HITS with Co-citation and Co-reference}
+For any given blog it is be trivial for a user to identify the sites
+listed in the blogroll as candidates of potential interest.  Ranking
+these sites in terms of relevance may be more difficult due to the
+sheer size of many blogrolls, however this task is still tractable if
+the user visits each site and makes a decision about relevance in that
+manner.  To extend this process further, and rank the sites listed in
+the blogrolls of each one of the initial set of sites would be
+prohibitively tedious.  We seek to approximate this process
+algorithmically instead.
 
-This uses the standard HITS implementation, but the initial subgraph
-is enriched with sites that co-refer the same targets and sites that
-are co-cited (a parent site links to both the source site and this
-site)
+\subsection{Identifying Candidates}
+Our system mimics the user's decision making behavior in the following
+way.  For the original blog of interest, $B$, the FOAF algorithm
+populates a network with directed edges from a node representing $B$ to
+nodes representing all of the blogs listed in $B$'s blogroll.  This set
+of sinks is called $D_1$.  This process is then repeated for each of the
+blog-nodes in the $D_1$ set, with the resulting sinks becoming memebers
+of another set, $D_2$.  It should be noted that some of the nodes in $D_1$
+may be linked to by other nodes in $D_1$, and thus have membership in
+both $D_1$ and $D_2$.  Through this process our algorithm identifies all of
+the ``friends-of-a-friend'' for the original blog, $B$.
 
-\section{Implementation}
-\subsection{Graph Framework}
+\subsection{Ranking Candidates}
+We experimented with three measures used for scoring blogs, all based
+on the number of mutual neighbors, or friends, that a specific member
+of $D_2$, called $D'$, shares with the original blog $B$.
 
-We build our graph framework on top of the open-source Java Unified
-Network/Graph Framework, adding
+\subsection{Raw Score}
+The first  measure with which we experimented  simply scores according
+to the  number of mutual  neighbors between $D'$  and $B$.  This  score is
+normalized to be between zero and  one by dividing by the total number
+of possible neighbors.
 
+\begin{equation}
+RS(D') = \frac{\lvert Neighbors \rvert}{\lvert Nodes in D_1 \rvert}
+\end{equation}
 
-\subsection{Web Application}
-We have written a web interface 
+One problem with this approach is that extremely popular blogs with
+very high in-degree will naturally tend to have more neighbors in
+common with any given node simply due to their high levels of
+connectivity.  As a result, this measure leads to an
+over-representation of highly popular sites in the result set.
+
+\subsection{Community-Weighted Measure}
+To address the problem of over-representation of the most popular
+nodes we decided to try an approach that weighted the original raw
+score for a given node by the degree to which it was a member of the
+community surrounding the original node B.  For each node this is
+approximated by dividing the number of in-links from members $D_1$ and $D_2$
+by the total in-degree of that node.
+
+\begin{equation}
+S2(D') = RS(D') \times \frac{[Inlinks from D_1 + D_2]}{[ Global In-Degree]}
+\end{equation}
+
+While this did effectively eliminate the over-representation of
+globally popular nodes from the result set, it also penalized blogs
+that were legitimately related to blog B but had a broad appeal.  For
+example, a photography blog that also covered technology-related
+issues would appeal to members of both photography and technology
+communities, and thus the relative in-degree from members of either
+community exclusively is diminished.
+
+%\section{Algorithms}
+%\subsection{Secret Sauce}
+%This algorithm is based on Friend-of-a-Friend (FOAF). The rationale is
+%that a blog is likely to cite other blogs (that we call the \emph{D_1}
+%set, for distance=1) that share at least a single topic of common
+%interest. The blogs that these blogs cite (\emph{D_2}) should thus also
+%include those on that shared topic, and the more paths there are to a
+%\emph{D_2} blog (through any blog in \emph{D_1}), the more likely this
+%blog is to be relevant, since more of the source blog's friend agrees
+%on it.
+
+%\subsection{HITS}
+
+%\subsection{HITS with Co-citation and Co-reference}
+%This uses the standard HITS implementation, but the initial subgraph
+%is enriched with sites that co-refer the same targets and sites that
+%are co-cited (a parent site links to both the source site and this
+%site)
+
+%\section{Implementation}
+%\subsection{Graph Framework}
+%We build our graph framework on top of the open-source Java Unified
+%Network/Graph Framework, adding
+
+%\subsection{Web Application}
+%We have written a web interface 
 
 %\section{Results}
 %\section[Discussion}

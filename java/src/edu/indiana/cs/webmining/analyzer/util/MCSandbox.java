@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 
 public class MCSandbox {
 
-	private final static int MAX_THREADS = 1;
+	private final static int MAX_THREADS = 20;
 	
 	private static ExecutorService threadPool;
 

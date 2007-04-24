@@ -79,19 +79,6 @@ public class DBManager {
 
     private Connection conn;
 
-    private PreparedStatement stmtGetBlog;
-    private PreparedStatement stmtGetAllBlogs;
-    private PreparedStatement stmtGetAllLinks;
-    private PreparedStatement stmtGetPredecessors;
-    private PreparedStatement stmtGetSuccessors;
-    private PreparedStatement stmtGetOutDegree;
-    private PreparedStatement stmtGetInDegree;
-    private PreparedStatement stmtAddBlog;
-    private PreparedStatement stmtAddExtBlog;
-    private PreparedStatement stmtGetBlogID;
-    private PreparedStatement stmtAddLink;
-    private PreparedStatement stmtGetBlogCount;
-
     // sql.prop should symlink to the correct file
     private static String dbPropFileName = "etc/sql.prop";
 
@@ -197,11 +184,8 @@ public class DBManager {
     /* Prepared Statements */
 
     private PreparedStatement getStmtGetBlog() throws SQLException {
-        if (stmtGetBlog == null || conn.isClosed()) {
-            stmtGetBlog = getConnection().prepareStatement(
-                    "SELECT id FROM blogs " + "WHERE url=?");
-        }
-        return stmtGetBlog;
+        return getConnection().prepareStatement(
+                "SELECT id FROM blogs " + "WHERE url=?");
     }
 
     private PreparedStatement getStmtGetPredecessors() throws SQLException {
@@ -312,18 +296,14 @@ public class DBManager {
     }
 
     public Collection<Blog> getAllBlogs() throws SQLException {
-        if (stmtGetAllBlogs == null || conn.isClosed()) {
-            stmtGetAllBlogs = getConnection().prepareStatement(
+        PreparedStatement stmt = getConnection().prepareStatement(
                     "SELECT id, url FROM blogs;");
-        }
-        return getBlogsUser().use(stmtGetAllBlogs);
+        return getBlogsUser().use(stmt);
     }
 
     public ArrayList<Link> getAllLinks() throws SQLException {
-        if (stmtGetAllLinks == null || conn.isClosed()) {
-            stmtGetAllLinks = getConnection().prepareStatement(
+        PreparedStatement stmt = getConnection().prepareStatement(
                     "SELECT srcid, destid FROM links;");
-        }
         ResourceUser<PreparedStatement, ArrayList<Link>, SQLException> user = new ResourceUser<PreparedStatement, ArrayList<Link>, SQLException>() {
 
             public void run()
@@ -340,30 +320,28 @@ public class DBManager {
                 return;
             }
         };
-        return user.use(stmtGetAllLinks);
+        return user.use(stmt);
     }
 
     private void addBlog(String url) throws SQLException {
-        if (stmtAddBlog == null || conn.isClosed()) {
-            stmtAddBlog = getConnection().prepareStatement(
-                    "INSERT INTO blogs (url) " + "VALUES (?)");
-        }
-        stmtAddBlog.setString(1, url);
-        stmtAddBlog.execute();
+        PreparedStatement stmt = getConnection().prepareStatement(
+                "INSERT INTO blogs (url) " + "VALUES (?)");
+       
+        stmt.setString(1, url);
+        stmt.execute();
         return;
     }
 
     private int getBlogID(String url) throws SQLException {
 
         //      System.out.println("Looking up internal ID for " + url);
-        if (stmtGetBlogID == null || conn.isClosed()) {
-            stmtGetBlogID = getConnection().prepareStatement(
+        PreparedStatement stmt = getConnection().prepareStatement(
                     "SELECT id FROM blogs " + "WHERE url=?;");
-        }
-        stmtGetBlogID.setString(1, url);
+        
+        stmt.setString(1, url);
 
         int res;
-        ResultSet results = stmtGetBlogID.executeQuery();
+        ResultSet results = stmt.executeQuery();
         if (results.first()) {
             res = results.getInt(1);
         } else {
@@ -376,11 +354,9 @@ public class DBManager {
 
     public int addExtBlog(String url) throws SQLException,
             MalformedURLException {
-        if (stmtAddExtBlog == null || conn.isClosed()) {
-            stmtAddExtBlog = getConnection().prepareStatement(
-                    "INSERT IGNORE INTO extblogs (url, internal_id) "
-                            + "VALUES (?, ?);");
-        }
+        PreparedStatement stmt = getConnection().prepareStatement(
+                "INSERT IGNORE INTO extblogs (url, internal_id) "
+                + "VALUES (?, ?);");
         String sanitized_url = BlogUtils.sanitizeURL(url);
         int internal_id = getBlogID(sanitized_url);
 
@@ -388,10 +364,10 @@ public class DBManager {
         //      + sanitized_url + ", "
         //      + internal_id + ")");
 
-        stmtAddExtBlog.setString(1, url);
-        stmtAddExtBlog.setInt(2, internal_id);
+        stmt.setString(1, url);
+        stmt.setInt(2, internal_id);
 
-        stmtAddExtBlog.execute();
+        stmt.execute();
         return internal_id;
     }
 
@@ -399,16 +375,14 @@ public class DBManager {
         try {
             final int srcid = addExtBlog(src);
             final int destid = addExtBlog(dest);
-            if (stmtAddLink == null || conn.isClosed()) {
-                stmtAddLink = getConnection().prepareStatement(
-                        "INSERT IGNORE INTO links (srcid, destid) "
-                                + "VALUES (?, ?);");
-            }
+            PreparedStatement stmt = getConnection().prepareStatement(
+                    "INSERT IGNORE INTO links (srcid, destid) "
+                    + "VALUES (?, ?);");
+            
+            stmt.setInt(1, srcid);
+            stmt.setInt(2, destid);
 
-            stmtAddLink.setInt(1, srcid);
-            stmtAddLink.setInt(2, destid);
-
-            getVoidUser().use(stmtAddLink);
+            getVoidUser().use(stmt);
         } catch (SQLException e) {
             System.err.println("Link addition failed:");
             System.err.println(e.getMessage());

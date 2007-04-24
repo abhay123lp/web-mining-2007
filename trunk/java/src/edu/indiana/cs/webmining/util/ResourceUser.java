@@ -83,7 +83,7 @@ public abstract class ResourceUser<R, T, E extends Exception> {
             this.run();
         } finally {
             if (rsrc != null &&
-                    !(rsrc instanceof PreparedStatement) &&
+                    // !(rsrc instanceof PreparedStatement) &&
                     (rsrc instanceof Statement)) {
                 try {
                     ((Statement)rsrc).close();

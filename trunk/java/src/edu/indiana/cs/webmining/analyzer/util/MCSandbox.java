@@ -134,11 +134,15 @@ public class MCSandbox {
             	public Counter(int start) {
             		count = start;
             	}
-            	public synchronized int get() {
-            		return count;
+            	public int get() {
+            		synchronized (this) {
+            			return count;
+            		}
             	}
-            	public synchronized void inc() {
-            		count++;
+            	public void inc() {
+            		synchronized (this) {
+            			count++;
+            		}
             	}
             }
             final Counter nodecount = new Counter(0);

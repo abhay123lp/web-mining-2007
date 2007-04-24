@@ -18,6 +18,8 @@ import edu.uci.ics.jung.graph.decorators.VertexStringer;
 import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.impl.SimpleDirectedSparseVertex;
+import edu.uci.ics.jung.statistics.GraphStatistics;
+import edu.uci.ics.jung.statistics.Histogram;
 import edu.uci.ics.jung.utils.UserData;
 
 import java.sql.SQLException;
@@ -25,6 +27,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+
+import cern.colt.list.DoubleArrayList;
 
 /**
  * @author Michel Salim <msalim@cs.indiana.edu>
@@ -210,5 +215,47 @@ public class JungController implements GraphController, VertexStringer, NumberEd
 
     public Graph getGraph() {
         return graph;
+    }
+    
+    public double getAvgClusteringCoefficients() {
+        double total = 0.0;
+        Map coefficients = GraphStatistics.clusteringCoefficients(graph);
+        for (Object v: coefficients.values()) {
+            total += (v instanceof Double ? (Double)v : 0.0);
+        }
+        return (total / coefficients.size());
+    }
+    
+    public Histogram getIndegreeHistogram() {
+        DoubleArrayList indegrees = new DoubleArrayList();
+        for (Object o: graph.getVertices()) {
+            if (o instanceof Vertex) {
+                Vertex v = (Vertex)o;
+                indegrees.add(v.inDegree());
+            }
+        }
+        return GraphStatistics.createHistogram(indegrees, 0, 10, 3);
+    }
+    
+    public Histogram getOutdegreeHistogram() {
+        DoubleArrayList outdegrees = new DoubleArrayList();
+        for (Object o: graph.getVertices()) {
+            if (o instanceof Vertex) {
+                Vertex v = (Vertex)o;
+                outdegrees.add(v.outDegree());
+            }
+        }
+        return GraphStatistics.createHistogram(outdegrees, 0, 10, 3);
+    }
+    public Histogram getTotalDegreeHistogram() {
+        DoubleArrayList degrees = new DoubleArrayList();
+        for (Object o: graph.getVertices()) {
+            if (o instanceof Vertex) {
+                Vertex v = (Vertex)o;
+                degrees.add(v.inDegree());
+                degrees.add(v.outDegree());
+            }
+        }
+        return GraphStatistics.createHistogram(degrees, 0, 10, 3);
     }
 }

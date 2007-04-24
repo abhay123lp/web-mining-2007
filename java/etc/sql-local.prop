@@ -3,6 +3,7 @@
 driverClassName=com.mysql.jdbc.Driver
 url=jdbc:mysql://localhost/
 maxActive=40
+maxIdle = 20
 maxWait=500
 defaultCatalog=webmining
 username=webminer

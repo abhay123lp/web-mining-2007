@@ -133,12 +133,11 @@ public class DBManager {
             public void run() throws SQLException {
                 result = 0;
                 ResultSet rs = rsrc.executeQuery();
-                if (!rs.first()) {
-                    // something is really really wrong, but just return 0
-                    result = 0;
+                if (rs.first()) {
+                    result = rs.getInt(1);
                 }
-                result = rs.getInt(1);
                 rs.close();
+                return;
             }
         };
     }
@@ -251,9 +250,10 @@ public class DBManager {
         Blog answer = null;
         PreparedStatement stmt = getStmtGetBlog();
         stmt.setString(1, url);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.first()) {
-            answer = new Blog(rs.getInt(1), url);
+        int id = getIntUser().use(stmt);
+
+        if (id != 0) {
+            answer = new Blog(id, url);
         }
         return answer;
     }
@@ -323,14 +323,6 @@ public class DBManager {
         return user.use(stmt);
     }
 
-    private void addBlog(String url) throws SQLException {
-        PreparedStatement stmt = getConnection().prepareStatement(
-                "INSERT INTO blogs (url) " + "VALUES (?)");
-       
-        stmt.setString(1, url);
-        stmt.execute();
-        return;
-    }
 
     private int getBlogID(String url) throws SQLException {
 
@@ -340,34 +332,37 @@ public class DBManager {
         
         stmt.setString(1, url);
 
-        int res;
-        ResultSet results = stmt.executeQuery();
-        if (results.first()) {
-            res = results.getInt(1);
-        } else {
+        int result = getIntUser().use(stmt);
+        if (result==0) {
             addBlog(url);
-            res = getBlogID(url);
+            result = getBlogID(url);
         }
-        results.close();
-        return res;
+        return result;
     }
 
+    public void addBlog(String url) throws SQLException {
+        PreparedStatement stmt = getConnection().prepareStatement(
+                "INSERT INTO blogs (url) VALUES (?);");
+        stmt.setString(1, url);
+        getVoidUser().use(stmt);
+        return;
+    }
+    
     public int addExtBlog(String url) throws SQLException,
             MalformedURLException {
         PreparedStatement stmt = getConnection().prepareStatement(
                 "INSERT IGNORE INTO extblogs (url, internal_id) "
                 + "VALUES (?, ?);");
         String sanitized_url = BlogUtils.sanitizeURL(url);
+        
+        // get the internal ID
         int internal_id = getBlogID(sanitized_url);
-
-        //      System.out.println("Adding (" + url + ", "
-        //      + sanitized_url + ", "
-        //      + internal_id + ")");
 
         stmt.setString(1, url);
         stmt.setInt(2, internal_id);
 
-        stmt.execute();
+        // Create the extblogs entry
+        getVoidUser().use(stmt);
         return internal_id;
     }
 
@@ -386,6 +381,7 @@ public class DBManager {
         } catch (SQLException e) {
             System.err.println("Link addition failed:");
             System.err.println(e.getMessage());
+            System.err.println("when processing " + src + " and " + dest);
         }
     }
 

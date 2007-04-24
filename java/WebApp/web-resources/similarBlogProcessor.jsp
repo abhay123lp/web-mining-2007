@@ -44,7 +44,7 @@
 <table cellspacing="1" cellpadding="3" border="0" width="60%">
     <tr bgcolor="#4682B4">
         <th align="center" width="50%"><font color="#ffffff">Blog URL</font></th>
-        <th align="center" width="10%"><font color="#ffffff">Score</font></th>
+        <!--<th align="center" width="10%"><font color="#ffffff">Score</font></th>-->
     </tr>
     <%
         for (BlogSearchResult result : results) {
@@ -54,9 +54,9 @@
     <tr bgcolor="#dbeaf5" align="left">
         <td width="50%"><font color="#ffffff"><a href="<%=url%>"><%=url%>
         </a> </font></td>
-        <td width="10%"><font color="#ffffff"><a
-                href="<%=result.getScore()%>"><%=result.getScore()%>
-        </a> </font></td>
+        <%--<td width="10%"><font color="#ffffff"><a--%>
+        <%--href="<%=result.getScore()%>"><%=result.getScore()%>--%>
+        <%--</a> </font></td>--%>
     </tr>
     <%
             }

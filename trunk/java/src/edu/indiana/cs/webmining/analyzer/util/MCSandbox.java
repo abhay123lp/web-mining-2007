@@ -8,6 +8,7 @@ import edu.uci.ics.jung.graph.DirectedEdge;
 import edu.uci.ics.jung.graph.Vertex;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 import edu.uci.ics.jung.io.PajekNetWriter;
+import edu.uci.ics.jung.algorithms.importance.HITS;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -124,7 +125,6 @@ public class MCSandbox {
 
             Map<String, Integer> InDegrees = Collections.synchronizedMap(new HashMap<String, Integer>());
 
-
             int intcount = 0;
  
             // Need to box this
@@ -192,7 +192,7 @@ public class MCSandbox {
 							}
 							
 						}
-	                    // Count Total # of Nodes
+	                    // Count Total # of Neighbors
 	                    if (count.containsKey(url)) {
 	                        count.put(url, count.get(url) + 1);
 	                    } else {
@@ -224,27 +224,66 @@ public class MCSandbox {
             int N = dbman.getBlogCount();
             //int N = descTree.numVertices();
             for (String url : InDegrees.keySet()) {
-                double Kb = InDegrees.get(url);
-                double Q = count.get(url);
+                Vertex v = jc.getVertexByURL(url);
+                
+                double Kb = InDegrees.get(url);                
+                double Q = count.get(url);                
                 double score = 0;
+                int subGraphInDegree = v.inDegree();
+                
+                // Ka = OutDegree of Source URL
+                // Q = Number of Neighbors in Common with Source
+                // Kb = Global InDegree
                 // Secret Sauce
                 if (method == 1) {
-                    score = 1 / (Math.pow(Ka, Q) * Math.pow(((N - 2.0 - Ka) / (N - 2.0)), (Kb - Q)) * Math.pow(10, 200)) / (Math.pow((N - 2.0), Q)) * Math.pow(10, 200);
+                    //score = 1 / (Math.pow(Ka, Q) * Math.pow(((N - 2.0 - Ka) / (N - 2.0)), (Kb - Q)) * Math.pow(10, 200)) / (Math.pow((N - 2.0), Q)) * Math.pow(10, 200);
+                    //double prob = 1 / Math.pow((Ka / (N-2.0)),Q) * Math.pow( ( (N-2-Ka) / (N-2)), (Kb-Q));
+                    System.out.println(url + "\n");
+                    double PartOne = 1;
+                    for(int i=0;i<Q;i++)
+                    {
+                        PartOne += Math.log( Ka / (N-2) );
+                        System.out.println(PartOne + "\n");
+                        
+                    }
+                    //PartOne = Math.pow(PartOne,Math.E);
+                    
+                    double PartTwo = 1;
+                    for(int i=0;i<(Kb-Q);i++)
+                    {
+                        PartTwo += Math.log( (N-2-Ka) / (N-2) );
+                        
+                    }
+                    //PartTwo = Math.pow(PartTwo,Math.E);
+                    
+                    double 
+                    prob = -PartOne * PartTwo;
+                    prob = 1/prob;
+                    
+                    score = Q * prob;
+                    //System.out.println(url + ", " + prob + ", " + Q + ", " + score);
                 }
                 if (method == 2) {
                     score = Q;
                 }
                 if (method == 3) {
-                    Vertex v = jc.getVertexByURL(url);
-                    int subGraphInDegree = v.inDegree();
+                    
+                 
                     score = Math.pow(Q, 2) * (subGraphInDegree / Kb);
 
-                    System.out.println(url + ", " + score + ", " + Kb + ", " + subGraphInDegree
-                    );
+                    //System.out.println(url + ", " + score + ", " + Kb + ", " + subGraphInDegree
+                   //);
                 }
                 if(method==4)
                 {
-                    score = Ka / Q;                                   
+                    
+                    score = (Q / Ka) * (subGraphInDegree / Kb);   
+                    //System.out.println(url + ": " + subGraphInDegree + ", " + Kb );
+                }
+                if(method==5)
+                {                    
+                    score = (Q / Ka);
+                   // System.out.println(url + ", " + (subGraphInDegree / Kb) );
                 }
                 scores.put(url, score);
 
@@ -262,123 +301,30 @@ public class MCSandbox {
 
 
     }
-
-
-    private static HashMap<String, Integer> neighbors(String blog) {
-        try {
-            JungController jc = new JungController();
-            DBManager dbman = jc.getDBcontroller();
-
-            DirectedSparseGraph descTree = new DirectedSparseGraph();
-
-            // NorthAmericanPatriot
-            // BusyMom
-            Blog b = new Blog(0, blog);
-            Vertex sourceVertex = jc.makeVertex(b);
-            descTree.addVertex(sourceVertex);
-
-            HashMap<String, Integer> count = new HashMap<String, Integer>();
-            HashMap<String, Integer> degree = new HashMap<String, Integer>();
-
-            // Create Downstream Level 1
-            Collection<LinkedBlog> lb = dbman.getSuccessors(b.getUrl());
-            Collection<Vertex> D1_Vertices = makeVerticesFromLinkedBlogs(lb, jc);
-            AddVerticesToGraph(D1_Vertices, descTree);
-
-            Collection<DirectedEdge> O_D1_Edges = jc.createEdges(sourceVertex, D1_Vertices);
-            AddEdgesToGraph(O_D1_Edges, descTree);
-
-            int intcount = 0;
-            int nodecount = 0;
-
-            for (Vertex v : D1_Vertices) {
-                String expand_url = (String) v.getUserDatum("url");
-                lb = dbman.getSuccessors(expand_url);
-
-                for (LinkedBlog lblog : lb) {
-                    String url = lblog.getBlog().getUrl();
-
-                    // Record Degree of Each Nodes
-                    if (!(degree.containsKey(url))) {
-                        int deg = dbman.getOutDegree(url);
-                        degree.put(url, deg);
-                        //System.out.println(url + ": " + deg);
-                    }
-
-                    // Count Total # of Nodes
-                    if (count.containsKey(url)) {
-                        count.put(url, count.get(url) + 1);
-                    } else {
-                        count.put(url, 1);
-                        nodecount++;
-                    }
-                }
-                ArrayList<Vertex> D2_Vertices = makeVerticesFromLinkedBlogs(lb, jc);
-                AddVerticesToGraph(D2_Vertices, descTree);
-
-                ArrayList<DirectedEdge> D1_D2_Edges = jc.createEdges(v, D2_Vertices);
-                AddEdgesToGraph(D1_D2_Edges, descTree);
-                dbman.closeConnection();
-            }
-
-            System.out.println("Count: " + nodecount + "\n");
-            //edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
-
-            try {
-                BufferedWriter bw1 = new BufferedWriter(new FileWriter("/home/gonzo/results/" + blog + ".csv"));
-                System.out.println(count.size());
-                for (String s : count.keySet()) {
-                    bw1.write(s + "," + count.get(s) + "\n");
-                }
-                bw1.close();
-            }
-
-            catch (Exception e) {
-                int i = 0;
-            }
-
-            //hits.evaluate();
-            //hits.printRankings(true, true);
-
-            PajekNetWriter pw = new PajekNetWriter();
-
-
-            try {
-                pw.save(descTree, "/home/gonzo/pajek.net", jc, jc);
-            }
-            catch (Exception e) {
-                System.err.println("File Not Written");
-            }
-
-            System.out.println("Complete");
-
-            return count;
-        }
-        catch (SQLException e) {
-            System.err.println("Database failure: " + e.getMessage());
-            return null;
-        }
-    }
-
+    
 
     public static void main(String[] args) {
 
         //String blog1 = "theblacknewyorker.blogspot.com";
-        //String blog1 = "www.chronopolisnewyork.com";
+        //String blog1 = "chronopolisnewyork.com";
 
         //String blog1 = "muslims-r-us.blogspot.com";
         //String blog2 = "martijn.religionresearch.org";
 
-        //String blog1 = "www.conservativelife.com";
+        //String blog1 = "conservativelife.com";
         //String blog2 = "rightfaith.blogspot.com";
 
-        //String blog1 = "www.photojunkie.ca";
+        //String blog1 = "photojunkie.ca";
         //String blog2 = "toronto.photobloggers.org";
 
         //String blog1 = "toronto.metblogs.com";
         //String blog2 = "mividaentoronto.blogspot.com";
 
-        String blog1 = "busymom.net";
+        //String blog1 = "sandysknitting.com";
+        
+        // String blog1 = "talkleft.com";
+        
+        String blog1 = "dooce.com";
         String blog2 = "boingboing.net";
 
         ArrayList<String> blogs = new ArrayList<String>();
@@ -398,13 +344,36 @@ public class MCSandbox {
             
             for(String blog : blogs)
             {                           
-
-                DBManager dbm = new DBManager();
                 DirectedSparseGraph descTree = getNeighborsGraph(blog, jc);
-                HashMap<String, Double> singleBlogScores = getFOAF(descTree, jc, blog, 2);                
+                HashMap<String, Double> singleBlogScores = getFOAF(descTree, jc, blog, 4);                
                 arrScoreHashes.add(singleBlogScores);                
                 toFileScore(singleBlogScores, blog, "");
+                
+                
+                edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
+                hits.setUseAuthorityForRanking(true);
+                hits.setRemoveRankScoresOnFinalize(false);
+                hits.evaluate();
+
+               
+                  Set<Vertex> succSet = descTree.getVertices();
+                Iterator<Vertex> succIter = succSet.iterator();
+
+                ArrayList<Vertex> vertices = new ArrayList();
+                while(succIter.hasNext())
+                {
+                    Vertex v = succIter.next();
+                    double score = hits.getRankScore(v);
+                    String url = jc.getLabel(v);
+                    
+                    System.out.println(url + ", " + score );
+
+                }
             }
+            
+            
+           
+            
             
             HashSet<String> intersection = new HashSet<String>();
             
@@ -431,43 +400,24 @@ public class MCSandbox {
                    
                    if(finalScore.containsKey(url))
                    {
-                       finalScore.put(url, (val * finalScore.get(url)) );  
+                       double oldScore = finalScore.get(url);
+                       
+                       finalScore.put(url, (val * finalScore.get(url)) ); 
+                       
                    }
                    else
                    {
                        finalScore.put(url,val);                       
                    }                   
                }
-           }
+    
+        }
            
-           toFileScore(finalScore, "final", "");
            
-//            edu.uci.ics.jung.algorithms.importance.HITS hits = new edu.uci.ics.jung.algorithms.importance.HITS(descTree);
-//            hits.setUseAuthorityForRanking(true);
-//            //hits.setRemoveRankScoresOnFinalize(false);
-//            //hits.evaluate();
-//
-////            HITS companion = new edu.uci.ics.jung.algorithms.importance.HITS(JungController.createCompanionGraph(blog1).getGraph());
-////            companion.setUseAuthorityForRanking(true);
-////            companion.setRemoveRankScoresOnFinalize(false);
-////            companion.evaluate();
-//
-//            edu.uci.ics.jung.algorithms.importance.PageRank pageRank = new edu.uci.ics.jung.algorithms.importance.PageRank(descTree, .15,null);
-//            //pageRank.setRemoveRankScoresOnFinalize(false);
-//            //pageRank.evaluate();
-//
-//            Set<Vertex> succSet = descTree.getVertices();
-//            Iterator<Vertex> succIter = succSet.iterator();
-//
-//            ArrayList<Vertex> vertices = new ArrayList();
-//            while(succIter.hasNext())
-//            {
-//                Vertex v = succIter.next();
-//                double score = hits.getRankScore(v);
-//                String url = jc.getLabel(v);
-//                int deg = dbm.getInDegree(url);
-//                System.out.println(url + "," + score + ", " + deg);
-
+        
+           
+           //toFileScore(finalScore, "busymom", "");
+         
             //         }
         } catch (SQLException e) {
             // TODO Auto-generated catch block
@@ -481,13 +431,15 @@ public class MCSandbox {
         try {
             DBManager dbm = new DBManager();
 
-            BufferedWriter bw1 = new BufferedWriter(new FileWriter(url + token + ".csv"));
+            BufferedWriter bw1 = new BufferedWriter(new FileWriter("/home/gonzo/results/" + url + token + ".csv"));
             System.out.println(score.size());
+            System.out.println( "Start");
             for (String s : score.keySet()) {
                 int deg = dbm.getInDegree(s);
                 bw1.write(s + "," + score.get(s) + ", " + deg + "\n");
             }
             bw1.close();
+            System.out.println( "End");
         }
 
         catch (Exception e) {

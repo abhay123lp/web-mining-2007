@@ -49,7 +49,22 @@
 
 package edu.indiana.cs.webmining.util;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
+ * ResourceUser
+ * <p>This abstract class provides a built-in method 'use' that takes
+ * a generic resource.</p>
+ * 
+ * <p>Users who extend this class is required to implement a run method
+ * that can return an exception, use the resource variable 'rsrc'
+ * and save the result in 'result'.</p>
+ * 
+ * <p>An instance of this class is used by invoking 'use'; use will invoke the run
+ * method and return the content of the 'result' variable, taking care of closing
+ * the resource if necessary.</p>
  * 
  * @author Michel Salim <msalim@cs.indiana.edu>
  *
@@ -58,6 +73,27 @@ package edu.indiana.cs.webmining.util;
  * @param <E> The exception class associated with the resource
  */
 
-public interface ResourceUser<R, T, E extends Exception> {
-    public T run(R resource) throws E;
+public abstract class ResourceUser<R, T, E extends Exception> {
+    protected R rsrc;
+    protected T result;
+    
+    public T use(R resource) throws E {
+        this.rsrc = resource;
+        try {
+            this.run();
+        } finally {
+            if (rsrc != null &&
+                    !(rsrc instanceof PreparedStatement) &&
+                    (rsrc instanceof Statement)) {
+                try {
+                    ((Statement)rsrc).close();
+                } catch (SQLException e) {
+                    System.err.println("Failed to close statement");
+                }
+            }
+        }
+        return result;
+    }
+    public abstract void run() throws E;
 }
+

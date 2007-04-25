@@ -264,11 +264,9 @@ public class MCSandbox {
                     
                     score = Q * prob;
                     //System.out.println(url + ", " + prob + ", " + Q + ", " + score);
-                }
-                if (method == 2) {
+                } else if (method == 2) {
                     score = Q;
-                }
-                if (method == 3) {
+                } else if (method == 3) {
                     
                  
                     score = Math.pow(Q, 2) * (subGraphInDegree / Kb);
@@ -282,7 +280,7 @@ public class MCSandbox {
                     score = (Q / Ka) * (subGraphInDegree / Kb);   
                     //System.out.println(url + ": " + subGraphInDegree + ", " + Kb );
                 }
-                if(method==5)
+                if(method==Constants.SIM_ALGO_BASIC)
                 {                    
                     score = (Q / Ka);
                    // System.out.println(url + ", " + (subGraphInDegree / Kb) );

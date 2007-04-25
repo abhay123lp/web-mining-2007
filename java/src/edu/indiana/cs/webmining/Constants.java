@@ -80,4 +80,6 @@ public abstract class Constants {
     public static final String STATUS_FAILED = "Failed";
 
     public static final int MAX_THREADS = 20;
+    
+    public static final int SIM_ALGO_BASIC = 5;
 }

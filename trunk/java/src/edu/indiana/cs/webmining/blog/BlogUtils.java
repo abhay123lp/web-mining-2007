@@ -8,6 +8,7 @@ public class BlogUtils {
     /**
      * Sanitizes a URL:
      * - Removes leading 'www.'
+     * - Removes trailing '/'
      * - (TODO) Converts www.livejournal.com/username to username.livejournal.com
      *
      * @param url Original URL
@@ -34,11 +35,16 @@ public class BlogUtils {
         return temp;
     }
 
-    public static void main(String[] args) {
-        if (args.length == 0) {
+    /**
+     * Runs the URL sanitizer from the console
+     * 
+     * @param urls The URLs to sanitize
+     */
+    public static void main(String[] urls) {
+        if (urls.length == 0) {
             System.out.println("Usage: java BlogUtils [urls]");
         }
-        for (String url: args) {
+        for (String url: urls) {
             
             try {
                 System.out.println(url + "\t=>\t" + sanitizeURL(url));

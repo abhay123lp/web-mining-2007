@@ -29,13 +29,13 @@ public class Statistics extends Thread {
 
     //variables to be measured
     private long noTimeouts = 0;
-    private long noRedirections = 0;
+//    private long noRedirections = 0;
     private long noOkay = 0;
     private long noNotFound = 0;
-    private long noThreads = 0;
+//    private long noThreads = 0;
     private long noParseErrors = 0;
-    private long memoryInUse = 0;
-    private long memoryAvailable = 0;
+//    private long memoryInUse = 0;
+//    private long memoryAvailable = 0;
     private long noPagesCrawled = 0;
     private long noFoundInCache = 0;
     private long startTime = 0;

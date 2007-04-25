@@ -54,6 +54,11 @@ package edu.indiana.cs.webmining.blog;
  */
 public class BlogCrawlingException extends Exception {
 
+    /**
+     * UID for serialization
+     */
+    private static final long serialVersionUID = 6224114615968834868L;
+
     public BlogCrawlingException() {
         super();
     }

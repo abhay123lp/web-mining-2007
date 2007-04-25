@@ -57,7 +57,7 @@ public abstract class Constants {
 
     // this is to be polite to the others. Let's let the blog web masters know who we are.
     public static final String HEADER_USER_AGENT = "User-Agent";
-    public static final String USER_AGENT_VAL = "Graudate Class Project-CS-b659-Indiana Universirty Bloomington.";
+    public static final String USER_AGENT_VAL = "Graduate Class Project-CS-b659-Indiana Universirty Bloomington.";
 
     // The link types
     public static final int LINK_BLOG_TO_BLOG = 111;
@@ -79,4 +79,5 @@ public abstract class Constants {
     public static final String STATUS_COMPLETED_PROCESSING = "CompletedProcessing";
     public static final String STATUS_FAILED = "Failed";
 
+    public static final int MAX_THREADS = 20;
 }

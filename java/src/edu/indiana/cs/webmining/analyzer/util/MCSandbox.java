@@ -1,5 +1,6 @@
 package edu.indiana.cs.webmining.analyzer.util;
 
+import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.analyzer.JungController;
 import edu.indiana.cs.webmining.bean.Blog;
 import edu.indiana.cs.webmining.bean.LinkedBlog;
@@ -29,13 +30,12 @@ import java.util.concurrent.Future;
 
 public class MCSandbox {
 
-	private final static int MAX_THREADS = 20;
-	
 	private static ExecutorService threadPool;
 
+    // All clients share the same thread pool
 	public static ExecutorService getThreadPool() {
 		if (threadPool == null) {
-			threadPool = Executors.newFixedThreadPool(MAX_THREADS);
+			threadPool = Executors.newFixedThreadPool(Constants.MAX_THREADS);
 		}
 		return threadPool;
 	}
@@ -116,7 +116,6 @@ public class MCSandbox {
     }
 
 
-    @SuppressWarnings("unchecked")
     public static HashMap<String, Double> getFOAF(DirectedSparseGraph descTree, JungController jc, String sourceUrl, int method) {
         try {
 
@@ -125,8 +124,6 @@ public class MCSandbox {
 
             Map<String, Integer> InDegrees = Collections.synchronizedMap(new HashMap<String, Integer>());
 
-            int intcount = 0;
- 
             // Need to box this
             
             class Counter {
@@ -149,17 +146,18 @@ public class MCSandbox {
 
             Vertex source = jc.getVertexByURL(sourceUrl);
 
-            Set<Vertex> succSet = source.getSuccessors();
-            Iterator<Vertex> succIter = succSet.iterator();
+            ArrayList<Vertex> D1_Vert = new ArrayList<Vertex>();
 
-            ArrayList<Vertex> D1_Vert = new ArrayList();
+            Set succSet = source.getSuccessors();
+            for (Object o: source.getSuccessors()) {
+                if (o instanceof Vertex) {
+                    D1_Vert.add((Vertex)o);
+                }
+                
+            }
 
             final DBManager dbman = jc.getDBcontroller();
             int Ka = dbman.getOutDegree(sourceUrl);
-
-            while (succIter.hasNext()) {
-                D1_Vert.add(succIter.next());
-            }
 
 
             final class ProcessD1 implements Runnable {
@@ -177,7 +175,11 @@ public class MCSandbox {
             	
 				public void run() {
 					for (Object o: v.getSuccessors()) {
-						Vertex node = (o instanceof Vertex) ? (Vertex) o : null;
+                        if (!(o instanceof Vertex)) {
+                            // Should never happen, but keep Eclipse happy
+                            continue;
+                        }
+						Vertex node = (Vertex) o;
 						String url = jc.getLabel(node);
 						
 						// Record degrees of the node

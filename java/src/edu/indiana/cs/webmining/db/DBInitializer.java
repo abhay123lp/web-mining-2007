@@ -54,7 +54,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -68,8 +67,7 @@ public class DBInitializer {
      * @param args
      */
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+ 
         BufferedReader reader;
 
         if (args.length < 1) {

@@ -93,7 +93,7 @@ import java.util.Map;
 public class BlogDetector {
 
     private static Map<String, Integer> knownBlogURLList;
-    private static Map<String, Integer> history;
+//    private static Map<String, Integer> history;
     private static Map<String, Boolean> blogPublishingFrameworks;
 
     private static Hashtable<String, Boolean> knowsMediaFiles;

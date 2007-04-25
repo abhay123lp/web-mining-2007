@@ -43,8 +43,8 @@
 %>
 <table cellspacing="1" cellpadding="3" border="0" width="60%">
     <tr bgcolor="#4682B4">
-        <th align="center" width="50%"><font color="#ffffff">Blog URL</font></th>
-        <!--<th align="center" width="10%"><font color="#ffffff">Score</font></th>-->
+        <th align="center" width="35%"><font color="#ffffff">Blog URL</font></th>
+        <th align="center" width="20%"><font color="#ffffff"></font></th>
     </tr>
     <%
         for (BlogSearchResult result : results) {
@@ -52,8 +52,10 @@
             if (!firstURL.equals(url)) {
     %>
     <tr bgcolor="#dbeaf5" align="left">
-        <td width="50%"><font color="#ffffff"><a href="<%=url%>"><%=url%>
+        <td width="35%"><font color="#ffffff"><a href="http://<%=url%>"><%=url%>
         </a> </font></td>
+        <td width="20%" align="center"><font color="#fff">
+        <a href="?firstURL=<%=url%>">Search for this</a></font></td>
         <%--<td width="10%"><font color="#ffffff"><a--%>
         <%--href="<%=result.getScore()%>"><%=result.getScore()%>--%>
         <%--</a> </font></td>--%>

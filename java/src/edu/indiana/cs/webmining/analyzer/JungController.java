@@ -22,6 +22,10 @@ import edu.uci.ics.jung.statistics.GraphStatistics;
 import edu.uci.ics.jung.statistics.Histogram;
 import edu.uci.ics.jung.utils.UserData;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -257,5 +261,27 @@ public class JungController implements GraphController, VertexStringer, NumberEd
             }
         }
         return GraphStatistics.createHistogram(degrees, 0, 10, 3);
+    }
+    
+    public void printHistogram(Histogram hist, File file) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(file));
+            for (int i = 0; i < hist.getNumBins(); ++i) {
+                writer.write(i + ", " + hist.yValueAt(i) + "\n");
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (Exception e) {
+                System.err.println("printHistogram: cannot close writer");
+            }
+        }
+        
     }
 }

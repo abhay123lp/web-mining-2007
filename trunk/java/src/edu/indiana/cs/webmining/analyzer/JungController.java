@@ -30,7 +30,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import cern.colt.list.DoubleArrayList;
@@ -64,7 +63,8 @@ public class JungController implements GraphController, VertexStringer, NumberEd
         initialize();
     }
 
-    public JungController(ArrayList<Blog> blogs, ArrayList<Link> links) {
+    public JungController(Collection<Blog> blogs, Collection<Link> links) throws SQLException {
+        this();
         this.graph = createGraph(blogs, links);
     }
 
@@ -88,7 +88,7 @@ public class JungController implements GraphController, VertexStringer, NumberEd
         return v;
     }
 
-    public Graph createGraph(ArrayList<Blog> blogs, ArrayList<Link> links) {
+    public Graph createGraph(Collection<Blog> blogs, Collection<Link> links) {
         Graph graph = new DirectedSparseGraph();
         for (Blog b : blogs) {
             Vertex v = makeVertex(b);

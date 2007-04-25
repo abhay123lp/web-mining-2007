@@ -1,20 +1,29 @@
 \documentclass{sig-alternate}
 
-%-- Begin patch area for accents in 'Author Block' area - may be needed by some authors / but not all
-\DeclareFixedFont{\auacc}{OT1}{phv}{m}{n}{12}   % Needed for "Author Block" accents - Patch by Gerry 3/21/07
-\DeclareFixedFont{\afacc}{OT1}{phv}{m}{n}{10}   % Needed for "Author Block" accents in the affiliation/address line - Patch by Gerry 3/21/07
+%-- Begin patch area for accents in 'Author Block' area -
+%   may be needed by some authors / but not all
+
+% Needed for "Author Block" accents - Patch by Gerry 3/21/07
+\DeclareFixedFont{\auacc}{OT1}{phv}{m}{n}{12}   
+
+% Needed for "Author Block" accents in the affiliation/address line -
+% Patch by Gerry 3/21/07
+\DeclareFixedFont{\afacc}{OT1}{phv}{m}{n}{10}   
 %--
+
 \begin{document}
 %
 % --- Author Metadata here ---
 %\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
 \CopyrightYear{2007}
-%\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
+% Allows default copyright data (0-89791-88-6/97/05) to be over-ridden -
+% IF NEED BE.
+%\crdata{0-12345-67-8/90/01}  
 % --- End of Author Metadata ---
 
 \title{An Algorithm For Discovering Similar Blogs
 \titlenote{Copyright is held by the authors}}
-%\subtitle{Foo Foo}
+%\subtitle{Foo Foo
 %\titlenote{A full version of this paper is available as
 %\textit{Author's Guide to Preparing ACM SIG Proceedings Using
 %\LaTeX$2_\epsilon$\ and BibTeX} at
@@ -27,21 +36,21 @@
 \alignauthor
 Eran Chinthaka \\
        \affaddr{Indiana University Computer Science Department}\\
-       \affaddr{150 S Woodlawn Avenue}\\
-       \affaddr{Bloomington, IN 47405}\\
+%       \affaddr{150 S Woodlawn Avenue}\\
+%       \affaddr{Bloomington, IN 47405}\\
        \email{echintha@cs.indiana.edu}
 % 2nd. author
 \alignauthor
 Michael D. Conover \\
        \affaddr{Indiana University School of Informatics}\\
-       \affaddr{901 E. 10th St.}\\
-       \affaddr{Bloomington, IN 47408}\\
+%       \affaddr{901 E. 10th St.}\\
+%       \affaddr{Bloomington, IN 47408}\\
        \email{midconov@indiana.edu}
 % 3rd. author
 \alignauthor Michel A. Salim \\
        \affaddr{Indiana University Computer Science Department}\\
-       \affaddr{150 S Woodlawn Avenue}\\
-       \affaddr{Bloomington, IN 47405}\\
+%       \affaddr{150 S Woodlawn Avenue}\\
+%       \affaddr{Bloomington, IN 47405}\\
        \email{msalim@cs.indiana.edu}
 }
 
@@ -58,12 +67,17 @@ Michael D. Conover \\
 Every day 175,000 new blogs are created, added at a rate of two per
 second to the sixty million-plus online journals already chronicling
 everything from politics, knitting, and finance to the latest advances
-in the sciences and technology~\cite{Disc07}. With this explosive growth come
-many unique challenges, and chief among them is the identification of
-information most relevant to each unique information consumer.  To
-address this problem we have created a system which harnesses the
-social network-like topology of the blogosphere to recommend relevant
-blogs to users based on sites they already know and enjoy.
+in the sciences and technology~\cite{Disc07}. With this explosive
+growth comes many unique challenges, and chief among them is the
+identification of information most relevant to each unique information
+consumer.  To address this problem we have created a system which
+harnesses the social network-like topology of the blogosphere to
+recommend relevant blogs to users based on sites they already know and
+enjoy.
+
+Our findings indicate that the algorithm we have proposed outperforms
+Kleinberg's HITS algorithm~\cite{kleinberg1999ash} in identifying and
+ranking relevant blogs.
 %%%
 
 \end{abstract}
@@ -75,7 +89,7 @@ blogs to users based on sites they already know and enjoy.
 
 %\terms{blogosphere, blogroll, FOAF}
 
-\keywords{blogs, blogosphere, blogroll, FOAF, }
+\keywords{blog, blogosphere, blogroll, FOAF}
 
 \section{Introduction}
 
@@ -118,7 +132,7 @@ pages.
 In addition to the regular hyperlinks present in posts, a common
 feature of many blogs is the ``blogroll'', a set of
 links to other sites that the author has identified as interesting and
-enjoyable.  It is because of this characteristic of blogroll links
+enjoyable.  It is this characteristic of blogroll links
 that led us to choose them as the primary source for network data in
 the development of our recommendation system.
 
@@ -126,16 +140,15 @@ To populate our dataset we utilized information provided by the site
 \texttt{blogrolling.com}, which monitors the inbound blogroll
 connections to thousands of sites.  We seeded our data collection
 efforts with the URLs of the 500 most popular blogs, as identified by
-the blog-monitoring site technorati.com.  The inbound links to each of
-these sites according to blogrolling.com were recorded, and the source
+the blog-monitoring site \texttt{technorati.com}.  The inbound links to each of
+these sites according to \texttt{blogrolling.com} were recorded, and the source
 URLs were added to the collection queue.  This process was allowed to
-continue until we had identified 467,477 links between 50,448 blogs.
-%{CHANGE THIS WHEN DATA IS CLEANED}.
+continue until we had identified 426,093 links between 52,056 blogs.
 
 \section{Recommendation}
 Our FOAF technique allows a user to find blogs that are similar to one
 with which he is already familiar.  To accomplish this the algorithm
-must first identify a set of candidate blogs and then rank the
+must first identify a set of of candidate blogs and then rank the
 members of that set according to a scoring measure.
 
 For any given blog it is be trivial for a user to identify the sites
@@ -154,7 +167,7 @@ way.  For the original blog of interest, $B$, the FOAF algorithm
 populates a network with directed edges from a node representing $B$ to
 nodes representing all of the blogs listed in $B$'s blogroll.  This set
 of sinks is called $D_1$.  This process is then repeated for each of the
-blog-nodes in the $D_1$ set, with the resulting sinks becoming memebers
+blog-nodes in the $D_1$ set, with the resulting sinks becoming members
 of another set, $D_2$.  It should be noted that some of the nodes in $D_1$
 may be linked to by other nodes in $D_1$, and thus have membership in
 both $D_1$ and $D_2$.  Through this process our algorithm identifies all of
@@ -165,7 +178,7 @@ We experimented with three measures used for scoring blogs, all based
 on the number of mutual neighbors, or friends, that a specific member
 of $D_2$, called $D'$, shares with the original blog $B$.
 
-\subsection{Raw Score}
+\subsubsection{Raw Score}
 The first  measure with which we experimented  simply scores according
 to the  number of mutual  neighbors between $D'$  and $B$.  This  score is
 normalized to be between zero and  one by dividing by the total number
@@ -181,7 +194,7 @@ common with any given node simply due to their high levels of
 connectivity.  As a result, this measure leads to an
 over-representation of highly popular sites in the result set.
 
-\subsection{Community-Weighted Measure}
+\subsubsection{Community-Weighted Measure}
 To address the problem of over-representation of the most popular
 nodes we decided to try an approach that weighted the original raw
 score for a given node by the degree to which it was a member of the
@@ -201,6 +214,10 @@ issues would appeal to members of both photography and technology
 communities, and thus the relative in-degree from members of either
 community exclusively is diminished.
 
+\subsubsection{HITS}
+To provide a baseline for comparison, we run the Kleinberg HITS
+algorithm on the subgraph whose nodes consist of blogs in $D_1$ and
+$D_2$.
 %\section{Algorithms}
 %\subsection{Secret Sauce}
 %This algorithm is based on Friend-of-a-Friend (FOAF). The rationale is
@@ -228,33 +245,82 @@ community exclusively is diminished.
 %\subsection{Web Application}
 %We have written a web interface 
 
-%\section{Results}
-%\section[Discussion}
+\section{Results}
+\subsection{Accuracy}
+To evaluate accuracy we selected four well-connected blogs from
+varying topic areas. Accuracy is expressed in terms of percentage of
+relevant hits in the top 20 results, as decided by the authors.
+
+
+%\begin{table}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Blog URL & Raw & Comm & HITS \\
+\hline
+\texttt{sandysknitting.com} & 0.65 & 0.55 & 0.25 \\
+\texttt{busymom.net} & 0.80 & 0.55 & 0.60 \\
+\texttt{talkleft.com} & 0.90 & 0.65 & 0.80 \\
+\texttt{photojunkie.ca} & 0.75 & 0.40 & 0.50 \\
+\hline
+\end{tabular}
+%\caption{Accuracy results}
+%\end{table}
+
+\section{Discussion}
+As the results above indicate, the raw score calculation provides the
+most accurate identification of relevant blogs.  Disappointingly,
+however, the community-weighted measure performed much worse than
+either HITS or the original raw scoring measure.  While it did
+effectively eliminate the over-representation of globally popular
+nodes from the result set, it also penalized blogs that were
+legitimately related to the query but had a broad cross-topical
+appeal.  For example, a photography blog that also covered
+technology-related issues would appeal to members of both photography
+and technology communities, and thus the relative in-degree from
+members of either community exclusively is diminished.  HITS
+frequently identified several of the same top-ranking sites as the raw
+scoring measure, but often diluted the result set with highly popular
+but less directly relevant results.
+
+\subsection{Shortcomings}
+In addition to the over-representation of blogs with high global
+in-degree, one important shortcoming of this mechanism is that it
+relies upon outbound links from the query blog to identify the
+candidate set of relevant URLs.  Unfortunately, most of the hugely
+popular blogs on the internet exhibit a high level of in-degree and
+very low levels of out-degree linking.  Thus our algorithm has
+difficulty generating relevant results for these blogs.
+
 \section{Conclusions}
 
-We have developed an algorithm for ranking blogs in the link
-neighborhood of a query blog such that the resulting ordering
-approximates their semantic similarity to the query.
+%We have developed an algorithm for ranking blogs in the link
+%neighborhood of a query blog such that the resulting ordering
+%approximates their semantic similarity to the query.
 
-\section{Future Work}
-We plan to do a double-blind user study, aimed at answering the
-following questions:
-\begin{enumerate}
-\item How well does link structure predict semantic structure,
-  regardless of the specific algorithm
-\item How well does our algorithm fare against similar algorithms,
-  e.g. those derived from HITS
+The FOAF algorithm performs most effectively on blogs that focus on a
+specific topic with a tight community, and performs worst on blogs
+that are exceedingly popular within the blogosphere.  An effective
+means to eliminate the over-representation of popular blogs from the
+result set would be a desirable direction for future work, however we
+did not find it prohibitively difficult to find meaningfully-related
+blogs in spite of the inclusion of these results. Overall we find the
+FOAF technique to be very effective at identifying new and interesting
+blogs, and will continue to use it to guide our media location efforts
+into the future.
 
-\end{enumerate}
+%\section{Future Work}
+%We plan to do a double-blind user study, aimed at answering the
+%following questions:
+%\begin{enumerate}
+%\item How well does link structure predict semantic structure,
+%  regardless of the specific algorithm
+%\item How well does our algorithm fare against similar algorithms,
+%  e.g. those derived from HITS
+
+%\end{enumerate}
 
 %ACKNOWLEDGMENTS are optional
 \section{Acknowledgments}
-This section is optional; it is a location for you
-to acknowledge grants, funding, editing assistance and
-what have you.  In the present case, for example, the
-authors would like to thank Gerald Murray of ACM for
-his help in codifying this \textit{Author's Guide}
-and the \textbf{.cls} and \textbf{.tex} files that it describes.
 
 %
 % The following two commands are all you need in the
@@ -270,19 +336,6 @@ and the \textbf{.cls} and \textbf{.tex} files that it describes.
 % ACM needs 'a single self-contained file'!
 %
 
-\subsection{References}
-Generated by bibtex from your ~.bib file.  Run latex,
-then bibtex, then latex twice (to resolve references)
-to create the ~.bbl file.  Insert that ~.bbl file into
-the .tex source file and comment out
-the command \texttt{{\char'134}thebibliography}.
-% This next section command marks the start of
-% Appendix B, and does not continue the present hierarchy
-\section{More Help for the Hardy}
-The sig-alternate.cls file itself is chock-full of succinct
-and helpful comments.  If you consider yourself a moderately
-experienced to expert user of \LaTeX, you may find reading
-it useful but please remember not to change it.
 %\balancecolumns % GM MARCH 2007
 % That's all folks!
 \end{document}

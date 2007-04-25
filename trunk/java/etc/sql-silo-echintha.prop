@@ -1,8 +1,9 @@
 #Login info
 #Wed Feb 07 17:10:52 EST 2007
 driverClassName=com.mysql.jdbc.Driver
-url=jdbc:mysql://silo.cs.indiana.edu/echintha
+url=jdbc:mysql://localhost/
 maxActive=40
+maxIdle=20
 maxWait=500
 defaultCatalog=echintha
 username=echintha

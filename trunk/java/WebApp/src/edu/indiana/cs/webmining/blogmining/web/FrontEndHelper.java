@@ -48,6 +48,7 @@
 
 package edu.indiana.cs.webmining.blogmining.web;
 
+import edu.indiana.cs.webmining.Constants;
 import edu.indiana.cs.webmining.analyzer.JungController;
 import edu.indiana.cs.webmining.analyzer.util.MCSandbox;
 import edu.indiana.cs.webmining.blogmining.web.dto.BlogSearchResult;
@@ -90,7 +91,7 @@ public class FrontEndHelper {
             JungController jc = new JungController();
             DirectedSparseGraph descTree = MCSandbox.getNeighborsGraph(firstURL, jc);
 
-            HashMap<String, Double> foaf = MCSandbox.getFOAF(descTree, jc, firstURL, 1);
+            HashMap<String, Double> foaf = MCSandbox.getFOAF(descTree, jc, firstURL, Constants.SIM_ALGO_BASIC);
             BlogSearchResult[] resultsArray = new BlogSearchResult[foaf.size()];
 
             int index = 0;

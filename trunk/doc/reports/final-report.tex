@@ -68,10 +68,10 @@ Every day 175,000 new blogs are created, added at a rate of two per
 second to the sixty million-plus online journals already chronicling
 everything from politics, knitting, and finance to the latest advances
 in the sciences and technology~\cite{Disc07}. With this explosive
-growth comes many unique challenges, and chief among them is the
+growth come many unique challenges, and chief among them is the
 identification of information most relevant to each unique information
 consumer.  To address this problem we have created a system which
-harnesses the social network-like topology of the blogosphere to
+harnesses the social network-like topology~\cite{convBlog} of the blogosphere to
 recommend relevant blogs to users based on sites they already know and
 enjoy.
 
@@ -108,7 +108,7 @@ ranking relevant blogs.
 The blogosphere is a highly social place; an analysis of its
 hyperlink structure demonstrates the emergence of tightly-clustered
 topical communities of bloggers with many participants engaged in
-interactive discussions of current events. It is this social property
+interactive discussions of current events.~\cite{adamic}~\cite{convBlog}~\cite{commBlog} It is this social property
 of the blogosphere that motivates the
 ``friend-of-a-friend''-style recommendation system we
 have proposed. Intuitively, the more friends two strangers have in
@@ -140,8 +140,8 @@ To populate our dataset we utilized information provided by the site
 \texttt{blogrolling.com}, which monitors the inbound blogroll
 connections to thousands of sites.  We seeded our data collection
 efforts with the URLs of the 500 most popular blogs, as identified by
-the blog-monitoring site \texttt{technorati.com}.  The inbound links to each of
-these sites according to \texttt{blogrolling.com} were recorded, and the source
+the blog-monitoring site  \texttt{technorati.com}.  The inbound links to each of
+these sites according to \\ \texttt{blogrolling.com} were recorded, and the source
 URLs were added to the collection queue.  This process was allowed to
 continue until we had identified 426,093 links between 52,056 blogs.
 
@@ -151,14 +151,13 @@ with which he is already familiar.  To accomplish this the algorithm
 must first identify a set of of candidate blogs and then rank the
 members of that set according to a scoring measure.
 
-For any given blog it is be trivial for a user to identify the sites
+For any given blog it is a trivial task for a user to identify the sites
 listed in the blogroll as candidates of potential interest.  Ranking
 these sites in terms of relevance may be more difficult due to the
 sheer size of many blogrolls, however this task is still tractable if
 the user visits each site and makes a decision about relevance in that
-manner.  To extend this process further, and rank the sites listed in
-the blogrolls of each one of the initial set of sites would be
-prohibitively tedious.  We seek to approximate this process
+manner.  To extend this process further, and manually repeat this process for 
+each of the blogs in the initial site's blogroll would be prohibitively tedious.  We seek to approximate this process
 algorithmically instead.
 
 \subsection{Identifying Candidates}
@@ -166,22 +165,23 @@ Our system mimics the user's decision making behavior in the following
 way.  For the original blog of interest, $B$, the FOAF algorithm
 populates a network with directed edges from a node representing $B$ to
 nodes representing all of the blogs listed in $B$'s blogroll.  This set
-of sinks is called $D_1$.  This process is then repeated for each of the
-blog-nodes in the $D_1$ set, with the resulting sinks becoming members
+of nodes is called $D_1$.  This process is then repeated for each of the
+blog-nodes in the $D_1$ set, with the resulting nodes becoming members
 of another set, $D_2$.  It should be noted that some of the nodes in $D_1$
-may be linked to by other nodes in $D_1$, and thus have membership in
-both $D_1$ and $D_2$.  Through this process our algorithm identifies all of
+may be linked from other nodes in $D_1$, and thus have membership in
+both $D_1$ and $D_2$.  Through this process the algorithm identifies all of
 the ``friends-of-a-friend'' for the original blog, $B$.
 
 \subsection{Ranking Candidates}
-We experimented with three measures used for scoring blogs, all based
+We experimented with two measures used for scoring blogs, both based
 on the number of mutual neighbors, or friends, that a specific member
-of $D_2$, called $D'$, shares with the original blog $B$.
+of $D_2$, called $D'$, shares with the original blog $B$.  Additionally we 
+used Kleinberg's HITS algorithm as a baseline for comparison.
 
 \subsubsection{Raw Score}
 The first  measure with which we experimented  simply scores according
 to the  number of mutual  neighbors between $D'$  and $B$.  This  score is
-normalized to be between zero and  one by dividing by the total number
+normalized between zero and one by dividing by the total number
 of possible neighbors.
 
 \begin{equation}
@@ -195,7 +195,7 @@ connectivity.  As a result, this measure leads to an
 over-representation of highly popular sites in the result set.
 
 \subsubsection{Community-Weighted Measure}
-To address the problem of over-representation of the most popular
+To address the problem of over-representation of globally 
 nodes we decided to try an approach that weighted the original raw
 score for a given node by the degree to which it was a member of the
 community surrounding the original node B.  For each node this is
@@ -205,14 +205,6 @@ by the total in-degree of that node.
 \begin{equation}
 S2(D') = RS(D') \times \frac{[Inlinks from D_1 + D_2]}{[ Global In-Degree]}
 \end{equation}
-
-While this did effectively eliminate the over-representation of
-globally popular nodes from the result set, it also penalized blogs
-that were legitimately related to blog B but had a broad appeal.  For
-example, a photography blog that also covered technology-related
-issues would appeal to members of both photography and technology
-communities, and thus the relative in-degree from members of either
-community exclusively is diminished.
 
 \subsubsection{HITS}
 To provide a baseline for comparison, we run the Kleinberg HITS
@@ -246,21 +238,24 @@ $D_2$.
 %We have written a web interface 
 
 \section{Results}
-\subsection{Accuracy}
-To evaluate accuracy we selected four well-connected blogs from
-varying topic areas. Accuracy is expressed in terms of percentage of
+The raw scoring method outperforms both hits and the community-weighted 
+measure in our informal user study on approximately a dozen URLs.  A representative 
+selection is listed below.
+\subsection{Precision}
+To evaluate precision we selected four well-connected blogs from
+varying topic areas. Precision is expressed in terms of percentage of
 relevant hits in the top 20 results, as decided by the authors.
-
+\newline
 
 %\begin{table}
 \begin{tabular}{|c|c|c|c|}
 \hline
-Blog URL & Raw & Comm & HITS \\
+Blog URL & Raw \% & Comm \% & HITS  \%\\
 \hline
-\texttt{sandysknitting.com} & 0.65 & 0.55 & 0.25 \\
-\texttt{busymom.net} & 0.80 & 0.55 & 0.60 \\
-\texttt{talkleft.com} & 0.90 & 0.65 & 0.80 \\
-\texttt{photojunkie.ca} & 0.75 & 0.40 & 0.50 \\
+\texttt{sandysknitting.com} & 65 & 55 & 25 \\
+\texttt{busymom.net} & 80 & 55 & 60 \\
+\texttt{talkleft.com} & 90 & 65 & 80 \\
+\texttt{photojunkie.ca} & 75 & 40 & 50 \\
 \hline
 \end{tabular}
 %\caption{Accuracy results}
@@ -288,7 +283,7 @@ in-degree, one important shortcoming of this mechanism is that it
 relies upon outbound links from the query blog to identify the
 candidate set of relevant URLs.  Unfortunately, most of the hugely
 popular blogs on the internet exhibit a high level of in-degree and
-very low levels of out-degree linking.  Thus our algorithm has
+very low levels of out-degree linking.~\cite{convBlog}  Thus our algorithm has
 difficulty generating relevant results for these blogs.
 
 \section{Conclusions}
@@ -298,13 +293,13 @@ difficulty generating relevant results for these blogs.
 %approximates their semantic similarity to the query.
 
 The FOAF algorithm performs most effectively on blogs that focus on a
-specific topic with a tight community, and performs worst on blogs
-that are exceedingly popular within the blogosphere.  An effective
+specific topic within a tight community, and performs worst on blogs
+that are exceptionally globally popular.  An effective
 means to eliminate the over-representation of popular blogs from the
 result set would be a desirable direction for future work, however we
-did not find it prohibitively difficult to find meaningfully-related
+did not find it difficult to identify meaningfully-related
 blogs in spite of the inclusion of these results. Overall we find the
-FOAF technique to be very effective at identifying new and interesting
+FOAF technique to be very effective at finding new and interesting
 blogs, and will continue to use it to guide our media location efforts
 into the future.
 

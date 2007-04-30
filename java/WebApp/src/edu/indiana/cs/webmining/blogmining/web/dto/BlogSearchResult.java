@@ -81,7 +81,7 @@ public class BlogSearchResult implements Comparable {
     public int compareTo(Object o) {
         if (o instanceof BlogSearchResult) {
             BlogSearchResult blogSearchResult = (BlogSearchResult) o;
-            return (Double.parseDouble(this.score) - Double.parseDouble(blogSearchResult.getScore())) > 0 ? 1 : -1;
+            return (Double.parseDouble(this.score) - Double.parseDouble(blogSearchResult.getScore())) > 0 ? -1 : 1;
         }
         return -1;
     }

@@ -1,0 +1,1 @@
+This is a student project of Indiana University to create a mechanism for the users to search for a set of similar blogs related to a given set of blogs.
